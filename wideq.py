@@ -13,6 +13,7 @@ CLIENT_ID = 'LGAO221A02'
 
 OAUTH_PATH = 'login/sign_in'
 LOGIN_PATH = 'member/login'
+DEVICE_LIST_PATH = 'device/deviceList'
 
 
 def gateway_info():
@@ -77,14 +78,17 @@ def login(api_root, access_token):
     return res.json()[DATA_ROOT]
 
 
-if __name__ == '__main__':
-    gw = gateway_info()
-    oauth_base = gw['empUri']
-    api_root = gw['thinqUri']
-    print(oauth_url(oauth_base))
+def get_devices(api_root, access_token, session_id):
+    """Get a list of devices."""
 
-    access_token = parse_oauth_callback(input())
-    print(access_token)
-
-    session_info = login(api_root, access_token)
-    print(session_info)
+    url = urljoin(api_root + '/', DEVICE_LIST_PATH)
+    req_data = {DATA_ROOT: {}}
+    headers = {
+        'x-thinq-application-key': APP_KEY,
+        'x-thinq-security-key': SECURITY_KEY,
+        'x-thinq-token': access_token,
+        'x-thinq-jsessionId': session_id,
+        'Accept': 'application/json',
+    }
+    res = requests.post(url, json=req_data, headers=headers)
+    return res.json()[DATA_ROOT]

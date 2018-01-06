@@ -59,6 +59,10 @@ def example():
         print_devices(session_info['item'])
     session_id = state['session_id']
 
+    # Request a list of devices.
+    devices = wideq.get_devices(api_root, access_token, session_id)
+    print(devices)
+
 
 if __name__ == '__main__':
     example()
