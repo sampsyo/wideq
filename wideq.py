@@ -3,14 +3,16 @@ from urllib.parse import urljoin, urlencode, urlparse, parse_qs
 
 
 GATEWAY_URL = 'https://kic.lgthinq.com:46030/api/common/gatewayUriList'
-APP_KEY = 'wideq'
+APP_KEY = '14bdcd6fd64180af5e7791df91b6af8e9a3e7bc844997eb8c29252706df97ca5'
 SECURITY_KEY = 'nuts_securitykey'
 DATA_ROOT = 'lgedmRoot'
 COUNTRY = 'US'
 LANGUAGE = 'en-US'
-OAUTH_PATH = '/login/sign_in'
 SVC_CODE = 'SVC202'
 CLIENT_ID = 'LGAO221A02'
+
+OAUTH_PATH = 'login/sign_in'
+LOGIN_PATH = 'member/login'
 
 
 def gateway_info():
@@ -54,11 +56,40 @@ def parse_oauth_callback(url):
     return params['access_token'][0]
 
 
+def login(api_root, access_token):
+    """Use an access token to log into the API and obtain a session and
+    return information about the session.
+    """
+    url = urljoin(api_root + '/', LOGIN_PATH)
+    req_data = {DATA_ROOT: {
+        'countryCode': COUNTRY,
+        'langCode': LANGUAGE,
+        'loginType': 'EMP',
+        'token': access_token,
+    }}
+    headers = {
+        'x-thinq-application-key': APP_KEY,
+        'x-thinq-security-key': SECURITY_KEY,
+        'Accept': 'application/json',
+
+        'x-thinq-token': access_token,
+        'x-thinq-app-level': 'PRD',
+        'x-thinq-app-type': 'com.lgeha.nuts',
+        'x-thinq-app-ver': '1.9.24',
+        'x-thinq-app-os': 'ANDROID',
+    }
+    res = requests.post(url, json=req_data, headers=headers)
+    return res.json()[DATA_ROOT]
+
+
 if __name__ == '__main__':
-    # gw = gateway_info()
-    # oauth_base = gw['empUri']
-    # api_root = gw['thinqUri']
-    # print(oauth_url(oauth_base))
+    gw = gateway_info()
+    oauth_base = gw['empUri']
+    api_root = gw['thinqUri']
+    print(oauth_url(oauth_base))
 
     access_token = parse_oauth_callback(input())
     print(access_token)
+
+    session_info = login(api_root, access_token)
+    print(session_info)
