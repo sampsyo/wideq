@@ -61,7 +61,7 @@ def example():
 
     # Request a list of devices.
     devices = wideq.get_devices(api_root, access_token, session_id)
-    print(devices)
+    print_devices(devices)
 
 
 if __name__ == '__main__':

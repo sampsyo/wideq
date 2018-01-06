@@ -91,4 +91,4 @@ def get_devices(api_root, access_token, session_id):
         'Accept': 'application/json',
     }
     res = requests.post(url, json=req_data, headers=headers)
-    return res.json()[DATA_ROOT]
+    return res.json()[DATA_ROOT]['item']
