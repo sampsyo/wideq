@@ -3,7 +3,7 @@ from urllib.parse import urljoin, urlencode, urlparse, parse_qs
 
 
 GATEWAY_URL = 'https://kic.lgthinq.com:46030/api/common/gatewayUriList'
-APP_KEY = '14bdcd6fd64180af5e7791df91b6af8e9a3e7bc844997eb8c29252706df97ca5'
+APP_KEY = 'wideq'
 SECURITY_KEY = 'nuts_securitykey'
 DATA_ROOT = 'lgedmRoot'
 COUNTRY = 'US'
@@ -71,12 +71,6 @@ def login(api_root, access_token):
         'x-thinq-application-key': APP_KEY,
         'x-thinq-security-key': SECURITY_KEY,
         'Accept': 'application/json',
-
-        'x-thinq-token': access_token,
-        'x-thinq-app-level': 'PRD',
-        'x-thinq-app-type': 'com.lgeha.nuts',
-        'x-thinq-app-ver': '1.9.24',
-        'x-thinq-app-os': 'ANDROID',
     }
     res = requests.post(url, json=req_data, headers=headers)
     return res.json()[DATA_ROOT]
