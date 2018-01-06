@@ -60,6 +60,7 @@ def login(api_root, access_token):
     """Use an access token to log into the API and obtain a session and
     return information about the session.
     """
+
     url = urljoin(api_root + '/', LOGIN_PATH)
     req_data = {DATA_ROOT: {
         'countryCode': COUNTRY,
