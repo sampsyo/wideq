@@ -100,13 +100,17 @@ def example(args):
             device_id = args[1]
 
             with wideq.Monitor(session, device_id) as mon:
-                for i in range(4):
-                    time.sleep(1)
-                    print('Polling...')
-                    res = mon.poll()
-                    if res:
-                        print('setting: {}°C'.format(res['TempCfg']))
-                        print('current: {}°C'.format(res['TempCur']))
+                try:
+                    while True:
+                        time.sleep(1)
+                        print('Polling...')
+                        res = mon.poll()
+                        if res:
+                            print('setting: {}°C'.format(res['TempCfg']))
+                            print('current: {}°C'.format(res['TempCur']))
+
+                except KeyboardInterrupt:
+                    pass
 
         elif args[0] == 'set-temp':
             temp = args[1]
