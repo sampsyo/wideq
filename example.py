@@ -46,6 +46,7 @@ def example():
     if 'gateway' in state:
         gateway = wideq.Gateway.load(state['gateway'])
     else:
+        print('Discovering gateway servers.')
         gateway = wideq.Gateway.discover()
 
         state['gateway'] = gateway.dump()
@@ -65,15 +66,21 @@ def example():
         session = wideq.Session.load(auth, state['session'])
         devices = None
     else:
+        print('Starting session.')
         session, devices = auth.start_session()
 
         state['session'] = session.dump()
         save_state(state)
 
-    # Request a list of devices, if we didn't get them "for free"
-    # already by starting the session.
-    if not devices:
-        devices = session.get_devices()
+    try:
+        # Request a list of devices, if we didn't get them "for free"
+        # already by starting the session.
+        if not devices:
+            devices = session.get_devices()
+
+    except wideq.NotLoggedInError:
+        print('Session expired.')
+        return
 
     print_devices(devices)
 
