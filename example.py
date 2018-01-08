@@ -109,7 +109,8 @@ def example():
             time.sleep(1)
             print('Polling...')
             res = mon.poll()
-            print(res)
+            if res:
+                print(res)
 
 
 if __name__ == '__main__':

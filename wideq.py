@@ -1,6 +1,8 @@
 import requests
 from urllib.parse import urljoin, urlencode, urlparse, parse_qs
 import uuid
+import base64
+import json
 
 
 GATEWAY_URL = 'https://kic.lgthinq.com:46030/api/common/gatewayUriList'
@@ -204,12 +206,18 @@ class Session(object):
     def monitor_poll(self, device_id, work_id):
         """Get the result of a monitoring task.
 
-        `work_ids` is a mapping from device IDs to work IDs. Return a
-        mapping from work IDs to status results.
+        `work_ids` is a mapping from device IDs to work IDs. Return the
+        device status or None if the monitoring is not yet ready.
         """
 
         work_list = [{'deviceId': device_id, 'workId': work_id}]
-        return self.post('rti/rtiResult', {'workList': work_list})['workList']
+        res = self.post('rti/rtiResult', {'workList': work_list})['workList']
+
+        # Weirdly, the main response data is base64-encoded JSON.
+        if 'returnData' in res:
+            return json.loads(base64.b64decode(res['returnData']))
+        else:
+            return None
 
     def monitor_stop(self, device_id, work_id):
         """Stop monitoring a device."""
