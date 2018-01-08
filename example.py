@@ -1,5 +1,6 @@
 import wideq
 import json
+import time
 
 STATE_FILE = 'wideq_state.json'
 
@@ -100,6 +101,15 @@ def example():
         return
 
     print_devices(devices)
+
+    # For fun, try monitoring the first device
+    first_device_id = devices[0]['deviceId']
+    with wideq.Monitor(session, first_device_id) as mon:
+        for i in range(4):
+            time.sleep(1)
+            print('Polling...')
+            res = mon.poll()
+            print(res)
 
 
 if __name__ == '__main__':

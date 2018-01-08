@@ -201,14 +201,42 @@ class Session(object):
         })
         return work_id
 
-    def monitor_get(self, work_ids):
+    def monitor_poll(self, work_ids):
         """Get the results of monitoring tasks.
 
         `work_ids` is a mapping from device IDs to work IDs. Return a
-        mapping from device IDs to status results.
+        mapping from work IDs to status results.
         """
 
         work_list = [{'deviceId': k, 'workId': v}
                      for k, v in work_ids.items()]
         out = self.post('rti/rtiResult', {'workList': work_list})['workList']
-        return {d['deviceId']: d for d in out}
+        return {d['workId']: d for d in out}
+
+    def monitor_stop(self, work_id):
+        """Stop monitoring a device."""
+
+        self.post('rti/rtiMon', {
+            'cmd': 'Mon',
+            'cmdOpt': 'Stop',
+            'workId': work_id,
+        })
+
+
+class Monitor(object):
+    """A monitoring task for a single device."""
+
+    def __init__(self, session, device_id):
+        self.session = session
+        self.device_id = device_id
+
+    def __enter__(self):
+        self.work_id = self.session.monitor_start(self.device_id)
+        return self
+
+    def poll(self):
+        data = self.session.monitor_poll({self.device_id: self.work_id})
+        return data[self.work_id]
+
+    def __exit__(self, type, value, tb):
+        self.session.monitor_stop(self.work_id)
