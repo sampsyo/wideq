@@ -108,6 +108,12 @@ def example(args):
                         print('setting: {}°C'.format(res['TempCfg']))
                         print('current: {}°C'.format(res['TempCur']))
 
+        elif args[0] == 'set-temp':
+            temp = args[1]
+            device_id = args[2]
+
+            session.set_device_control(device_id, 'TempCfg', temp)
+
     except wideq.NotLoggedInError:
         print('Session expired.')
         return

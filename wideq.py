@@ -15,6 +15,10 @@ SVC_CODE = 'SVC202'
 CLIENT_ID = 'LGAO221A02'
 
 
+def gen_uuid():
+    return str(uuid.uuid4())
+
+
 class APIError(Exception):
     """An error reported by the API."""
 
@@ -194,12 +198,11 @@ class Session(object):
         monitoring.
         """
 
-        input_work_id = str(uuid.uuid4())  # Why is this necessary?
         res = self.post('rti/rtiMon', {
             'cmd': 'Mon',
             'cmdOpt': 'Start',
             'deviceId': device_id,
-            'workId': input_work_id,
+            'workId': gen_uuid(),
         })
         return res['workId']
 
@@ -228,6 +231,19 @@ class Session(object):
             'deviceId': device_id,
             'workId': work_id,
         })
+
+    def set_device_control(self, device_id, key, value):
+        """Control a device's settings."""
+
+        res = self.post('rti/rtiControl', {
+            'cmd': 'Control',
+            'cmdOpt': key,
+            'value': value,
+            'deviceId': device_id,
+            'workId': gen_uuid(),
+            'data': '',
+        })
+        print(res)
 
 
 class Monitor(object):
