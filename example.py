@@ -25,7 +25,7 @@ def save_state(state):
 
 def print_devices(devices):
     for device in devices:
-        print(device['alias'])
+        print('{deviceId}: {alias} ({modelNm})'.format(**device))
 
 
 def authenticate(gateway):

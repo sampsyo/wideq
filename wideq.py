@@ -1,5 +1,6 @@
 import requests
 from urllib.parse import urljoin, urlencode, urlparse, parse_qs
+import uuid
 
 
 GATEWAY_URL = 'https://kic.lgthinq.com:46030/api/common/gatewayUriList'
@@ -183,3 +184,31 @@ class Session(object):
 
     def get_devices(self):
         return self.post('device/deviceList')['item']
+
+    def monitor_start(self, device_id):
+        """Begin monitoring a device's status.
+
+        Return a "work ID" that can be used to retrieve the result of
+        monitoring.
+        """
+
+        work_id = str(uuid.uuid4())
+        self.post('rti/rtiMon', {
+            'cmd': 'Mon',
+            'cmdOpt': 'Start',
+            'deviceId': device_id,
+            'workId': work_id,
+        })
+        return work_id
+
+    def monitor_get(self, work_ids):
+        """Get the results of monitoring tasks.
+
+        `work_ids` is a mapping from device IDs to work IDs. Return a
+        mapping from device IDs to status results.
+        """
+
+        work_list = [{'deviceId': k, 'workId': v}
+                     for k, v in work_ids.items()]
+        out = self.post('rti/rtiResult', {'workList': work_list})['workList']
+        return {d['deviceId']: d for d in out}
