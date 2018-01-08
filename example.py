@@ -38,8 +38,15 @@ def authenticate(gateway):
     return wideq.Auth(gateway, access_token)
 
 
-def example():
-    state = load_state()
+def get_session(state, reauth=False):
+    """Get a Session object we can use to make API requests.
+
+    By default, try to use credentials from `state`. If `reauth` if
+    true, instead force re-authentication.
+
+    Return the Session and, if they came along with session creation,
+    the information about the user's devices.
+    """
 
     # Get the gateway, which contains the base URLs and hostnames for
     # accessing the API.
@@ -53,16 +60,18 @@ def example():
         save_state(state)
 
     # Authenticate the user.
-    if 'auth' in state:
+    if 'auth' in state and not reauth:
         auth = wideq.Auth.load(gateway, state['auth'])
+        new_auth = False
     else:
         auth = authenticate(gateway)
+        new_auth = True
 
         state['auth'] = auth.dump()
         save_state(state)
 
     # Start a session.
-    if 'session' in state:
+    if 'session' in state and not new_auth:
         session = wideq.Session.load(auth, state['session'])
         devices = None
     else:
@@ -71,6 +80,14 @@ def example():
 
         state['session'] = session.dump()
         save_state(state)
+
+    return session, devices
+
+
+def example():
+    state = load_state()
+
+    session, devices = get_session(state)
 
     try:
         # Request a list of devices, if we didn't get them "for free"
