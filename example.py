@@ -105,7 +105,8 @@ def example(args):
                     print('Polling...')
                     res = mon.poll()
                     if res:
-                        print(res)
+                        print('setting: {}°C'.format(res['TempCfg']))
+                        print('current: {}°C'.format(res['TempCur']))
 
     except wideq.NotLoggedInError:
         print('Session expired.')
