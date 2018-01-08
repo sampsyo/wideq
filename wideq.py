@@ -20,6 +20,13 @@ class APIError(Exception):
         self.message = message
 
 
+class NotLoggedInError(APIError):
+    """The session is not valid or expired."""
+
+    def __init__(self):
+        pass
+
+
 def lgedm_post(url, data=None, access_token=None, session_id=None):
     """Make an HTTP request in the format used by the API servers.
 
@@ -47,7 +54,12 @@ def lgedm_post(url, data=None, access_token=None, session_id=None):
 
     # Check for API errors.
     if 'returnCd' in out:
-        raise APIError(int(out['returnCd']), out['returnMsg'])
+        code = out['returnCd']
+        message = out['returnMsg']
+        if code == "0102":
+            raise NotLoggedInError()
+        else:
+            raise APIError(code, message)
 
     return out
 
