@@ -16,18 +16,40 @@ LOGIN_PATH = 'member/login'
 DEVICE_LIST_PATH = 'device/deviceList'
 
 
-def gateway_info():
-    """Load information about the hosts to use for API interaction.
+def lgedm_post(url, data=None, access_token=None, session_id=None):
+    """Make an HTTP request in the format used by the API servers.
+
+    In this format, the request POST data sent as JSON under a special
+    key; authentication sent in headers. Return the JSON data extracted
+    from the response.
+
+    The `access_token` and `session_id` are required for most normal,
+    authenticated requests. They are not required, for example, to load
+    the gateway server data or to start a session.
     """
 
-    req_data = {DATA_ROOT: {'countryCode': COUNTRY, 'langCode': LANGUAGE}}
     headers = {
         'x-thinq-application-key': APP_KEY,
         'x-thinq-security-key': SECURITY_KEY,
         'Accept': 'application/json',
     }
-    res = requests.post(GATEWAY_URL, json=req_data, headers=headers)
+    if access_token:
+        headers['x-thinq-token'] = access_token
+    if session_id:
+        headers['x-thinq-jsessionId'] = session_id
+
+    res = requests.post(url, json={DATA_ROOT: data}, headers=headers)
     return res.json()[DATA_ROOT]
+
+
+def gateway_info():
+    """Load information about the hosts to use for API interaction.
+    """
+
+    return lgedm_post(
+        GATEWAY_URL,
+        {'countryCode': COUNTRY, 'langCode': LANGUAGE},
+    )
 
 
 def oauth_url(oauth_base):
@@ -63,35 +85,21 @@ def login(api_root, access_token):
     """
 
     url = urljoin(api_root + '/', LOGIN_PATH)
-    req_data = {DATA_ROOT: {
+    data = {
         'countryCode': COUNTRY,
         'langCode': LANGUAGE,
         'loginType': 'EMP',
         'token': access_token,
-    }}
-    headers = {
-        'x-thinq-application-key': APP_KEY,
-        'x-thinq-security-key': SECURITY_KEY,
-        'Accept': 'application/json',
     }
-    res = requests.post(url, json=req_data, headers=headers)
-    return res.json()[DATA_ROOT]
+    return lgedm_post(url, data)
 
 
 def get_devices(api_root, access_token, session_id):
     """Get a list of devices."""
 
     url = urljoin(api_root + '/', DEVICE_LIST_PATH)
-    req_data = {DATA_ROOT: {}}
-    headers = {
-        'x-thinq-application-key': APP_KEY,
-        'x-thinq-security-key': SECURITY_KEY,
-        'x-thinq-token': access_token,
-        'x-thinq-jsessionId': session_id,
-        'Accept': 'application/json',
-    }
-    res = requests.post(url, json=req_data, headers=headers)
-    return res.json()[DATA_ROOT]['item']
+    return lgedm_post(url, access_token=access_token,
+                      session_id=session_id)['item']
 
 
 class Gateway(object):
