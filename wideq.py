@@ -92,3 +92,64 @@ def get_devices(api_root, access_token, session_id):
     }
     res = requests.post(url, json=req_data, headers=headers)
     return res.json()[DATA_ROOT]['item']
+
+
+class Gateway(object):
+    def __init__(self, oauth_base, api_root):
+        self.oauth_base = oauth_base
+        self.api_root = api_root
+
+    @classmethod
+    def discover(cls):
+        gw = gateway_info()
+        return cls(gw['empUri'], gw['thinqUri'])
+
+    @classmethod
+    def load(cls, data):
+        return cls(data['oauth_base'], data['api_root'])
+
+    def dump(self):
+        return {'oauth_base': self.oauth_base, 'api_root': self.api_root}
+
+    def oauth_url(self):
+        return oauth_url(self.oauth_base)
+
+
+class Auth(object):
+    def __init__(self, gateway, access_token):
+        self.gateway = gateway
+        self.access_token = access_token
+
+    def start_session(self):
+        """Start an API session for the logged-in user. Return the
+        Session object and the user's devices.
+        """
+
+        session_info = login(self.gateway.api_root, self.access_token)
+        session_id = session_info['jsessionId']
+        return Session(self, session_id), session_info['item']
+
+    def dump(self):
+        return self.access_token
+
+    @classmethod
+    def load(cls, gateway, data):
+        return cls(gateway, data)
+
+
+class Session(object):
+    def __init__(self, auth, session_id):
+        self.auth = auth
+        self.session_id = session_id
+
+    def get_devices(self):
+        return get_devices(self.auth.gateway.api_root,
+                           self.auth.access_token,
+                           self.session_id)
+
+    def dump(self):
+        return self.session_id
+
+    @classmethod
+    def load(cls, auth, data):
+        return cls(auth, data)
