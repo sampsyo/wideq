@@ -55,11 +55,12 @@ def lgedm_post(url, data=None, access_token=None, session_id=None):
     # Check for API errors.
     if 'returnCd' in out:
         code = out['returnCd']
-        message = out['returnMsg']
-        if code == "0102":
-            raise NotLoggedInError()
-        else:
-            raise APIError(code, message)
+        if code != '0000':
+            message = out['returnMsg']
+            if code == "0102":
+                raise NotLoggedInError()
+            else:
+                raise APIError(code, message)
 
     return out
 
