@@ -1,6 +1,7 @@
 import wideq
 import json
 import time
+import sys
 
 STATE_FILE = 'wideq_state.json'
 
@@ -22,11 +23,6 @@ def save_state(state):
 
     with open(STATE_FILE, 'w') as f:
         json.dump(state, f)
-
-
-def print_devices(devices):
-    for device in devices:
-        print('{deviceId}: {alias} ({modelNm})'.format(**device))
 
 
 def authenticate(gateway):
@@ -85,33 +81,36 @@ def get_session(state, reauth=False):
     return session, devices
 
 
-def example():
+def example(args):
     state = load_state()
 
     session, devices = get_session(state)
 
     try:
-        # Request a list of devices, if we didn't get them "for free"
-        # already by starting the session.
-        if not devices:
-            devices = session.get_devices()
+        if not args or args[0] == 'ls':
+            # Request a list of devices, if we didn't get them "for free"
+            # already by starting the session.
+            if not devices:
+                devices = session.get_devices()
+
+            for device in devices:
+                print('{deviceId}: {alias} ({modelNm})'.format(**device))
+
+        elif args[0] == 'mon':
+            device_id = args[1]
+
+            with wideq.Monitor(session, device_id) as mon:
+                for i in range(4):
+                    time.sleep(1)
+                    print('Polling...')
+                    res = mon.poll()
+                    if res:
+                        print(res)
 
     except wideq.NotLoggedInError:
         print('Session expired.')
         return
 
-    print_devices(devices)
-
-    # For fun, try monitoring the first device
-    first_device_id = devices[0]['deviceId']
-    with wideq.Monitor(session, first_device_id) as mon:
-        for i in range(4):
-            time.sleep(1)
-            print('Polling...')
-            res = mon.poll()
-            if res:
-                print(res)
-
 
 if __name__ == '__main__':
-    example()
+    example(sys.argv[1:])
