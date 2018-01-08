@@ -12,6 +12,14 @@ SVC_CODE = 'SVC202'
 CLIENT_ID = 'LGAO221A02'
 
 
+class APIError(Exception):
+    """An error reported by the API."""
+
+    def __init__(self, code, message):
+        self.code = code
+        self.message = message
+
+
 def lgedm_post(url, data=None, access_token=None, session_id=None):
     """Make an HTTP request in the format used by the API servers.
 
@@ -35,7 +43,13 @@ def lgedm_post(url, data=None, access_token=None, session_id=None):
         headers['x-thinq-jsessionId'] = session_id
 
     res = requests.post(url, json={DATA_ROOT: data}, headers=headers)
-    return res.json()[DATA_ROOT]
+    out = res.json()[DATA_ROOT]
+
+    # Check for API errors.
+    if 'returnCd' in out:
+        raise APIError(int(out['returnCd']), out['returnMsg'])
+
+    return out
 
 
 def gateway_info():
