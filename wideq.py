@@ -11,10 +11,6 @@ LANGUAGE = 'en-US'
 SVC_CODE = 'SVC202'
 CLIENT_ID = 'LGAO221A02'
 
-OAUTH_PATH = 'login/sign_in'
-LOGIN_PATH = 'member/login'
-DEVICE_LIST_PATH = 'device/deviceList'
-
 
 def lgedm_post(url, data=None, access_token=None, session_id=None):
     """Make an HTTP request in the format used by the API servers.
@@ -57,7 +53,7 @@ def oauth_url(oauth_base):
     authenticated session.
     """
 
-    url = urljoin(oauth_base, OAUTH_PATH)
+    url = urljoin(oauth_base, 'login/sign_in')
     query = urlencode({
         'country': COUNTRY,
         'language': LANGUAGE,
@@ -84,7 +80,7 @@ def login(api_root, access_token):
     return information about the session.
     """
 
-    url = urljoin(api_root + '/', LOGIN_PATH)
+    url = urljoin(api_root + '/', 'member/login')
     data = {
         'countryCode': COUNTRY,
         'langCode': LANGUAGE,
@@ -92,14 +88,6 @@ def login(api_root, access_token):
         'token': access_token,
     }
     return lgedm_post(url, data)
-
-
-def get_devices(api_root, access_token, session_id):
-    """Get a list of devices."""
-
-    url = urljoin(api_root + '/', DEVICE_LIST_PATH)
-    return lgedm_post(url, access_token=access_token,
-                      session_id=session_id)['item']
 
 
 class Gateway(object):
@@ -150,14 +138,21 @@ class Session(object):
         self.auth = auth
         self.session_id = session_id
 
-    def get_devices(self):
-        return get_devices(self.auth.gateway.api_root,
-                           self.auth.access_token,
-                           self.session_id)
-
     def dump(self):
         return self.session_id
 
     @classmethod
     def load(cls, auth, data):
         return cls(auth, data)
+
+    def post(self, path, data=None):
+        """Make a POST request to the API server.
+
+        This is like `lgedm_post`, but it pulls the context for the
+        request from an active Session.
+        """
+        url = urljoin(self.auth.gateway.api_root + '/', path)
+        return lgedm_post(url, data, self.auth.access_token, self.session_id)
+
+    def get_devices(self):
+        return self.post('device/deviceList')['item']
