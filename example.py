@@ -112,7 +112,7 @@ def example(args):
             temp = args[1]
             device_id = args[2]
 
-            session.set_device_control(device_id, 'TempCfg', temp)
+            session.set_device_controls(device_id, {'TempCfg': temp})
 
     except wideq.NotLoggedInError:
         print('Session expired.')

@@ -232,18 +232,20 @@ class Session(object):
             'workId': work_id,
         })
 
-    def set_device_control(self, device_id, key, value):
-        """Control a device's settings."""
+    def set_device_controls(self, device_id, values):
+        """Control a device's settings.
 
-        res = self.post('rti/rtiControl', {
+        `values` is a key/value map containing the settings to update.
+        """
+
+        self.post('rti/rtiControl', {
             'cmd': 'Control',
-            'cmdOpt': key,
-            'value': value,
+            'cmdOpt': 'Set',
+            'value': values,
             'deviceId': device_id,
             'workId': gen_uuid(),
             'data': '',
         })
-        print(res)
 
 
 class Monitor(object):
