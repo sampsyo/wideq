@@ -4,42 +4,23 @@ import json
 STATE_FILE = 'wideq_state.json'
 
 
-class Memo(object):
-    """Store memoization data persistently in a JSON file.
+def load_state():
+    """Load the current state data for this example.
     """
 
-    def __init__(self, filename):
-        self.filename = filename
-        self.load()
+    try:
+        with open(STATE_FILE) as f:
+            return json.load(f)
+    except IOError:
+        return {}
 
-    def load(self):
-        """Load the current memoization data."""
-        try:
-            with open(self.filename) as f:
-                self.state = json.load(f)
-        except IOError:
-            self.state = {}
 
-    def save(self):
-        """Dump the current state to disk."""
-        with open(self.filename, 'w') as f:
-            json.dump(self.state, f)
+def save_state(state):
+    """Dump the current state to disk.
+    """
 
-    def call(self, fn, key=None):
-        """Call a function using memoization.
-
-        You can either specify a memoization key explicitly or, by
-        default, use the function's `__name__`.
-        """
-
-        key = key or fn.__name__
-        if key in self.state:
-            return self.state[key]
-        else:
-            ret = fn()
-            self.state[key] = ret
-            self.save()
-            return ret
+    with open(STATE_FILE, 'w') as f:
+        json.dump(state, f)
 
 
 def print_devices(devices):
@@ -47,43 +28,36 @@ def print_devices(devices):
         print(device['alias'])
 
 
-def endpoints():
-    gw = wideq.gateway_info()
-    return {
-        'oauth_base': gw['empUri'],
-        'api_root': gw['thinqUri'],
-    }
-
-
-def login(oauth_base):
-    login_url = wideq.oauth_url(oauth_base)
-    print('Log in here:')
-    print(login_url)
-    print('Then paste the URL where the browser is redirected:')
-    callback_url = input()
-    return wideq.parse_oauth_callback(callback_url)
-
-
-def start_session(api_root, access_token):
-    session_info = wideq.login(api_root, access_token)
-    print_devices(session_info['item'])
-    return session_info['jsessionId']
-
-
 def example():
-    memo = Memo(STATE_FILE)
+    state = load_state()
 
     # Get the URLs for the API.
-    ep = memo.call(endpoints)
-    oauth_base = ep['oauth_base']
-    api_root = ep['api_root']
+    if 'oauth_base' not in state and 'api_root' not in state:
+        gw = wideq.gateway_info()
+        state['oauth_base'] = gw['empUri']
+        state['api_root'] = gw['thinqUri']
+        save_state(state)
+    oauth_base = state['oauth_base']
+    api_root = state['api_root']
 
-    # Authenticate to get an access token.
-    access_token = memo.call(lambda: login(oauth_base), 'access_token')
+    # If we don't have an access token, authenticate.
+    if 'access_token' not in state:
+        login_url = wideq.oauth_url(oauth_base)
+        print('Log in here:')
+        print(login_url)
+        print('Then paste the URL where the browser is redirected:')
+        callback_url = input()
+        state['access_token'] = wideq.parse_oauth_callback(callback_url)
+        save_state(state)
+    access_token = state['access_token']
 
     # If we don't have a session, log in.
-    session_id = memo.call(lambda: start_session(api_root, access_token),
-                           'session_id')
+    if 'session_id' not in state:
+        session_info = wideq.login(api_root, access_token)
+        state['session_id'] = session_info['jsessionId']
+        save_state(state)
+        print_devices(session_info['item'])
+    session_id = state['session_id']
 
     # Request a list of devices.
     devices = wideq.get_devices(api_root, access_token, session_id)
