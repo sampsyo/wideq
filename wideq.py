@@ -192,39 +192,38 @@ class Session(object):
         monitoring.
         """
 
-        work_id = str(uuid.uuid4())
-        self.post('rti/rtiMon', {
+        input_work_id = str(uuid.uuid4())  # Why is this necessary?
+        res = self.post('rti/rtiMon', {
             'cmd': 'Mon',
             'cmdOpt': 'Start',
             'deviceId': device_id,
-            'workId': work_id,
+            'workId': input_work_id,
         })
-        return work_id
+        return res['workId']
 
-    def monitor_poll(self, work_ids):
-        """Get the results of monitoring tasks.
+    def monitor_poll(self, device_id, work_id):
+        """Get the result of a monitoring task.
 
         `work_ids` is a mapping from device IDs to work IDs. Return a
         mapping from work IDs to status results.
         """
 
-        work_list = [{'deviceId': k, 'workId': v}
-                     for k, v in work_ids.items()]
-        out = self.post('rti/rtiResult', {'workList': work_list})['workList']
-        return {d['workId']: d for d in out}
+        work_list = [{'deviceId': device_id, 'workId': work_id}]
+        return self.post('rti/rtiResult', {'workList': work_list})['workList']
 
-    def monitor_stop(self, work_id):
+    def monitor_stop(self, device_id, work_id):
         """Stop monitoring a device."""
 
         self.post('rti/rtiMon', {
             'cmd': 'Mon',
             'cmdOpt': 'Stop',
+            'deviceId': device_id,
             'workId': work_id,
         })
 
 
 class Monitor(object):
-    """A monitoring task for a single device."""
+    """A monitoring task for a device."""
 
     def __init__(self, session, device_id):
         self.session = session
@@ -235,8 +234,7 @@ class Monitor(object):
         return self
 
     def poll(self):
-        data = self.session.monitor_poll({self.device_id: self.work_id})
-        return data[self.work_id]
+        return self.session.monitor_poll(self.device_id, self.work_id)
 
     def __exit__(self, type, value, tb):
-        self.session.monitor_stop(self.work_id)
+        self.session.monitor_stop(self.device_id, self.work_id)
