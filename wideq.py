@@ -16,7 +16,7 @@ COUNTRY = 'US'
 LANGUAGE = 'en-US'
 SVC_CODE = 'SVC202'
 CLIENT_ID = 'LGAO221A02'
-OAUTH_SECRET_KEY = b'c053c2a6ddeb7ad97cb0eed0dcb31cf8'
+OAUTH_SECRET_KEY = 'c053c2a6ddeb7ad97cb0eed0dcb31cf8'
 OAUTH_CLIENT_KEY = 'LGAO221A02'
 EMP_APP_KEY = '3E57LJDGZ9F701O4844C3WPEAK7775NA'
 DATE_FORMAT = '%a, %d %b %Y %H:%M:%S +0000'
@@ -26,12 +26,15 @@ def gen_uuid():
     return str(uuid.uuid4())
 
 
-def oauth2_signature(s, secret):
+def oauth2_signature(message, secret):
     """Get the base64-encoded SHA-1 HMAC digest of a string, as used in
     OAauth2 request signatures.
+
+    The `secret` is provided as a base64-encoded string.
     """
 
-    hashed = hmac.new(secret, s.encode('utf8'), hashlib.sha1)
+    secret_bytes = base64.b64decode(secret)
+    hashed = hmac.new(secret_bytes, message.encode('utf8'), hashlib.sha1)
     digest = hashed.digest()
     return base64.b64encode(digest)
 
