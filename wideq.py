@@ -225,10 +225,6 @@ class Auth(object):
                                OAUTH_SECRET_KEY)
 
         headers = {
-            'X-Device-Type': 'A04',
-            'X-Device-Platform': 'ADR',
-            'X-Lge-Svccode': SVC_CODE,
-            'X-Application-Key': EMP_APP_KEY,
             'lgemp-x-app-key': OAUTH_CLIENT_KEY,
             'lgemp-x-signature': sig,
             'lgemp-x-date': timestamp,
