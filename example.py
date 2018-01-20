@@ -80,46 +80,64 @@ def get_session(state, reauth=False):
     return session, devices
 
 
+def refresh_session(state, session):
+    print('Refreshing authentication.')
+    auth = session.auth.refresh()
+    state['auth'] = auth.dump()
+    save_state(state)
+
+    print('Restarting session.')
+    session, devices = auth.start_session()
+    state['session'] = session.dump()
+    save_state(state)
+
+    return session, devices
+
+
 def example(args):
     state = load_state()
 
     session, devices = get_session(state)
 
-    try:
-        if not args or args[0] == 'ls':
-            # Request a list of devices, if we didn't get them "for free"
-            # already by starting the session.
-            if not devices:
-                devices = session.get_devices()
+    # Loop to retry if session has expired.
+    while True:
+        try:
+            if not args or args[0] == 'ls':
+                # Request a list of devices, if we didn't get them "for free"
+                # already by starting the session.
+                if not devices:
+                    devices = session.get_devices()
 
-            for device in devices:
-                print('{deviceId}: {alias} ({modelNm})'.format(**device))
+                for device in devices:
+                    print('{deviceId}: {alias} ({modelNm})'.format(**device))
 
-        elif args[0] == 'mon':
-            device_id = args[1]
+            elif args[0] == 'mon':
+                device_id = args[1]
 
-            with wideq.Monitor(session, device_id) as mon:
-                try:
-                    while True:
-                        time.sleep(1)
-                        print('Polling...')
-                        res = mon.poll()
-                        if res:
-                            print('setting: {}°C'.format(res['TempCfg']))
-                            print('current: {}°C'.format(res['TempCur']))
+                with wideq.Monitor(session, device_id) as mon:
+                    try:
+                        while True:
+                            time.sleep(1)
+                            print('Polling...')
+                            res = mon.poll()
+                            if res:
+                                print('setting: {}°C'.format(res['TempCfg']))
+                                print('current: {}°C'.format(res['TempCur']))
 
-                except KeyboardInterrupt:
-                    pass
+                    except KeyboardInterrupt:
+                        pass
 
-        elif args[0] == 'set-temp':
-            temp = args[1]
-            device_id = args[2]
+            elif args[0] == 'set-temp':
+                temp = args[1]
+                device_id = args[2]
 
-            session.set_device_controls(device_id, {'TempCfg': temp})
+                session.set_device_controls(device_id, {'TempCfg': temp})
 
-    except wideq.NotLoggedInError:
-        print('Session expired.')
-        return
+            break
+
+        except wideq.NotLoggedInError:
+            print('Session expired.')
+            session, devices = refresh_session(state, session)
 
 
 if __name__ == '__main__':
