@@ -3,6 +3,9 @@ from urllib.parse import urljoin, urlencode, urlparse, parse_qs
 import uuid
 import base64
 import json
+import hashlib
+import hmac
+import datetime
 
 
 GATEWAY_URL = 'https://kic.lgthinq.com:46030/api/common/gatewayUriList'
@@ -13,10 +16,24 @@ COUNTRY = 'US'
 LANGUAGE = 'en-US'
 SVC_CODE = 'SVC202'
 CLIENT_ID = 'LGAO221A02'
+OAUTH_SECRET_KEY = b'c053c2a6ddeb7ad97cb0eed0dcb31cf8'
+OAUTH_CLIENT_KEY = 'LGAO221A02'
+EMP_APP_KEY = '3E57LJDGZ9F701O4844C3WPEAK7775NA'
+DATE_FORMAT = '%a, %d %b %Y %H:%M:%S +0000'
 
 
 def gen_uuid():
     return str(uuid.uuid4())
+
+
+def oauth2_signature(s, secret):
+    """Get the base64-encoded SHA-1 HMAC digest of a string, as used in
+    OAauth2 request signatures.
+    """
+
+    hashed = hmac.new(secret, s.encode('utf8'), hashlib.sha1)
+    digest = hashed.digest()
+    return base64.b64encode(digest)
 
 
 class APIError(Exception):
@@ -186,13 +203,37 @@ class Auth(object):
 
     def refresh(self):
         token_url = urljoin(self.gateway.oauth_root, '/oauth2/token')
-        query = urlencode({
+        data = {
             'grant_type': 'refresh_token',
             'refresh_token': self.refresh_token,
-        })
-        req_url = '{}?{}'.format(token_url, query)
+        }
+        query = urlencode(data)
 
-        requests.Request('GET', req_url)
+        # The timestamp for labeling OAuth requests can be obtained
+        # through a request to the date/time endpoint:
+        # https://us.lgeapi.com/datetime
+        # But we can also just generate a timestamp.
+        timestamp = datetime.datetime.utcnow().strftime(DATE_FORMAT)
+
+        # The signature for the requests is on a GET-like version of the
+        # request URL, followed by a newline and a timestamp.
+        req_url = '{}?{}'.format(token_url, query)
+        sig = oauth2_signature('{}\n{}'.format(req_url, timestamp),
+                               OAUTH_SECRET_KEY)
+
+        headers = {
+            'X-Device-Type': 'A04',
+            'X-Device-Platform': 'ADR',
+            'X-Lge-Svccode': SVC_CODE,
+            'X-Application-Key': EMP_APP_KEY,
+            'lgemp-x-app-key': OAUTH_CLIENT_KEY,
+            'lgemp-x-signature': sig,
+            'lgemp-x-date': timestamp,
+            'Accept': 'application/json',
+        }
+
+        res = requests.post(token_url, data=data, headers=headers)
+        print(res.text)
 
 
 class Session(object):
