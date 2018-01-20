@@ -82,12 +82,12 @@ def gateway_info():
     )
 
 
-def oauth_url(oauth_base):
+def oauth_url(auth_base):
     """Construct the URL for users to log in (in a browser) to start an
     authenticated session.
     """
 
-    url = urljoin(oauth_base, 'login/sign_in')
+    url = urljoin(auth_base, 'login/sign_in')
     query = urlencode({
         'country': COUNTRY,
         'language': LANGUAGE,
@@ -101,12 +101,13 @@ def oauth_url(oauth_base):
 
 
 def parse_oauth_callback(url):
-    """Parse the URL to which an OAuth login redirected to obtain an
-    access token for API credentials.
+    """Parse the URL to which an OAuth login redirected to obtain two
+    tokens: an access token for API credentials, and a refresh token for
+    getting updated access tokens.
     """
 
     params = parse_qs(urlparse(url).query)
-    return params['access_token'][0]
+    return params['access_token'][0], params['refresh_token'][0]
 
 
 def login(api_root, access_token):
@@ -125,30 +126,36 @@ def login(api_root, access_token):
 
 
 class Gateway(object):
-    def __init__(self, oauth_base, api_root):
-        self.oauth_base = oauth_base
+    def __init__(self, auth_base, api_root, oauth_root):
+        self.auth_base = auth_base
         self.api_root = api_root
+        self.oauth_root = oauth_root
 
     @classmethod
     def discover(cls):
         gw = gateway_info()
-        return cls(gw['empUri'], gw['thinqUri'])
+        return cls(gw['empUri'], gw['thinqUri'], gw['oauthUri'])
 
     @classmethod
     def load(cls, data):
-        return cls(data['oauth_base'], data['api_root'])
+        return cls(data['auth_base'], data['api_root'], data['oauth_root'])
 
     def dump(self):
-        return {'oauth_base': self.oauth_base, 'api_root': self.api_root}
+        return {
+            'auth_base': self.auth_base,
+            'api_root': self.api_root,
+            'oauth_root': self.oauth_root,
+        }
 
     def oauth_url(self):
-        return oauth_url(self.oauth_base)
+        return oauth_url(self.auth_base)
 
 
 class Auth(object):
-    def __init__(self, gateway, access_token):
+    def __init__(self, gateway, access_token, refresh_token):
         self.gateway = gateway
         self.access_token = access_token
+        self.refresh_token = refresh_token
 
     def start_session(self):
         """Start an API session for the logged-in user. Return the
@@ -160,11 +167,24 @@ class Auth(object):
         return Session(self, session_id), session_info['item']
 
     def dump(self):
-        return self.access_token
+        return {
+            'access_token': self.access_token,
+            'refresh_token': self.refresh_token,
+        }
 
     @classmethod
     def load(cls, gateway, data):
-        return cls(gateway, data)
+        return cls(gateway, data['access_token'], data['refresh_token'])
+
+    def refresh(self):
+        token_url = urljoin(self.gateway.oauth_root, '/oauth2/token')
+        query = urlencode({
+            'grant_type': 'refresh_token',
+            'refresh_token': self.refresh_token,
+        })
+        req_url = '{}?{}'.format(token_url, query)
+
+        requests.Request('GET', req_url)
 
 
 class Session(object):
