@@ -30,10 +30,11 @@ def oauth2_signature(message, secret):
     """Get the base64-encoded SHA-1 HMAC digest of a string, as used in
     OAauth2 request signatures.
 
-    The `secret` is provided as a base64-encoded string.
+    Both the `secret` and `message` are given as text strings. We use
+    their UTF-8 equivalents.
     """
 
-    secret_bytes = base64.b64decode(secret)
+    secret_bytes = secret.encode('utf8')
     hashed = hmac.new(secret_bytes, message.encode('utf8'), hashlib.sha1)
     digest = hashed.digest()
     return base64.b64encode(digest)
