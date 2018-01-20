@@ -279,10 +279,16 @@ class Session(object):
         This is like `lgedm_post`, but it pulls the context for the
         request from an active Session.
         """
+
         url = urljoin(self.auth.gateway.api_root + '/', path)
         return lgedm_post(url, data, self.auth.access_token, self.session_id)
 
     def get_devices(self):
+        """Get a list of devices associated with the user's account.
+
+        Return a list of dicts with information about the devices.
+        """
+
         return self.post('device/deviceList')['item']
 
     def monitor_start(self, device_id):
