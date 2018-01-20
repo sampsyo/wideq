@@ -31,8 +31,7 @@ def authenticate(gateway):
     print(login_url)
     print('Then paste the URL where the browser is redirected:')
     callback_url = input()
-    access_token, refresh_token = wideq.parse_oauth_callback(callback_url)
-    return wideq.Auth(gateway, access_token, refresh_token)
+    return wideq.Auth.from_url(gateway, callback_url)
 
 
 def get_session(state, reauth=False):

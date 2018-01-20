@@ -157,6 +157,14 @@ class Auth(object):
         self.access_token = access_token
         self.refresh_token = refresh_token
 
+    @classmethod
+    def from_url(cls, gateway, url):
+        """Create an authentication using an OAuth callback URL.
+        """
+
+        access_token, refresh_token = parse_oauth_callback(url)
+        return cls(gateway, access_token, refresh_token)
+
     def start_session(self):
         """Start an API session for the logged-in user. Return the
         Session object and the user's devices.
