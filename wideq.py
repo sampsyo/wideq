@@ -153,6 +153,47 @@ def login(api_root, access_token):
     return lgedm_post(url, data)
 
 
+def refresh_auth(oauth_root, refresh_token):
+    """Get a new access_token using a refresh_token.
+
+    May raise a `TokenError`.
+    """
+
+    token_url = urljoin(oauth_root, '/oauth2/token')
+    data = {
+        'grant_type': 'refresh_token',
+        'refresh_token': refresh_token,
+    }
+
+    # The timestamp for labeling OAuth requests can be obtained
+    # through a request to the date/time endpoint:
+    # https://us.lgeapi.com/datetime
+    # But we can also just generate a timestamp.
+    timestamp = datetime.datetime.utcnow().strftime(DATE_FORMAT)
+
+    # The signature for the requests is on a string consisting of two
+    # parts: (1) a fake request URL containing the refresh token, and (2)
+    # the timestamp.
+    req_url = ('/oauth2/token?grant_type=refresh_token&refresh_token=' +
+               refresh_token)
+    sig = oauth2_signature('{}\n{}'.format(req_url, timestamp),
+                           OAUTH_SECRET_KEY)
+
+    headers = {
+        'lgemp-x-app-key': OAUTH_CLIENT_KEY,
+        'lgemp-x-signature': sig,
+        'lgemp-x-date': timestamp,
+        'Accept': 'application/json',
+    }
+
+    res = requests.post(token_url, data=data, headers=headers)
+    res_data = res.json()
+
+    if res_data['status'] != 1:
+        raise TokenError()
+    return res_data['access_token']
+
+
 class Gateway(object):
     def __init__(self, auth_base, api_root, oauth_root):
         self.auth_base = auth_base
@@ -213,39 +254,12 @@ class Auth(object):
         return cls(gateway, data['access_token'], data['refresh_token'])
 
     def refresh(self):
-        token_url = urljoin(self.gateway.oauth_root, '/oauth2/token')
-        data = {
-            'grant_type': 'refresh_token',
-            'refresh_token': self.refresh_token,
-        }
+        """Refresh the authentication, returning a new Auth object.
+        """
 
-        # The timestamp for labeling OAuth requests can be obtained
-        # through a request to the date/time endpoint:
-        # https://us.lgeapi.com/datetime
-        # But we can also just generate a timestamp.
-        timestamp = datetime.datetime.utcnow().strftime(DATE_FORMAT)
-
-        # The signature for the requests is on a string consisting of two
-        # parts: (1) a fake request URL containing the refresh token, and (2)
-        # the timestamp.
-        req_url = ('/oauth2/token?grant_type=refresh_token&refresh_token=' +
-                   self.refresh_token)
-        sig = oauth2_signature('{}\n{}'.format(req_url, timestamp),
-                               OAUTH_SECRET_KEY)
-
-        headers = {
-            'lgemp-x-app-key': OAUTH_CLIENT_KEY,
-            'lgemp-x-signature': sig,
-            'lgemp-x-date': timestamp,
-            'Accept': 'application/json',
-        }
-
-        res = requests.post(token_url, data=data, headers=headers)
-        res_data = res.json()
-
-        if res_data['status'] != 1:
-            raise TokenError()
-        return res_data['access_token']
+        new_access_token = refresh_auth(self.gateway.oauth_root,
+                                        self.refresh_token)
+        return Auth(self.gateway, new_access_token, self.refresh_token)
 
 
 class Session(object):
