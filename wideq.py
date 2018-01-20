@@ -210,7 +210,6 @@ class Auth(object):
             'grant_type': 'refresh_token',
             'refresh_token': self.refresh_token,
         }
-        query = urlencode(data)
 
         # The timestamp for labeling OAuth requests can be obtained
         # through a request to the date/time endpoint:
@@ -218,9 +217,11 @@ class Auth(object):
         # But we can also just generate a timestamp.
         timestamp = datetime.datetime.utcnow().strftime(DATE_FORMAT)
 
-        # The signature for the requests is on a GET-like version of the
-        # request URL, followed by a newline and a timestamp.
-        req_url = '{}?{}'.format(token_url, query)
+        # The signature for the requests is on a string consisting of two
+        # parts: (1) a fake request URL containing the refresh token, and (2)
+        # the timestamp.
+        req_url = ('/oauth2/token?grant_type=refresh_token&refresh_token=' +
+                   self.refresh_token)
         sig = oauth2_signature('{}\n{}'.format(req_url, timestamp),
                                OAUTH_SECRET_KEY)
 
@@ -230,6 +231,7 @@ class Auth(object):
             'lgemp-x-date': timestamp,
             'Accept': 'application/json',
         }
+        print(headers)
 
         res = requests.post(token_url, data=data, headers=headers)
         print(res.text)
