@@ -55,6 +55,13 @@ class NotLoggedInError(APIError):
         pass
 
 
+class TokenError(APIError):
+    """An authentication token was rejected."""
+
+    def __init__(self):
+        pass
+
+
 def lgedm_post(url, data=None, access_token=None, session_id=None):
     """Make an HTTP request in the format used by the API servers.
 
@@ -232,10 +239,13 @@ class Auth(object):
             'lgemp-x-date': timestamp,
             'Accept': 'application/json',
         }
-        print(headers)
 
         res = requests.post(token_url, data=data, headers=headers)
-        print(res.text)
+        res_data = res.json()
+
+        if res_data['status'] != 1:
+            raise TokenError()
+        return res_data['access_token']
 
 
 class Session(object):
