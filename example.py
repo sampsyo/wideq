@@ -34,70 +34,71 @@ def authenticate(gateway):
     return wideq.Auth.from_url(gateway, callback_url)
 
 
-def get_session(state, reauth=False):
-    """Get a Session object we can use to make API requests.
+class Client(object):
+    def __init__(self):
+        # The three steps required to get access to call the API.
+        self._gateway = None
+        self._auth = None
+        self._session = None
 
-    By default, try to use credentials from `state`. If `reauth` if
-    true, instead force re-authentication.
+        # The last list of devices we got from the server.
+        self._devices = None
 
-    Return the Session and, if they came along with session creation,
-    the information about the user's devices.
-    """
+    @property
+    def gateway(self):
+        if not self._gateway:
+            self._gateway = wideq.Gateway.discover()
+        return self._gateway
 
-    # Get the gateway, which contains the base URLs and hostnames for
-    # accessing the API.
-    if 'gateway' in state:
-        gateway = wideq.Gateway.load(state['gateway'])
-    else:
-        print('Discovering gateway servers.')
-        gateway = wideq.Gateway.discover()
+    @property
+    def auth(self):
+        if not self._auth:
+            assert False, "unauthenticated"
+        return self._auth
 
-        state['gateway'] = gateway.dump()
-        save_state(state)
+    @property
+    def session(self):
+        if not self._session:
+            self._session, self._devices = self.auth.start_session()
+        return self._session
 
-    # Authenticate the user.
-    if 'auth' in state and not reauth:
-        auth = wideq.Auth.load(gateway, state['auth'])
-        new_auth = False
-    else:
-        auth = authenticate(gateway)
-        new_auth = True
+    def load(self, state):
+        """Load the client objects from the encoded state data.
+        """
 
-        state['auth'] = auth.dump()
-        save_state(state)
+        if 'gateway' in state:
+            self._gateway = wideq.Gateway.load(state['gateway'])
 
-    # Start a session.
-    if 'session' in state and not new_auth:
-        session = wideq.Session.load(auth, state['session'])
-        devices = None
-    else:
-        print('Starting session.')
-        session, devices = auth.start_session()
+        if 'auth' in state:
+            self._auth = wideq.Auth.load(self._gateway, state['auth'])
 
-        state['session'] = session.dump()
-        save_state(state)
+        if 'session' in state:
+            self._session = wideq.Session.load(self._auth, state['session'])
 
-    return session, devices
+    def dump(self):
+        """Serialize the client state."""
 
+        out = {}
+        if self._gateway:
+            out['gateway'] = self._gateway.dump()
+        if self._auth:
+            out['auth'] = self._auth.dump()
+        if self._session:
+            out['session'] = self._session.dump()
+        return out
 
-def refresh_session(state, session):
-    print('Refreshing authentication.')
-    auth = session.auth.refresh()
-    state['auth'] = auth.dump()
-    save_state(state)
-
-    print('Restarting session.')
-    session, devices = auth.start_session()
-    state['session'] = session.dump()
-    save_state(state)
-
-    return session, devices
+    def refresh(self):
+        self._auth = self.auth.refresh()
+        self._session, self._devices = self.auth.start_session()
 
 
 def example(args):
     state = load_state()
+    client = Client()
+    client.load(state)
 
-    session, devices = get_session(state)
+    if not client._auth:
+        client._auth = authenticate(client.gateway)
 
     # Loop to retry if session has expired.
     while True:
@@ -105,8 +106,9 @@ def example(args):
             if not args or args[0] == 'ls':
                 # Request a list of devices, if we didn't get them "for free"
                 # already by starting the session.
+                devices = client._devices
                 if not devices:
-                    devices = session.get_devices()
+                    devices = client.session.get_devices()
 
                 for device in devices:
                     print('{deviceId}: {alias} ({modelNm})'.format(**device))
@@ -114,7 +116,7 @@ def example(args):
             elif args[0] == 'mon':
                 device_id = args[1]
 
-                with wideq.Monitor(session, device_id) as mon:
+                with wideq.Monitor(client.session, device_id) as mon:
                     try:
                         while True:
                             time.sleep(1)
@@ -131,13 +133,16 @@ def example(args):
                 temp = args[1]
                 device_id = args[2]
 
-                session.set_device_controls(device_id, {'TempCfg': temp})
+                client.session.set_device_controls(device_id,
+                                                   {'TempCfg': temp})
 
             break
 
         except wideq.NotLoggedInError:
             print('Session expired.')
-            session, devices = refresh_session(state, session)
+            client.refresh()
+
+    save_state(client.dump())
 
 
 if __name__ == '__main__':
