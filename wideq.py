@@ -418,12 +418,17 @@ class Client(object):
         if 'session' in state:
             client._session = Session(client.auth, state['session'])
 
+        if 'model_info' in state:
+            client._model_info = state['model_info']
+
         return client
 
     def dump(self):
         """Serialize the client state."""
 
-        out = {}
+        out = {
+            'model_info': self._model_info,
+        }
 
         if self._gateway:
             out['gateway'] = {
@@ -467,8 +472,8 @@ class Client(object):
         """
         url = device.model_info_url
         if url not in self._model_info:
-            self._model_info[url] = ModelInfo(device.load_model_info())
-        return self._model_info[url]
+            self._model_info[url] = device.load_model_info()
+        return ModelInfo(self._model_info[url])
 
 
 class DeviceInfo(object):
