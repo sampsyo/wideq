@@ -22,6 +22,8 @@ def example_command(client, args):
 
     elif args[0] == 'mon':
         device_id = args[1]
+        device = client.get_device(device_id)
+        model = client.model_info(device)
 
         with wideq.Monitor(client.session, device_id) as mon:
             try:
@@ -30,9 +32,13 @@ def example_command(client, args):
                     print('Polling...')
                     res = mon.poll()
                     if res:
-                        print(res)
-                        print('setting: {}°C'.format(res['TempCfg']))
-                        print('current: {}°C'.format(res['TempCur']))
+                        for key, value in res.items():
+                            if key == 'Operation':
+                                options = model.enum('Operation')
+                                print('- {}: {}'.format(key, options[value]))
+                            else:
+                                print('- {}: {}'.format(key, value))
+
 
             except KeyboardInterrupt:
                 pass

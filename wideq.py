@@ -384,6 +384,17 @@ class Client(object):
             self._devices = self.session.get_devices()
         return (DeviceInfo(d) for d in self._devices)
 
+    def get_device(self, device_id):
+        """Look up a DeviceInfo object by device ID.
+
+        Return None if the device does not exist.
+        """
+
+        for device in self.devices:
+            if device.id == device_id:
+                return device
+        return None
+
     @classmethod
     def load(cls, state):
         """Load a client from serialized state.
@@ -496,3 +507,25 @@ class ModelInfo(object):
 
     def __init__(self, data):
         self.data = data
+
+    def enum(self, name):
+        """Get the mapping of options for a given enumerated value.
+        """
+
+        d = self.data['Value'][name]
+        assert d['type'] == 'Enum'
+        return d['option']
+
+    def range(self, name):
+        """Get the minimum, maximum, and step for a numeric range value.
+        """
+
+        d = self.data['Value'][name]
+        assert d['type'] == 'Range'
+        return d['option']['min'], d['option']['max'], d['option']['step']
+
+    def default(self, name):
+        """Get the default value, if it exists, for a given value.
+        """
+
+        return self.data['Value'][name]['default']
