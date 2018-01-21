@@ -64,8 +64,7 @@ def example_command(client, args):
 
 def example(args):
     state = load_state()
-    client = wideq.Client()
-    client.load(state)
+    client = wideq.Client.load(state)
 
     if not client._auth:
         client._auth = authenticate(client.gateway)

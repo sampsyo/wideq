@@ -371,11 +371,11 @@ class Client(object):
     and allows serialization of state.
     """
 
-    def __init__(self):
+    def __init__(self, gateway=None, auth=None, session=None):
         # The three steps required to get access to call the API.
-        self._gateway = None
-        self._auth = None
-        self._session = None
+        self._gateway = gateway
+        self._auth = auth
+        self._session = session
 
         # The last list of devices we got from the server.
         self._devices = None
@@ -404,18 +404,23 @@ class Client(object):
             self._devices = self.session.get_devices()
         return self._devices
 
-    def load(self, state):
-        """Load the client objects from the encoded state data.
+    @classmethod
+    def load(cls, state):
+        """Load a client from serialized state.
         """
 
+        client = cls()
+
         if 'gateway' in state:
-            self._gateway = Gateway.load(state['gateway'])
+            client._gateway = Gateway.load(state['gateway'])
 
         if 'auth' in state:
-            self._auth = Auth.load(self._gateway, state['auth'])
+            client._auth = Auth.load(client.gateway, state['auth'])
 
         if 'session' in state:
-            self._session = Session.load(self._auth, state['session'])
+            client._session = Session.load(client.auth, state['session'])
+
+        return client
 
     def dump(self):
         """Serialize the client state."""
