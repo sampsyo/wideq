@@ -18,7 +18,7 @@ def authenticate(gateway):
 def example_command(client, args):
     if not args or args[0] == 'ls':
         for device in client.devices:
-            print('{deviceId}: {alias} ({modelNm})'.format(**device))
+            print('{0.id}: {0.name} ({0.model_id})'.format(device))
 
     elif args[0] == 'mon':
         device_id = args[1]

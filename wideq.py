@@ -349,7 +349,8 @@ class Client(object):
         self._auth = auth
         self._session = session
 
-        # The last list of devices we got from the server.
+        # The last list of devices we got from the server. This is the
+        # raw JSON list data describing the devices.
         self._devices = None
 
     @property
@@ -372,9 +373,12 @@ class Client(object):
 
     @property
     def devices(self):
+        """DeviceInfo objects describing the user's devices.
+        """
+
         if not self._devices:
             self._devices = self.session.get_devices()
-        return self._devices
+        return (DeviceInfo(d) for d in self._devices)
 
     @classmethod
     def load(cls, state):
@@ -440,3 +444,34 @@ class Client(object):
         client._auth = Auth(client.gateway, None, refresh_token)
         client.refresh()
         return client
+
+
+class DeviceInfo(object):
+    """Details about a user's device.
+
+    This is populated from a JSON dictionary provided by the API.
+    """
+
+    def __init__(self, data):
+        self.data = data
+
+    @property
+    def model_id(self):
+        return self.data['modelNm']
+
+    @property
+    def id(self):
+        return self.data['deviceId']
+
+    @property
+    def model_info_url(self):
+        return self.data['modelJsonUrl']
+
+    @property
+    def name(self):
+        return self.data['alias']
+
+    def model_info(self):
+        """Load JSON data describing the model's capabilities.
+        """
+        return requests.get(self.model_info_url).json()
