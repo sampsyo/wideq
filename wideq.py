@@ -204,17 +204,6 @@ class Gateway(object):
         gw = gateway_info()
         return cls(gw['empUri'], gw['thinqUri'], gw['oauthUri'])
 
-    @classmethod
-    def load(cls, data):
-        return cls(data['auth_base'], data['api_root'], data['oauth_root'])
-
-    def dump(self):
-        return {
-            'auth_base': self.auth_base,
-            'api_root': self.api_root,
-            'oauth_root': self.oauth_root,
-        }
-
     def oauth_url(self):
         return oauth_url(self.auth_base)
 
@@ -242,16 +231,6 @@ class Auth(object):
         session_id = session_info['jsessionId']
         return Session(self, session_id), session_info['item']
 
-    def dump(self):
-        return {
-            'access_token': self.access_token,
-            'refresh_token': self.refresh_token,
-        }
-
-    @classmethod
-    def load(cls, gateway, data):
-        return cls(gateway, data['access_token'], data['refresh_token'])
-
     def refresh(self):
         """Refresh the authentication, returning a new Auth object.
         """
@@ -265,13 +244,6 @@ class Session(object):
     def __init__(self, auth, session_id):
         self.auth = auth
         self.session_id = session_id
-
-    def dump(self):
-        return self.session_id
-
-    @classmethod
-    def load(cls, auth, data):
-        return cls(auth, data)
 
     def post(self, path, data=None):
         """Make a POST request to the API server.
@@ -412,13 +384,19 @@ class Client(object):
         client = cls()
 
         if 'gateway' in state:
-            client._gateway = Gateway.load(state['gateway'])
+            data = state['gateway']
+            client._gateway = Gateway(
+                data['auth_base'], data['api_root'], data['oauth_root']
+            )
 
         if 'auth' in state:
-            client._auth = Auth.load(client.gateway, state['auth'])
+            data = state['auth']
+            client._auth = Auth(
+                client.gateway, data['access_token'], data['refresh_token']
+            )
 
         if 'session' in state:
-            client._session = Session.load(client.auth, state['session'])
+            client._session = Session(client.auth, state['session'])
 
         return client
 
@@ -426,12 +404,23 @@ class Client(object):
         """Serialize the client state."""
 
         out = {}
+
         if self._gateway:
-            out['gateway'] = self._gateway.dump()
+            out['gateway'] = {
+                'auth_base': self._gateway.auth_base,
+                'api_root': self._gateway.api_root,
+                'oauth_root': self._gateway.oauth_root,
+            }
+
         if self._auth:
-            out['auth'] = self._auth.dump()
+            out['auth'] = {
+                'access_token': self._auth.access_token,
+                'refresh_token': self._auth.refresh_token,
+            }
+
         if self._session:
-            out['session'] = self._session.dump()
+            out['session'] = self._session.session_id
+
         return out
 
     def refresh(self):
