@@ -6,25 +6,6 @@ import sys
 STATE_FILE = 'wideq_state.json'
 
 
-def load_state():
-    """Load the current state data for this example.
-    """
-
-    try:
-        with open(STATE_FILE) as f:
-            return json.load(f)
-    except IOError:
-        return {}
-
-
-def save_state(state):
-    """Dump the current state to disk.
-    """
-
-    with open(STATE_FILE, 'w') as f:
-        json.dump(state, f)
-
-
 def authenticate(gateway):
     login_url = gateway.oauth_url()
     print('Log in here:')
@@ -49,6 +30,7 @@ def example_command(client, args):
                     print('Polling...')
                     res = mon.poll()
                     if res:
+                        print(res)
                         print('setting: {}°C'.format(res['TempCfg']))
                         print('current: {}°C'.format(res['TempCur']))
 
@@ -63,9 +45,16 @@ def example_command(client, args):
 
 
 def example(args):
-    state = load_state()
+    # Load the current state for the example.
+    try:
+        with open(STATE_FILE) as f:
+            state = json.load(f)
+    except IOError:
+        state = {}
+
     client = wideq.Client.load(state)
 
+    # Log in, if we don't already have an authentication.
     if not client._auth:
         client._auth = authenticate(client.gateway)
 
@@ -79,7 +68,10 @@ def example(args):
             print('Session expired.')
             client.refresh()
 
-    save_state(client.dump())
+    # Save the updated state.
+    state = client.dump()
+    with open(STATE_FILE, 'w') as f:
+        json.dump(state, f)
 
 
 if __name__ == '__main__':
