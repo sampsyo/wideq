@@ -62,6 +62,12 @@ class Client(object):
             self._session, self._devices = self.auth.start_session()
         return self._session
 
+    @property
+    def devices(self):
+        if not self._devices:
+            self._devices = self.session.get_devices()
+        return self._devices
+
     def load(self, state):
         """Load the client objects from the encoded state data.
         """
@@ -104,13 +110,7 @@ def example(args):
     while True:
         try:
             if not args or args[0] == 'ls':
-                # Request a list of devices, if we didn't get them "for free"
-                # already by starting the session.
-                devices = client._devices
-                if not devices:
-                    devices = client.session.get_devices()
-
-                for device in devices:
+                for device in client.devices:
                     print('{deviceId}: {alias} ({modelNm})'.format(**device))
 
             elif args[0] == 'mon':
