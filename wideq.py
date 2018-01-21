@@ -330,15 +330,21 @@ class Monitor(object):
         self.session = session
         self.device_id = device_id
 
-    def __enter__(self):
+    def start(self):
         self.work_id = self.session.monitor_start(self.device_id)
-        return self
+
+    def stop(self):
+        self.session.monitor_stop(self.device_id, self.work_id)
 
     def poll(self):
         return self.session.monitor_poll(self.device_id, self.work_id)
 
+    def __enter__(self):
+        self.start()
+        return self
+
     def __exit__(self, type, value, tb):
-        self.session.monitor_stop(self.device_id, self.work_id)
+        self.stop()
 
 
 class Client(object):
