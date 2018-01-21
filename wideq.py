@@ -291,7 +291,9 @@ class Session(object):
 
         # Weirdly, the main response data is base64-encoded JSON.
         if 'returnData' in res:
-            return json.loads(base64.b64decode(res['returnData']))
+            return json.loads(
+                base64.b64decode(res['returnData']).decode('utf8')
+            )
         else:
             return None
 
