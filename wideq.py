@@ -6,6 +6,7 @@ import json
 import hashlib
 import hmac
 import datetime
+from collections import namedtuple
 
 
 GATEWAY_URL = 'https://kic.lgthinq.com:46030/api/common/gatewayUriList'
@@ -501,6 +502,10 @@ class DeviceInfo(object):
         return requests.get(self.model_info_url).json()
 
 
+EnumValue = namedtuple('EnumValue', ['options'])
+RangeValue = namedtuple('RangeValue', ['min', 'max', 'step'])
+
+
 class ModelInfo(object):
     """A description of a device model's capabilities.
     """
@@ -508,21 +513,20 @@ class ModelInfo(object):
     def __init__(self, data):
         self.data = data
 
-    def enum(self, name):
-        """Get the mapping of options for a given enumerated value.
+    def value(self, name):
+        """Look up information about a value.
+
+        Return either an `EnumValue` or a `RangeValue`.
         """
-
         d = self.data['Value'][name]
-        assert d['type'] == 'Enum'
-        return d['option']
-
-    def range(self, name):
-        """Get the minimum, maximum, and step for a numeric range value.
-        """
-
-        d = self.data['Value'][name]
-        assert d['type'] == 'Range'
-        return d['option']['min'], d['option']['max'], d['option']['step']
+        if d['type'] in ('Enum', 'enum'):
+            return EnumValue(d['option'])
+        elif d['type'] == 'Range':
+            return RangeValue(
+                d['option']['min'], d['option']['max'], d['option']['step']
+            )
+        else:
+            assert False, "unsupported value type {}".format(d['type'])
 
     def default(self, name):
         """Get the default value, if it exists, for a given value.

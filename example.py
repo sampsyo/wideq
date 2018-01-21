@@ -33,12 +33,19 @@ def example_command(client, args):
                     res = mon.poll()
                     if res:
                         for key, value in res.items():
-                            if key == 'Operation':
-                                options = model.enum('Operation')
-                                print('- {}: {}'.format(key, options[value]))
-                            else:
+                            try:
+                                desc = model.value(key)
+                            except KeyError:
                                 print('- {}: {}'.format(key, value))
+                            if isinstance(desc, wideq.EnumValue):
+                                print('- {}: {}'.format(
+                                    key, desc.options.get(value, value)
+                                ))
+                            elif isinstance(desc, wideq.RangeValue):
+                                print('- {0}: {1} ({2.min}-{2.max})'.format(
+                                    key, value, desc,
 
+                                ))
 
             except KeyboardInterrupt:
                 pass
