@@ -35,6 +35,9 @@ def authenticate(gateway):
 
 
 class Client(object):
+    """A higher-level API wrapper that provides a session.
+    """
+
     def __init__(self):
         # The three steps required to get access to call the API.
         self._gateway = None
@@ -98,6 +101,35 @@ class Client(object):
         self._session, self._devices = self.auth.start_session()
 
 
+def example_command(client, args):
+    if not args or args[0] == 'ls':
+        for device in client.devices:
+            print('{deviceId}: {alias} ({modelNm})'.format(**device))
+
+    elif args[0] == 'mon':
+        device_id = args[1]
+
+        with wideq.Monitor(client.session, device_id) as mon:
+            try:
+                while True:
+                    time.sleep(1)
+                    print('Polling...')
+                    res = mon.poll()
+                    if res:
+                        print('setting: {}°C'.format(res['TempCfg']))
+                        print('current: {}°C'.format(res['TempCur']))
+
+            except KeyboardInterrupt:
+                pass
+
+    elif args[0] == 'set-temp':
+        temp = args[1]
+        device_id = args[2]
+
+        client.session.set_device_controls(device_id,
+                                           {'TempCfg': temp})
+
+
 def example(args):
     state = load_state()
     client = Client()
@@ -109,33 +141,7 @@ def example(args):
     # Loop to retry if session has expired.
     while True:
         try:
-            if not args or args[0] == 'ls':
-                for device in client.devices:
-                    print('{deviceId}: {alias} ({modelNm})'.format(**device))
-
-            elif args[0] == 'mon':
-                device_id = args[1]
-
-                with wideq.Monitor(client.session, device_id) as mon:
-                    try:
-                        while True:
-                            time.sleep(1)
-                            print('Polling...')
-                            res = mon.poll()
-                            if res:
-                                print('setting: {}°C'.format(res['TempCfg']))
-                                print('current: {}°C'.format(res['TempCur']))
-
-                    except KeyboardInterrupt:
-                        pass
-
-            elif args[0] == 'set-temp':
-                temp = args[1]
-                device_id = args[2]
-
-                client.session.set_device_controls(device_id,
-                                                   {'TempCfg': temp})
-
+            example_command(client, args)
             break
 
         except wideq.NotLoggedInError:
