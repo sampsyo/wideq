@@ -353,6 +353,10 @@ class Client(object):
         # raw JSON list data describing the devices.
         self._devices = None
 
+        # Cached model info data. This is a mapping from URLs to JSON
+        # responses.
+        self._model_info = {}
+
     @property
     def gateway(self):
         if not self._gateway:
@@ -445,6 +449,15 @@ class Client(object):
         client.refresh()
         return client
 
+    def model_info(self, device):
+        """For a DeviceInfo object, get a ModelInfo object describing
+        the model's capabilities.
+        """
+        url = device.model_info_url
+        if url not in self._model_info:
+            self._model_info[url] = ModelInfo(device.load_model_info())
+        return self._model_info[url]
+
 
 class DeviceInfo(object):
     """Details about a user's device.
@@ -471,7 +484,15 @@ class DeviceInfo(object):
     def name(self):
         return self.data['alias']
 
-    def model_info(self):
+    def load_model_info(self):
         """Load JSON data describing the model's capabilities.
         """
         return requests.get(self.model_info_url).json()
+
+
+class ModelInfo(object):
+    """A description of a device model's capabilities.
+    """
+
+    def __init__(self, data):
+        self.data = data
