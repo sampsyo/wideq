@@ -426,3 +426,17 @@ class Client(object):
     def refresh(self):
         self._auth = self.auth.refresh()
         self._session, self._devices = self.auth.start_session()
+
+    @classmethod
+    def from_token(cls, refresh_token):
+        """Construct a client using just a refresh token.
+
+        This allows simpler state storage (e.g., for human-written
+        configuration) but it is a little less efficient because we need
+        to reload the gateway servers and restart the session.
+        """
+
+        client = cls()
+        client._auth = Auth(client.gateway, None, refresh_token)
+        client.refresh()
+        return client
