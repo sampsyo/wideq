@@ -364,3 +364,71 @@ class Monitor(object):
 
     def __exit__(self, type, value, tb):
         self.session.monitor_stop(self.device_id, self.work_id)
+
+
+class Client(object):
+    """A higher-level API wrapper that provides a session more easily
+    and allows serialization of state.
+    """
+
+    def __init__(self):
+        # The three steps required to get access to call the API.
+        self._gateway = None
+        self._auth = None
+        self._session = None
+
+        # The last list of devices we got from the server.
+        self._devices = None
+
+    @property
+    def gateway(self):
+        if not self._gateway:
+            self._gateway = Gateway.discover()
+        return self._gateway
+
+    @property
+    def auth(self):
+        if not self._auth:
+            assert False, "unauthenticated"
+        return self._auth
+
+    @property
+    def session(self):
+        if not self._session:
+            self._session, self._devices = self.auth.start_session()
+        return self._session
+
+    @property
+    def devices(self):
+        if not self._devices:
+            self._devices = self.session.get_devices()
+        return self._devices
+
+    def load(self, state):
+        """Load the client objects from the encoded state data.
+        """
+
+        if 'gateway' in state:
+            self._gateway = Gateway.load(state['gateway'])
+
+        if 'auth' in state:
+            self._auth = Auth.load(self._gateway, state['auth'])
+
+        if 'session' in state:
+            self._session = Session.load(self._auth, state['session'])
+
+    def dump(self):
+        """Serialize the client state."""
+
+        out = {}
+        if self._gateway:
+            out['gateway'] = self._gateway.dump()
+        if self._auth:
+            out['auth'] = self._auth.dump()
+        if self._session:
+            out['session'] = self._session.dump()
+        return out
+
+    def refresh(self):
+        self._auth = self.auth.refresh()
+        self._session, self._devices = self.auth.start_session()
