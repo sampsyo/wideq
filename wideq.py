@@ -546,3 +546,54 @@ class ModelInfo(object):
         """
 
         return self.data['Value'][name]['default']
+
+
+class ACDevice(object):
+    """Higher-level operations on an AC/HVAC device, such as a heat
+    pump.
+    """
+
+    def __init__(self, client, device):
+        """Create a wrapper for a `DeviceInfo` object associated with a
+        `Client`.
+        """
+
+        self.client = client
+        self.device = device
+        self.model = client.model_info(device)
+
+    @property
+    def f2c(self):
+        """Get a dictionary mapping Fahrenheit to Celsius temperatures for
+        this device.
+
+        Unbelievably, SmartThinQ devices have their own lookup tables
+        for mapping the two temperature scales. You can get *close* by
+        using a real conversion between the two temperature scales, but
+        precise control requires using the custom LUT.
+        """
+
+        mapping = self.model.value('TempFahToCel').options
+        return {int(f): c for f, c in mapping.items()}
+
+    @property
+    def c2f(self):
+        """Get an inverse mapping from Celsius to Fahrenheit.
+        """
+
+        return {v: k for k, v in self.f2c.items()}
+
+    def set_celsius(self, c):
+        """Set the device's target temperature in Celsius degrees.
+        """
+
+        self.client.session.set_device_controls(
+            self.device.id,
+            {'TempCfg': c},
+        )
+
+    def set_fahrenheit(self, f):
+        """Set the device's target temperature in Fahrenheit degrees.
+        """
+
+        self.set_celsius(self.f2c[f])
