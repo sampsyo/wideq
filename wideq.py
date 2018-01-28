@@ -597,3 +597,65 @@ class ACDevice(object):
         """
 
         self.set_celsius(self.f2c[f])
+
+    def monitor_start(self):
+        """Start monitoring the device's status."""
+
+        self.mon = Monitor(self.client.session, self.device.id)
+        self.mon.start()
+
+    def monitor_stop(self):
+        """Stop monitoring the device's status."""
+
+        self.mon.stop()
+
+    def poll(self):
+        """Poll the device's current state.
+
+        Monitoring must be started first with `monitor_start`. Return
+        either an `ACStatus` object or `None` if the status is not yet
+        available.
+        """
+
+        res = self.mon.poll()
+        if res:
+            return ACStatus(self, res)
+        else:
+            return None
+
+
+class ACStatus(object):
+    def __init__(self, ac, data):
+        self.ac = ac
+        self.data = data
+
+    @staticmethod
+    def _str_to_num(s):
+        """Convert a string to either an `int` or a `float`.
+
+        Troublingly, the API likes values like "18", without a trailing
+        ".0", for whole numbers. So we use `int`s for integers and
+        `float`s for non-whole numbers.
+        """
+
+        f = float(s)
+        if f == int(f):
+            return int(f)
+        else:
+            return f
+
+    @property
+    def temp_cur_c(self):
+        return self._str_to_num(self.data['TempCur'])
+
+    @property
+    def temp_cur_f(self):
+        return self.ac.c2f[self.temp_cur_c]
+
+    @property
+    def temp_cfg_c(self):
+        return self._str_to_num(self.data['TempCfg'])
+
+    @property
+    def temp_cfg_f(self):
+        return self.ac.c2f[self.temp_cfg_c]
