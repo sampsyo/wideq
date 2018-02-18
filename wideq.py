@@ -578,6 +578,15 @@ class ACMode(enum.Enum):
     ENERGY_SAVING = "@AC_MAIN_OPERATION_MODE_ENERGY_SAVING_W"
 
 
+class ACOp(enum.Enum):
+    """Whether a device is on or off."""
+
+    OFF = "@AC_MAIN_OPERATION_OFF_W"
+    RIGHT_ON = "@AC_MAIN_OPERATION_RIGHT_ON_W"  # This one seems to mean "on"?
+    LEFT_ON = "@AC_MAIN_OPERATION_LEFT_ON_W"
+    ALL_ON = "@AC_MAIN_OPERATION_ALL_ON_W"
+
+
 class ACDevice(object):
     """Higher-level operations on an AC/HVAC device, such as a heat
     pump.
@@ -708,3 +717,8 @@ class ACStatus(object):
     @property
     def mode(self):
         return ACMode(self.lookup_enum('OpMode'))
+
+    @property
+    def is_on(self):
+        op = ACOp(self.lookup_enum('Operation'))
+        return op != ACOp.OFF
