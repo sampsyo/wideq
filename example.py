@@ -97,11 +97,19 @@ def set_temp(client, device_id, temp):
     ac.set_fahrenheit(int(temp))
 
 
+def turn(client, device_id, on_off):
+    """Turn on/off an AC device."""
+
+    ac = wideq.ACDevice(client, client.get_device(device_id))
+    ac.set_on(on_off == 'on')
+
+
 EXAMPLE_COMMANDS = {
     'ls': ls,
     'mon': mon,
     'ac-mon': ac_mon,
     'set-temp': set_temp,
+    'turn': turn,
 }
 
 
