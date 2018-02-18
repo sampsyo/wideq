@@ -7,6 +7,10 @@ STATE_FILE = 'wideq_state.json'
 
 
 def authenticate(gateway):
+    """Interactively authenticate the user via a browser to get an OAuth
+    session.
+    """
+
     login_url = gateway.oauth_url()
     print('Log in here:')
     print(login_url)
@@ -15,72 +19,98 @@ def authenticate(gateway):
     return wideq.Auth.from_url(gateway, callback_url)
 
 
-def example_command(client, args):
-    if not args or args[0] == 'ls':
-        for device in client.devices:
-            print('{0.id}: {0.name} ({0.model_id})'.format(device))
+def ls(client):
+    """List the user's devices."""
 
-    elif args[0] == 'mon':
-        device_id = args[1]
-        device = client.get_device(device_id)
-        model = client.model_info(device)
+    for device in client.devices:
+        print('{0.id}: {0.name} ({0.model_id})'.format(device))
 
-        with wideq.Monitor(client.session, device_id) as mon:
-            try:
-                while True:
-                    time.sleep(1)
-                    print('Polling...')
-                    res = mon.poll()
-                    if res:
-                        for key, value in res.items():
-                            try:
-                                desc = model.value(key)
-                            except KeyError:
-                                print('- {}: {}'.format(key, value))
-                            if isinstance(desc, wideq.EnumValue):
-                                print('- {}: {}'.format(
-                                    key, desc.options.get(value, value)
-                                ))
-                            elif isinstance(desc, wideq.RangeValue):
-                                print('- {0}: {1} ({2.min}-{2.max})'.format(
-                                    key, value, desc,
 
-                                ))
+def mon(client, device_id):
+    """Monitor any device, displaying generic information about its
+    status.
+    """
 
-            except KeyboardInterrupt:
-                pass
+    device = client.get_device(device_id)
+    model = client.model_info(device)
 
-    elif args[0] == 'ac-mon':
-        device_id = args[1]
-        ac = wideq.ACDevice(client, client.get_device(device_id))
-
+    with wideq.Monitor(client.session, device_id) as mon:
         try:
-            ac.monitor_start()
             while True:
                 time.sleep(1)
-                state = ac.poll()
-                if state:
-                    print(
-                        '{1}; '
-                        '{0.mode.name}; '
-                        'cur {0.temp_cur_f}°F; '
-                        'cfg {0.temp_cfg_f}°F'
-                        .format(
-                            state,
-                            'on' if state.is_on else 'off'
-                        )
-                    )
+                print('Polling...')
+                res = mon.poll()
+                if res:
+                    for key, value in res.items():
+                        try:
+                            desc = model.value(key)
+                        except KeyError:
+                            print('- {}: {}'.format(key, value))
+                        if isinstance(desc, wideq.EnumValue):
+                            print('- {}: {}'.format(
+                                key, desc.options.get(value, value)
+                            ))
+                        elif isinstance(desc, wideq.RangeValue):
+                            print('- {0}: {1} ({2.min}-{2.max})'.format(
+                                key, value, desc,
+
+                            ))
 
         except KeyboardInterrupt:
             pass
-        finally:
-            ac.monitor_stop()
 
-    elif args[0] == 'set-temp':
-        temp = args[1]
-        device_id = args[2]
 
-        client.session.set_device_controls(device_id, {'TempCfg': temp})
+def ac_mon(client, device_id):
+    """Monitor an AC/HVAC device, showing higher-level information about
+    its status such as its temperature and operation mode.
+    """
+
+    ac = wideq.ACDevice(client, client.get_device(device_id))
+
+    try:
+        ac.monitor_start()
+        while True:
+            time.sleep(1)
+            state = ac.poll()
+            if state:
+                print(
+                    '{1}; '
+                    '{0.mode.name}; '
+                    'cur {0.temp_cur_f}°F; '
+                    'cfg {0.temp_cfg_f}°F'
+                    .format(
+                        state,
+                        'on' if state.is_on else 'off'
+                    )
+                )
+
+    except KeyboardInterrupt:
+        pass
+    finally:
+        ac.monitor_stop()
+
+
+def set_temp(client, device_id, temp):
+    """Set the configured temperature for an AC device."""
+
+    ac = wideq.ACDevice(client, client.get_device(device_id))
+    ac.set_fahrenheit(int(temp))
+
+
+EXAMPLE_COMMANDS = {
+    'ls': ls,
+    'mon': mon,
+    'ac-mon': ac_mon,
+    'set-temp': set_temp,
+}
+
+
+def example_command(client, args):
+    if not args:
+        ls(client)
+    else:
+        func = EXAMPLE_COMMANDS[args[0]]
+        func(client, *args[1:])
 
 
 def example(args):
