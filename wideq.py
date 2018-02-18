@@ -640,10 +640,22 @@ class ACDevice(object):
     def set_mode(self, mode):
         """Set the device's operating mode to an `OpMode` value.
         """
+
         mode_value = self.model.enum_value('OpMode', mode.value)
         self.client.session.set_device_controls(
             self.device.id,
             {'OpMode': mode_value},
+        )
+
+    def set_on(self, is_on):
+        """Turn on or off the device (according to a boolean).
+        """
+
+        op = ACOp.RIGHT_ON if is_on else ACOp.OFF
+        op_value = self.model.enum_value('Operation', op.value)
+        self.client.session.set_device_controls(
+            self.device.id,
+            {'Operation': op_value},
         )
 
     def monitor_start(self):
