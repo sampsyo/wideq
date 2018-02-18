@@ -622,14 +622,20 @@ class ACDevice(object):
 
         return {v: k for k, v in self.f2c.items()}
 
-    def set_celsius(self, c):
-        """Set the device's target temperature in Celsius degrees.
+    def _set_control(self, key, value):
+        """Set a device's control for `key` to `value`.
         """
 
         self.client.session.set_device_controls(
             self.device.id,
-            {'TempCfg': c},
+            {key: value},
         )
+
+    def set_celsius(self, c):
+        """Set the device's target temperature in Celsius degrees.
+        """
+
+        self._set_control('TempCfg', c)
 
     def set_fahrenheit(self, f):
         """Set the device's target temperature in Fahrenheit degrees.
@@ -642,10 +648,7 @@ class ACDevice(object):
         """
 
         mode_value = self.model.enum_value('OpMode', mode.value)
-        self.client.session.set_device_controls(
-            self.device.id,
-            {'OpMode': mode_value},
-        )
+        self._set_control('OpMode', mode_value)
 
     def set_on(self, is_on):
         """Turn on or off the device (according to a boolean).
@@ -653,10 +656,7 @@ class ACDevice(object):
 
         op = ACOp.RIGHT_ON if is_on else ACOp.OFF
         op_value = self.model.enum_value('Operation', op.value)
-        self.client.session.set_device_controls(
-            self.device.id,
-            {'Operation': op_value},
-        )
+        self._set_control('Operation', op_value)
 
     def monitor_start(self):
         """Start monitoring the device's status."""
