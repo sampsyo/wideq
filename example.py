@@ -50,6 +50,26 @@ def example_command(client, args):
             except KeyboardInterrupt:
                 pass
 
+    elif args[0] == 'ac-mon':
+        device_id = args[1]
+        ac = wideq.ACDevice(client, client.get_device(device_id))
+
+        try:
+            ac.monitor_start()
+            while True:
+                time.sleep(1)
+                state = ac.poll()
+                if state:
+                    print(
+                        'cur {0.temp_cur_f}°F; cfg {0.temp_cfg_f}°F'
+                        .format(state)
+                    )
+
+        except KeyboardInterrupt:
+            pass
+        finally:
+            ac.monitor_stop()
+
     elif args[0] == 'set-temp':
         temp = args[1]
         device_id = args[2]

@@ -625,6 +625,9 @@ class ACDevice(object):
 
 
 class ACStatus(object):
+    """Higher-level information about an AC device's current status.
+    """
+
     def __init__(self, ac, data):
         self.ac = ac
         self.data = data
