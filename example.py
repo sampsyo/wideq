@@ -61,7 +61,9 @@ def example_command(client, args):
                 state = ac.poll()
                 if state:
                     print(
-                        'cur {0.temp_cur_f}°F; cfg {0.temp_cfg_f}°F'
+                        '{0.mode}; '
+                        'cur {0.temp_cur_f}°F; '
+                        'cfg {0.temp_cfg_f}°F'
                         .format(state)
                     )
 

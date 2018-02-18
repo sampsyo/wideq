@@ -7,6 +7,7 @@ import hashlib
 import hmac
 import datetime
 from collections import namedtuple
+import enum
 
 
 GATEWAY_URL = 'https://kic.lgthinq.com:46030/api/common/gatewayUriList'
@@ -548,6 +549,20 @@ class ModelInfo(object):
         return self.data['Value'][name]['default']
 
 
+class ACMode(enum.Enum):
+    """The operation mode for an AC/HVAC device."""
+
+    COOL = "@AC_MAIN_OPERATION_MODE_COOL_W"
+    DRY = "@AC_MAIN_OPERATION_MODE_DRY_W"
+    FAN = "@AC_MAIN_OPERATION_MODE_FAN_W"
+    AI = "@AC_MAIN_OPERATION_MODE_AI_W"
+    HEAT = "@AC_MAIN_OPERATION_MODE_HEAT_W"
+    AIRCLEAN = "@AC_MAIN_OPERATION_MODE_AIRCLEAN_W"
+    ACO = "@AC_MAIN_OPERATION_MODE_ACO_W"
+    AROMA = "@AC_MAIN_OPERATION_MODE_AROMA_W"
+    ENERGY_SAVING = "@AC_MAIN_OPERATION_MODE_ENERGY_SAVING_W"
+
+
 class ACDevice(object):
     """Higher-level operations on an AC/HVAC device, such as a heat
     pump.
@@ -662,3 +677,12 @@ class ACStatus(object):
     @property
     def temp_cfg_f(self):
         return self.ac.c2f[self.temp_cfg_c]
+
+    def lookup_enum(self, key):
+        desc = self.ac.model.value(key)
+        assert isinstance(desc, EnumValue)
+        return desc.options[self.data[key]]
+
+    @property
+    def mode(self):
+        return ACMode(self.lookup_enum('OpMode'))
