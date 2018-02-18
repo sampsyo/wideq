@@ -548,6 +548,21 @@ class ModelInfo(object):
 
         return self.data['Value'][name]['default']
 
+    def enum_value(self, key, name):
+        """Look up the encoded value for a friendly enum name.
+        """
+
+        options = self.value(key).options
+        options_inv = {v: k for k, v in options.items()}  # Invert the map.
+        return options_inv[name]
+
+    def enum_name(self, key, value):
+        """Look up the friendly enum name for an encoded value.
+        """
+
+        options = self.value(key).options
+        return options[value]
+
 
 class ACMode(enum.Enum):
     """The operation mode for an AC/HVAC device."""
@@ -612,6 +627,15 @@ class ACDevice(object):
         """
 
         self.set_celsius(self.f2c[f])
+
+    def set_mode(self, mode):
+        """Set the device's operating mode to an `OpMode` value.
+        """
+        mode_value = self.model.enum_value('OpMode', mode.value)
+        self.client.session.set_device_controls(
+            self.device.id,
+            {'OpMode': mode_value},
+        )
 
     def monitor_start(self):
         """Start monitoring the device's status."""
@@ -679,9 +703,7 @@ class ACStatus(object):
         return self.ac.c2f[self.temp_cfg_c]
 
     def lookup_enum(self, key):
-        desc = self.ac.model.value(key)
-        assert isinstance(desc, EnumValue)
-        return desc.options[self.data[key]]
+        return self.ac.model.enum_name(key, self.data[key])
 
     @property
     def mode(self):
