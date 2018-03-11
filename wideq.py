@@ -392,6 +392,11 @@ class Client(object):
 
         if not self._devices:
             self._devices = self.session.get_devices()
+        
+        # Convert devices property to list if required.
+        if type(self._devices) is dict:
+            self._devices = [self._devices]
+
         return (DeviceInfo(d) for d in self._devices)
 
     def get_device(self, device_id):
