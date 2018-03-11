@@ -393,7 +393,7 @@ class Client(object):
         if not self._devices:
             self._devices = self.session.get_devices()
         
-        """Convert devices property to list if required."""
+        # Convert devices property to list if required.
         if type(self._devices) is dict:
             self._devices = [self._devices]
 
