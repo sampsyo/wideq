@@ -41,6 +41,19 @@ def oauth2_signature(message, secret):
     return base64.b64encode(digest)
 
 
+def as_list(obj):
+    """Wrap non-lists in lists.
+
+    If `obj` is a list, return it unchanged. Otherwise, return a
+    single-element list containing it.
+    """
+
+    if isinstance(obj, list):
+        return obj
+    else:
+        return [obj]
+
+
 class APIError(Exception):
     """An error reported by the API."""
 
@@ -226,12 +239,12 @@ class Auth(object):
 
     def start_session(self):
         """Start an API session for the logged-in user. Return the
-        Session object and the user's devices.
+        Session object and a list of the user's devices.
         """
 
         session_info = login(self.gateway.api_root, self.access_token)
         session_id = session_info['jsessionId']
-        return Session(self, session_id), session_info['item']
+        return Session(self, session_id), as_list(session_info['item'])
 
     def refresh(self):
         """Refresh the authentication, returning a new Auth object.
@@ -263,7 +276,7 @@ class Session(object):
         Return a list of dicts with information about the devices.
         """
 
-        return self.post('device/deviceList')['item']
+        return as_list(self.post('device/deviceList')['item'])
 
     def monitor_start(self, device_id):
         """Begin monitoring a device's status.
