@@ -631,9 +631,21 @@ class ACDevice(object):
     @property
     def c2f(self):
         """Get an inverse mapping from Celsius to Fahrenheit.
+
+        Just as unbelievably, this is not exactly the inverse of the
+        `f2c` map. There are a few values in this reverse mapping that
+        are not in the other.
         """
 
-        return {v: k for k, v in self.f2c.items()}
+        mapping = self.model.value('TempCelToFah').options
+        out = {}
+        for c, f in mapping.items():
+            try:
+                c_num = int(c)
+            except ValueError:
+                c_num = float(c)
+            out[c_num] = f
+        return out
 
     def _set_control(self, key, value):
         """Set a device's control for `key` to `value`.
