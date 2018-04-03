@@ -515,6 +515,36 @@ class Client(object):
         return ModelInfo(self._model_info[url])
 
 
+class DeviceType(enum.Enum):
+    """The category of device."""
+
+    REFRIGERATOR = 101
+    KIMCHI_REFRIGERATOR = 102
+    WATER_PURIFIER = 103
+    WASHER = 201
+    DRYER = 202
+    STYLER = 203
+    DISHWASHER = 204
+    OVEN = 301
+    MICROWAVE = 302
+    COOKTOP = 303
+    HOOD = 304
+    AC = 401  # Includes heat pumps, etc., possibly all HVAC devices.
+    AIR_PURIFIER = 402
+    DEHUMIDIFIER = 403
+    ROBOT_KING = 501  # Robotic vacuum cleaner?
+    ARCH = 1001
+    MISSG = 3001
+    SENSOR = 3002
+    SOLAR_SENSOR = 3102
+    IOT_LIGHTING = 3003
+    IOT_MOTION_SENSOR = 3004
+    IOT_SMART_PLUG = 3005
+    IOT_DUST_SENSOR = 3006
+    EMS_AIR_STATION = 4001
+    AIR_SENSOR = 4003
+
+
 class DeviceInfo(object):
     """Details about a user's device.
 
@@ -539,6 +569,12 @@ class DeviceInfo(object):
     @property
     def name(self):
         return self.data['alias']
+
+    @property
+    def type(self):
+        """The kind of device, as a `DeviceType` value."""
+
+        return DeviceType(self.data['deviceType'])
 
     def load_model_info(self):
         """Load JSON data describing the model's capabilities.
