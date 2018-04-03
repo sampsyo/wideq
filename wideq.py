@@ -296,8 +296,9 @@ class Session(object):
     def monitor_poll(self, device_id, work_id):
         """Get the result of a monitoring task.
 
-        `work_ids` is a mapping from device IDs to work IDs. Return the
-        device status or None if the monitoring is not yet ready.
+        `work_id` is a string ID retrieved from `monitor_start`. Return
+        a status result, which is a bytestring, or None if the
+        monitoring is not yet ready.
         """
 
         work_list = [{'deviceId': device_id, 'workId': work_id}]
@@ -305,9 +306,7 @@ class Session(object):
 
         # Weirdly, the main response data is base64-encoded JSON.
         if 'returnData' in res:
-            return json.loads(
-                base64.b64decode(res['returnData']).decode('utf8')
-            )
+            return base64.b64decode(res['returnData'])
         else:
             return None
 
@@ -351,7 +350,25 @@ class Monitor(object):
         self.session.monitor_stop(self.device_id, self.work_id)
 
     def poll(self):
+        """Get the current status data (a bytestring) or None if the
+        device is not yet ready.
+        """
+
         return self.session.monitor_poll(self.device_id, self.work_id)
+
+    @staticmethod
+    def decode_json(data):
+        """Decode a bytestring that encodes JSON status data."""
+
+        return json.loads(data.decode('utf8'))
+
+    def poll_json(self):
+        """For devices where status is reported via JSON data, get the
+        decoded status result (or None if status is not available).
+        """
+
+        data = self.poll()
+        return self.decode_json(data) if data else None
 
     def __enter__(self):
         self.start()
@@ -702,7 +719,7 @@ class ACDevice(object):
         available.
         """
 
-        res = self.mon.poll()
+        res = self.mon.poll_json()
         if res:
             return ACStatus(self, res)
         else:
