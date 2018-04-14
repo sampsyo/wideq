@@ -14,13 +14,16 @@ GATEWAY_URL = 'https://kic.lgthinq.com:46030/api/common/gatewayUriList'
 APP_KEY = 'wideq'
 SECURITY_KEY = 'nuts_securitykey'
 DATA_ROOT = 'lgedmRoot'
-COUNTRY = 'US'
-LANGUAGE = 'en-US'
+COUNTRY = 'KR'
+LANGUAGE = 'ko-KR'
 SVC_CODE = 'SVC202'
 CLIENT_ID = 'LGAO221A02'
 OAUTH_SECRET_KEY = 'c053c2a6ddeb7ad97cb0eed0dcb31cf8'
 OAUTH_CLIENT_KEY = 'LGAO221A02'
 DATE_FORMAT = '%a, %d %b %Y %H:%M:%S +0000'
+
+STATE_COOL = 'COOL'
+STATE_DRY = 'DRY'
 
 
 def gen_uuid():
@@ -732,7 +735,7 @@ class ACDevice(object):
         """Turn on or off the device (according to a boolean).
         """
 
-        op = ACOp.RIGHT_ON if is_on else ACOp.OFF
+        op = ACOp.ALL_ON if is_on else ACOp.OFF
         op_value = self.model.enum_value('Operation', op.value)
         self._set_control('Operation', op_value)
 
