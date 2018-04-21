@@ -357,6 +357,24 @@ class Session(object):
             'data': '',
         })
 
+    def get_device_config(self, device_id, key, category='Config'):
+        """Get a device configuration option.
+
+        The `category` string should probably either be "Config" or
+        "Control"; the right choice appears to depend on the key.
+        """
+
+        res = self.post('rti/rtiControl', {
+            'cmd': category,
+            'cmdOpt': 'Get',
+            'value': key,
+            'deviceId': device_id,
+            'workId': gen_uuid(),
+            'data': '',
+        })
+        data = base64.b64decode(res['returnData'])
+        return json.loads(data.decode('utf8'))
+
 
 class Monitor(object):
     """A monitoring task for a device.
