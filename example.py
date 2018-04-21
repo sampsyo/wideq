@@ -114,12 +114,20 @@ def turn(client, device_id, on_off):
     ac.set_on(on_off == 'on')
 
 
+def ac_config(client, device_id):
+    ac = wideq.ACDevice(client, client.get_device(device_id))
+    print(ac.get_filter_state())
+    print(ac.get_mfilter_state())
+    print(ac.get_energy_target())
+
+
 EXAMPLE_COMMANDS = {
     'ls': ls,
     'mon': mon,
     'ac-mon': ac_mon,
     'set-temp': set_temp,
     'turn': turn,
+    'ac-config': ac_config,
 }
 
 

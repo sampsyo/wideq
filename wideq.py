@@ -805,6 +805,22 @@ class ACDevice(Device):
         op_value = self.model.enum_value('Operation', op.value)
         self._set_control('Operation', op_value)
 
+    def get_filter_state(self):
+        """Get information about the filter."""
+
+        return self._get_config('Filter')
+
+    def get_mfilter_state(self):
+        """Get information about the "MFilter" (not sure what this is).
+        """
+
+        return self._get_config('MFilter')
+
+    def get_energy_target(self):
+        """Get the configured energy target data."""
+
+        return self._get_config('EnergyDesiredValue')
+
     def monitor_start(self):
         """Start monitoring the device's status."""
 
