@@ -681,6 +681,42 @@ class ModelInfo(object):
         return options[value]
 
 
+class Device(object):
+    """A higher-level interface to a specific device.
+
+    Unlike `DeviceInfo`, which just stores data *about* a device,
+    `Device` objects refer to their client and can perform operations
+    regarding the device.
+    """
+
+    def __init__(self, client, device):
+        """Create a wrapper for a `DeviceInfo` object associated with a
+        `Client`.
+        """
+
+        self.client = client
+        self.device = device
+        self.model = client.model_info(device)
+
+    def _set_control(self, key, value):
+        """Set a device's control for `key` to `value`.
+        """
+
+        self.client.session.set_device_controls(
+            self.device.id,
+            {key: value},
+        )
+
+    def _get_config(self, key):
+        """Look up a device's configuration for a given value.
+        """
+
+        return self.client.session.get_device_config(
+            self.device.id,
+            key,
+        )
+
+
 class ACMode(enum.Enum):
     """The operation mode for an AC/HVAC device."""
 
@@ -704,19 +740,10 @@ class ACOp(enum.Enum):
     ALL_ON = "@AC_MAIN_OPERATION_ALL_ON_W"
 
 
-class ACDevice(object):
+class ACDevice(Device):
     """Higher-level operations on an AC/HVAC device, such as a heat
     pump.
     """
-
-    def __init__(self, client, device):
-        """Create a wrapper for a `DeviceInfo` object associated with a
-        `Client`.
-        """
-
-        self.client = client
-        self.device = device
-        self.model = client.model_info(device)
 
     @property
     def f2c(self):
@@ -750,24 +777,6 @@ class ACDevice(object):
                 c_num = float(c)
             out[c_num] = f
         return out
-
-    def _set_control(self, key, value):
-        """Set a device's control for `key` to `value`.
-        """
-
-        self.client.session.set_device_controls(
-            self.device.id,
-            {key: value},
-        )
-
-    def _get_config(self, key):
-        """Look up a device's configuration for a given value.
-        """
-
-        return self.client.session.get_device_config(
-            self.device.id,
-            key,
-        )
 
     def set_celsius(self, c):
         """Set the device's target temperature in Celsius degrees.
