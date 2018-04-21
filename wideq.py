@@ -372,8 +372,7 @@ class Session(object):
             'workId': gen_uuid(),
             'data': '',
         })
-        data = base64.b64decode(res['returnData'])
-        return json.loads(data.decode('utf8'))
+        return res['returnData']
 
 
 class Monitor(object):
@@ -709,11 +708,24 @@ class Device(object):
 
     def _get_config(self, key):
         """Look up a device's configuration for a given value.
+
+        The response is parsed as base64-encoded JSON.
+        """
+
+        data = self.client.session.get_device_config(
+            self.device.id,
+            key,
+        )
+        return json.loads(base64.b64decode(data).decode('utf8'))
+
+    def _get_control(self, key):
+        """Look up a device's control value.
         """
 
         return self.client.session.get_device_config(
             self.device.id,
             key,
+            'Control',
         )
 
 
