@@ -359,7 +359,12 @@ class Session(object):
 
 
 class Monitor(object):
-    """A monitoring task for a device."""
+    """A monitoring task for a device.
+
+    This task is robust to some API-level failures. If the monitoring
+    task expires, it attempts to start a new one automatically. This
+    makes one `Monitor` object suitable for long-term monitoring.
+    """
 
     def __init__(self, session, device_id):
         self.session = session
@@ -376,7 +381,13 @@ class Monitor(object):
         device is not yet ready.
         """
 
-        return self.session.monitor_poll(self.device_id, self.work_id)
+        try:
+            return self.session.monitor_poll(self.device_id, self.work_id)
+        except MonitorError:
+            # Try to restart the task.
+            self.stop()
+            self.start()
+            return None
 
     @staticmethod
     def decode_json(data):
