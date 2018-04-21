@@ -304,8 +304,10 @@ class Session(object):
         work_list = [{'deviceId': device_id, 'workId': work_id}]
         res = self.post('rti/rtiResult', {'workList': work_list})['workList']
 
-        # Weirdly, the main response data is base64-encoded JSON.
         if 'returnData' in res:
+            # The main response payload is base64-encoded binary data in
+            # the `returnData` field. This sometimes contains JSON data
+            # and sometimes other binary data.
             return base64.b64decode(res['returnData'])
         else:
             return None
