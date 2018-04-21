@@ -76,6 +76,16 @@ class TokenError(APIError):
         pass
 
 
+class MonitorError(APIError):
+    """Monitoring a device failed, possibly because the monitoring
+    session failed and needs to be restarted.
+    """
+
+    def __init__(self, device_id, code):
+        self.device_id = device_id
+        self.code = code
+
+
 def lgedm_post(url, data=None, access_token=None, session_id=None):
     """Make an HTTP request in the format used by the API servers.
 
@@ -299,11 +309,21 @@ class Session(object):
         `work_id` is a string ID retrieved from `monitor_start`. Return
         a status result, which is a bytestring, or None if the
         monitoring is not yet ready.
+
+        May raise a `MonitorError`, in which case the right course of
+        action is probably to restart the monitoring task.
         """
 
         work_list = [{'deviceId': device_id, 'workId': work_id}]
         res = self.post('rti/rtiResult', {'workList': work_list})['workList']
 
+        # Check for errors.
+        code = res['returnCode']
+        if code != '0000':
+            raise MonitorError(device_id, code)
+
+        # The return data may or may not be present, depending on the
+        # monitoring task status.
         if 'returnData' in res:
             # The main response payload is base64-encoded binary data in
             # the `returnData` field. This sometimes contains JSON data
