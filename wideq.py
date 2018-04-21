@@ -833,6 +833,12 @@ class ACDevice(Device):
 
         return self._get_config('EnergyDesiredValue')
 
+    def get_light(self):
+        """Get a Boolean indicating whether the display light is on."""
+
+        value = self._get_control('DisplayControl')
+        return value == '(DisplayControl:0)'
+
     def monitor_start(self):
         """Start monitoring the device's status."""
 
