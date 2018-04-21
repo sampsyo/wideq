@@ -348,7 +348,7 @@ class Session(object):
         `values` is a key/value map containing the settings to update.
         """
 
-        self.post('rti/rtiControl', {
+        return self.post('rti/rtiControl', {
             'cmd': 'Control',
             'cmdOpt': 'Set',
             'value': values,
@@ -722,11 +722,15 @@ class Device(object):
         """Look up a device's control value.
         """
 
-        return self.client.session.get_device_config(
+        data = self.client.session.get_device_config(
             self.device.id,
             key,
             'Control',
         )
+
+        # The response comes in a funky key/value format: "(key:value)".
+        _, value = data[1:-1].split(':')
+        return value
 
 
 class ACMode(enum.Enum):
@@ -837,7 +841,13 @@ class ACDevice(Device):
         """Get a Boolean indicating whether the display light is on."""
 
         value = self._get_control('DisplayControl')
-        return value == '(DisplayControl:0)'
+        return value == '0'  # Seems backwards, but isn't.
+
+    def get_volume(self):
+        """Get the speaker volume level."""
+
+        value = self._get_control('SpkVolume')
+        return int(value)
 
     def monitor_start(self):
         """Start monitoring the device's status."""
