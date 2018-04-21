@@ -760,6 +760,15 @@ class ACDevice(object):
             {key: value},
         )
 
+    def _get_config(self, key):
+        """Look up a device's configuration for a given value.
+        """
+
+        return self.client.session.get_device_config(
+            self.device.id,
+            key,
+        )
+
     def set_celsius(self, c):
         """Set the device's target temperature in Celsius degrees.
         """
