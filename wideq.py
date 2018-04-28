@@ -318,7 +318,7 @@ class Session(object):
         res = self.post('rti/rtiResult', {'workList': work_list})['workList']
 
         # Check for errors.
-        code = res['returnCode']
+        code = res.get('returnCode')  # returnCode can be missing.
         if code != '0000':
             raise MonitorError(device_id, code)
 
