@@ -24,7 +24,14 @@ DATE_FORMAT = '%a, %d %b %Y %H:%M:%S +0000'
 
 STATE_COOL = 'COOL'
 STATE_DRY = 'DRY'
+STATE_AIRCLEAN = 'AIRCLEAN'
 
+STATE_LOW = 'LOW'
+STATE_MID = 'MID'
+STATE_HIGH = 'HIGH'
+STATE_AUTO = 'AUTO'
+STATE_COOLPOWER = 'COOLPOWER'
+STATE_LONGPOWER = 'LONGPOWER'
 
 def gen_uuid():
     return str(uuid.uuid4())
@@ -77,6 +84,16 @@ class TokenError(APIError):
 
     def __init__(self):
         pass
+
+
+class MonitorError(APIError):
+    """Monitoring a device failed, possibly because the monitoring
+    session failed and needs to be restarted.
+    """
+
+    def __init__(self, device_id, code):
+        self.device_id = device_id
+        self.code = code
 
 
 def lgedm_post(url, data=None, access_token=None, session_id=None):
@@ -302,16 +319,28 @@ class Session(object):
         `work_id` is a string ID retrieved from `monitor_start`. Return
         a status result, which is a bytestring, or None if the
         monitoring is not yet ready.
+
+        May raise a `MonitorError`, in which case the right course of
+        action is probably to restart the monitoring task.
         """
 
         work_list = [{'deviceId': device_id, 'workId': work_id}]
         res = self.post('rti/rtiResult', {'workList': work_list})['workList']
 
-        # Weirdly, the main response data is base64-encoded JSON.
+        # The return data may or may not be present, depending on the
+        # monitoring task status.
         if 'returnData' in res:
+            # The main response payload is base64-encoded binary data in
+            # the `returnData` field. This sometimes contains JSON data
+            # and sometimes other binary data.
             return base64.b64decode(res['returnData'])
         else:
             return None
+         # Check for errors.
+        code = res.get('returnCode')  # returnCode can be missing.
+        if code != '0000':
+            raise MonitorError(device_id, code)
+
 
     def monitor_stop(self, device_id, work_id):
         """Stop monitoring a device."""
@@ -329,7 +358,7 @@ class Session(object):
         `values` is a key/value map containing the settings to update.
         """
 
-        self.post('rti/rtiControl', {
+        return self.post('rti/rtiControl', {
             'cmd': 'Control',
             'cmdOpt': 'Set',
             'value': values,
@@ -338,9 +367,31 @@ class Session(object):
             'data': '',
         })
 
+    def get_device_config(self, device_id, key, category='Config'):
+        """Get a device configuration option.
+
+        The `category` string should probably either be "Config" or
+        "Control"; the right choice appears to depend on the key.
+        """
+
+        res = self.post('rti/rtiControl', {
+            'cmd': category,
+            'cmdOpt': 'Get',
+            'value': key,
+            'deviceId': device_id,
+            'workId': gen_uuid(),
+            'data': '',
+        })
+        return res['returnData']
+
 
 class Monitor(object):
-    """A monitoring task for a device."""
+    """A monitoring task for a device.
+
+    This task is robust to some API-level failures. If the monitoring
+    task expires, it attempts to start a new one automatically. This
+    makes one `Monitor` object suitable for long-term monitoring.
+    """
 
     def __init__(self, session, device_id):
         self.session = session
@@ -357,7 +408,13 @@ class Monitor(object):
         device is not yet ready.
         """
 
-        return self.session.monitor_poll(self.device_id, self.work_id)
+        try:
+            return self.session.monitor_poll(self.device_id, self.work_id)
+        except MonitorError:
+            # Try to restart the task.
+            self.stop()
+            self.start()
+            return None
 
     @staticmethod
     def decode_json(data):
@@ -633,32 +690,12 @@ class ModelInfo(object):
         return options[value]
 
 
-class ACMode(enum.Enum):
-    """The operation mode for an AC/HVAC device."""
+class Device(object):
+    """A higher-level interface to a specific device.
 
-    COOL = "@AC_MAIN_OPERATION_MODE_COOL_W"
-    DRY = "@AC_MAIN_OPERATION_MODE_DRY_W"
-    FAN = "@AC_MAIN_OPERATION_MODE_FAN_W"
-    AI = "@AC_MAIN_OPERATION_MODE_AI_W"
-    HEAT = "@AC_MAIN_OPERATION_MODE_HEAT_W"
-    AIRCLEAN = "@AC_MAIN_OPERATION_MODE_AIRCLEAN_W"
-    ACO = "@AC_MAIN_OPERATION_MODE_ACO_W"
-    AROMA = "@AC_MAIN_OPERATION_MODE_AROMA_W"
-    ENERGY_SAVING = "@AC_MAIN_OPERATION_MODE_ENERGY_SAVING_W"
-
-
-class ACOp(enum.Enum):
-    """Whether a device is on or off."""
-
-    OFF = "@AC_MAIN_OPERATION_OFF_W"
-    RIGHT_ON = "@AC_MAIN_OPERATION_RIGHT_ON_W"  # This one seems to mean "on"?
-    LEFT_ON = "@AC_MAIN_OPERATION_LEFT_ON_W"
-    ALL_ON = "@AC_MAIN_OPERATION_ALL_ON_W"
-
-
-class ACDevice(object):
-    """Higher-level operations on an AC/HVAC device, such as a heat
-    pump.
+    Unlike `DeviceInfo`, which just stores data *about* a device,
+    `Device` objects refer to their client and can perform operations
+    regarding the device.
     """
 
     def __init__(self, client, device):
@@ -669,6 +706,83 @@ class ACDevice(object):
         self.client = client
         self.device = device
         self.model = client.model_info(device)
+
+    def _set_control(self, key, value):
+        """Set a device's control for `key` to `value`.
+        """
+
+        self.client.session.set_device_controls(
+            self.device.id,
+            {key: value},
+        )
+
+    def _get_config(self, key):
+        """Look up a device's configuration for a given value.
+
+        The response is parsed as base64-encoded JSON.
+        """
+
+        data = self.client.session.get_device_config(
+            self.device.id,
+            key,
+        )
+        return json.loads(base64.b64decode(data).decode('utf8'))
+
+    def _get_control(self, key):
+        """Look up a device's control value.
+        """
+
+        data = self.client.session.get_device_config(
+            self.device.id,
+            key,
+            'Control',
+        )
+
+        # The response comes in a funky key/value format: "(key:value)".
+        _, value = data[1:-1].split(':')
+        return value
+
+
+class ACMode(enum.Enum):
+    """The operation mode for an AC/HVAC device."""
+
+    COOL = "@AC_MAIN_OPERATION_MODE_COOL_W"
+    DRY = "@AC_MAIN_OPERATION_MODE_DRY_W"
+    FAN_ONLY = "@AC_MAIN_OPERATION_MODE_FAN_W"
+    AI = "@AC_MAIN_OPERATION_MODE_AI_W"
+    HEAT = "@AC_MAIN_OPERATION_MODE_HEAT_W"
+    AIRCLEAN = "@AC_MAIN_OPERATION_MODE_AIRCLEAN_W"
+    ACO = "@AC_MAIN_OPERATION_MODE_ACO_W"
+    AROMA = "@AC_MAIN_OPERATION_MODE_AROMA_W"
+    ENERGY_SAVING = "@AC_MAIN_OPERATION_MODE_ENERGY_SAVING_W"
+
+class ACWindstrength(enum.Enum):
+    """The wind strength mode for an AC/HVAC device."""
+
+    LOW = "@AC_MAIN_WIND_STRENGTH_LOW_LEFT_W|AC_MAIN_WIND_STRENGTH_LOW_RIGHT_W"
+    MID = "@AC_MAIN_WIND_STRENGTH_MID_LEFT_W|AC_MAIN_WIND_STRENGTH_MID_RIGHT_W"
+    HIGH = "@AC_MAIN_WIND_STRENGTH_HIGH_LEFT_W|AC_MAIN_WIND_STRENGTH_HIGH_RIGHT_W"
+
+class ACOp(enum.Enum):
+    """Whether a device is on or off."""
+
+    OFF = "@AC_MAIN_OPERATION_OFF_W"
+    RIGHT_ON = "@AC_MAIN_OPERATION_RIGHT_ON_W"  # This one seems to mean "on"?
+    LEFT_ON = "@AC_MAIN_OPERATION_LEFT_ON_W"
+    ALL_ON = "@AC_MAIN_OPERATION_ALL_ON_W"
+
+class ICEVALLEY(enum.Enum):
+    OFF = "@OFF"
+    ON = "@ON"
+
+class LONGPOWER(enum.Enum):
+    OFF = "@OFF"
+    ON = "@ON"
+
+class ACDevice(Device):
+    """Higher-level operations on an AC/HVAC device, such as a heat
+    pump.
+    """
 
     @property
     def f2c(self):
@@ -703,15 +817,6 @@ class ACDevice(object):
             out[c_num] = f
         return out
 
-    def _set_control(self, key, value):
-        """Set a device's control for `key` to `value`.
-        """
-
-        self.client.session.set_device_controls(
-            self.device.id,
-            {key: value},
-        )
-
     def set_celsius(self, c):
         """Set the device's target temperature in Celsius degrees.
         """
@@ -731,6 +836,14 @@ class ACDevice(object):
         mode_value = self.model.enum_value('OpMode', mode.value)
         self._set_control('OpMode', mode_value)
 
+    def set_windstrength(self, mode):
+        """Set the device's operating mode to an `windstrength` value.
+        """
+
+        windstrength_value = self.model.enum_value('WindStrength', mode.value)
+        self._set_control('WindStrength', windstrength_value)
+
+
     def set_on(self, is_on):
         """Turn on or off the device (according to a boolean).
         """
@@ -738,6 +851,46 @@ class ACDevice(object):
         op = ACOp.ALL_ON if is_on else ACOp.OFF
         op_value = self.model.enum_value('Operation', op.value)
         self._set_control('Operation', op_value)
+
+    def set_icevalley(self, is_on):
+    
+        wmode = ICEVALLEY.ON if is_on else ICEVALLEY.OFF
+        wmode_value = self.model.enum_value('IceValley', wmode.value)
+        self._set_control('IceValley', wmode_value)
+
+    def set_longpower(self, is_on):
+    
+        wmode = LONGPOWER.ON if is_on else ICEVALLEY.OFF
+        wmode_value = self.model.enum_value('FlowLongPower', wmode.value)
+        self._set_control('FlowLongPower', wmode_value)
+
+    def get_filter_state(self):
+        """Get information about the filter."""
+
+        return self._get_config('Filter')
+
+    def get_mfilter_state(self):
+        """Get information about the "MFilter" (not sure what this is).
+        """
+
+        return self._get_config('MFilter')
+
+    def get_energy_target(self):
+        """Get the configured energy target data."""
+
+        return self._get_config('EnergyDesiredValue')
+
+    def get_light(self):
+        """Get a Boolean indicating whether the display light is on."""
+
+        value = self._get_control('DisplayControl')
+        return value == '0'  # Seems backwards, but isn't.
+
+    def get_volume(self):
+        """Get the speaker volume level."""
+
+        value = self._get_control('SpkVolume')
+        return int(value)
 
     def monitor_start(self):
         """Start monitoring the device's status."""
