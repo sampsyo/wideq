@@ -87,7 +87,8 @@ def ac_mon(client, device_id):
                     '{1}; '
                     '{0.mode.name}; '
                     'cur {0.temp_cur_f}°F; '
-                    'cfg {0.temp_cfg_f}°F'
+                    'cfg {0.temp_cfg_f}°F; '
+                    'fan speed {0.fan_speed.name}'
                     .format(
                         state,
                         'on' if state.is_on else 'off'
@@ -121,7 +122,10 @@ def ac_config(client, device_id):
     print(ac.get_energy_target())
     print(ac.get_volume())
     print(ac.get_light())
-
+    zones = ac.get_zones()
+    print(zones)
+    ac.set_fan_speed(wideq.ACFanSpeed('@AC_MAIN_WIND_STRENGTH_LOW_W'))
+    ac.set_zones(zones)
 
 EXAMPLE_COMMANDS = {
     'ls': ls,
