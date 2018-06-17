@@ -821,12 +821,14 @@ class ACDevice(Device):
         self.set_celsius(self.f2c[f])
 
     def set_zones(self, zones):
-        """Set the device's zones to on/off.
-        zones arg is a list of the format below
-        zone_no is a number indexed from 1 typed as string
-        enabled is a 1/0 typed as string
-        isOpen is a 1/0 typed as string
-        [{'No':zone_no, 'Cfg':enabled, 'State':isOpen},]
+        """Turn off or on the device's zones.
+
+        The `zones` parameter is a list of dicts with these keys:
+        - "No": The zone index. A string containing a number,
+          starting from 1.
+        - "Cfg": Whether the zone is enabled. A string, either "1" or
+          "0".
+        - "State": Whether the zone is open. Also "1" or "0".
         """
 
         # Ensure at least one zone is enabled: we can't turn all zones
@@ -840,15 +842,17 @@ class ACDevice(Device):
             self._set_control('DuctZone', zone_cmd)
 
     def get_zones(self):
-        """Gets the status of the zones, including whether a zone is configured.
-        Result is a list of dicts with the same format as set_zones()
+        """Get the status of the zones, including whether a zone is
+        configured.
+
+        The result is a list of dicts with the same format as described in
+        `set_zones`.
         """
 
         return self._get_config('DuctZone')
 
     def set_fan_speed(self, speed):
-        """Sets the fan speed according to the WindStrength operation
-        Speed arg is a value of the ACFanSpeed enum
+        """Set the fan speed to a value from the `ACFanSpeed` enum.
         """
 
         speed_value = self.model.enum_value('WindStrength', speed.value)
