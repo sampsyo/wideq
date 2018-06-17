@@ -124,6 +124,7 @@ def ac_config(client, device_id):
     print(ac.get_light())
     print(ac.get_zones())
 
+
 EXAMPLE_COMMANDS = {
     'ls': ls,
     'mon': mon,

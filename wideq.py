@@ -746,6 +746,7 @@ class ACMode(enum.Enum):
     AROMA = "@AC_MAIN_OPERATION_MODE_AROMA_W"
     ENERGY_SAVING = "@AC_MAIN_OPERATION_MODE_ENERGY_SAVING_W"
 
+
 class ACFanSpeed(enum.Enum):
     """The fan speed for an AC/HVAC device."""
 
@@ -758,6 +759,7 @@ class ACFanSpeed(enum.Enum):
     HIGH = '@AC_MAIN_WIND_STRENGTH_HIGH_W'
     POWER = '@AC_MAIN_WIND_STRENGTH_POWER_W'
     AUTO = '@AC_MAIN_WIND_STRENGTH_AUTO_W'
+
 
 class ACOp(enum.Enum):
     """Whether a device is on or off."""
@@ -826,25 +828,29 @@ class ACDevice(Device):
         isOpen is a 1/0 typed as string
         [{'No':zone_no, 'Cfg':enabled, 'State':isOpen},]
         """
-        #ensure at least 1 zone is enabled. Can't turn all zones off
+
+        # Ensure at least one zone is enabled: we can't turn all zones
+        # off simultaneously.
         on_count = sum(int(zone['State']) for zone in zones)
         if on_count > 0:
             zone_cmd = '/'.join(
-                    '{}_{}'.format(zone['No'], zone['State'])
-                    for zone in zones if zone['Cfg'] == '1'
-                    )
+                '{}_{}'.format(zone['No'], zone['State'])
+                for zone in zones if zone['Cfg'] == '1'
+            )
             self._set_control('DuctZone', zone_cmd)
 
     def get_zones(self):
         """Gets the status of the zones, including whether a zone is configured.
         Result is a list of dicts with the same format as set_zones()
         """
+
         return self._get_config('DuctZone')
 
     def set_fan_speed(self, speed):
         """Sets the fan speed according to the WindStrength operation
         Speed arg is a value of the ACFanSpeed enum
         """
+
         speed_value = self.model.enum_value('WindStrength', speed.value)
         self._set_control('WindStrength', speed_value)
 
