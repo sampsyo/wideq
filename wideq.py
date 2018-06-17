@@ -749,15 +749,15 @@ class ACMode(enum.Enum):
 class ACFanSpeed(enum.Enum):
     """The fan speed for an AC/HVAC device."""
 
-    SLOW_W = '@AC_MAIN_WIND_STRENGTH_SLOW_W'
-    SLOW_LOW_W = '@AC_MAIN_WIND_STRENGTH_SLOW_LOW_W'
-    LOW_W = '@AC_MAIN_WIND_STRENGTH_LOW_W'
-    LOW_MID_W = '@AC_MAIN_WIND_STRENGTH_LOW_MID_W'
-    MID_W = '@AC_MAIN_WIND_STRENGTH_MID_W'
-    MID_HIGH_W = '@AC_MAIN_WIND_STRENGTH_MID_HIGH_W'
-    HIGH_W = '@AC_MAIN_WIND_STRENGTH_HIGH_W'
-    POWER_W = '@AC_MAIN_WIND_STRENGTH_POWER_W'
-    AUTO_W = '@AC_MAIN_WIND_STRENGTH_AUTO_W'
+    SLOW = '@AC_MAIN_WIND_STRENGTH_SLOW_W'
+    SLOW_LOW = '@AC_MAIN_WIND_STRENGTH_SLOW_LOW_W'
+    LOW = '@AC_MAIN_WIND_STRENGTH_LOW_W'
+    LOW_MID = '@AC_MAIN_WIND_STRENGTH_LOW_MID_W'
+    MID = '@AC_MAIN_WIND_STRENGTH_MID_W'
+    MID_HIGH = '@AC_MAIN_WIND_STRENGTH_MID_HIGH_W'
+    HIGH = '@AC_MAIN_WIND_STRENGTH_HIGH_W'
+    POWER = '@AC_MAIN_WIND_STRENGTH_POWER_W'
+    AUTO = '@AC_MAIN_WIND_STRENGTH_AUTO_W'
 
 class ACOp(enum.Enum):
     """Whether a device is on or off."""
@@ -822,14 +822,17 @@ class ACDevice(Device):
         """Set the device's zones to on/off.
         zones arg is a list of the format below
         zone_no is a number indexed from 1 typed as string
-        enabled is a bool typed as string
-        isOpen is a bool typed as string
+        enabled is a 1/0 typed as string
+        isOpen is a 1/0 typed as string
         [{'No':zone_no, 'Cfg':enabled, 'State':isOpen},]
         """
         #ensure at least 1 zone is enabled. Can't turn all zones off
         on_count = sum(int(zone['State']) for zone in zones)
-        if(on_count > 0):
-            zone_cmd = '/'.join(zone['No']+'_'+zone['State'] for zone in zones if zone['Cfg'] == '1')
+        if on_count > 0:
+            zone_cmd = '/'.join(
+                    '{}_{}'.format(zone['No'], zone['State'])
+                    for zone in zones if zone['Cfg'] == '1'
+                    )
             self._set_control('DuctZone', zone_cmd)
 
     def get_zones(self):
@@ -839,7 +842,9 @@ class ACDevice(Device):
         return self._get_config('DuctZone')
 
     def set_fan_speed(self, speed):
-        """Sets the fan speed according to the WindStreng operation"""
+        """Sets the fan speed according to the WindStrength operation
+        Speed arg is a value of the ACFanSpeed enum
+        """
         speed_value = self.model.enum_value('WindStrength', speed.value)
         self._set_control('WindStrength', speed_value)
 

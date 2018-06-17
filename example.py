@@ -122,10 +122,7 @@ def ac_config(client, device_id):
     print(ac.get_energy_target())
     print(ac.get_volume())
     print(ac.get_light())
-    zones = ac.get_zones()
-    print(zones)
-    ac.set_fan_speed(wideq.ACFanSpeed('@AC_MAIN_WIND_STRENGTH_LOW_W'))
-    ac.set_zones(zones)
+    print(ac.get_zones())
 
 EXAMPLE_COMMANDS = {
     'ls': ls,
