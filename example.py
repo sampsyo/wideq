@@ -49,17 +49,16 @@ def mon(client, device_id):
                         for key, value in res.items():
                             try:
                                 desc = model.value(key)
+                                if isinstance(desc, wideq.EnumValue):
+                                    print('- {}: {}'.format(
+                                        key, desc.options.get(value, value)
+                                    ))
+                                elif isinstance(desc, wideq.RangeValue):
+                                    print('- {0}: {1} ({2.min}-{2.max})'.format(
+                                        key, value, desc,
+                                    ))
                             except KeyError:
                                 print('- {}: {}'.format(key, value))
-                            if isinstance(desc, wideq.EnumValue):
-                                print('- {}: {}'.format(
-                                    key, desc.options.get(value, value)
-                                ))
-                            elif isinstance(desc, wideq.RangeValue):
-                                print('- {0}: {1} ({2.min}-{2.max})'.format(
-                                    key, value, desc,
-
-                                ))
 
         except KeyboardInterrupt:
             pass
