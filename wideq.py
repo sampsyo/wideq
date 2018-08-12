@@ -702,6 +702,19 @@ class ModelInfo(object):
             decoded[key] = str(value)
         return decoded
 
+    def decode_monitor_json(self, data):
+        """Decode a bytestring that encodes JSON status data."""
+
+        return json.loads(data.decode('utf8'))
+
+    def decode_monitor(self, data):
+        """Decode  status data."""
+
+        if self.monitor_type == 1:
+            return self.decode_monitor_binary(data)
+        else:
+            return self.decode_monitor_json(data)
+
 class Device(object):
     """A higher-level interface to a specific device.
 

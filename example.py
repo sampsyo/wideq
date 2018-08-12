@@ -42,10 +42,7 @@ def mon(client, device_id):
                 data = mon.poll()
                 if data:
                     try:
-                        if model.monitor_type == 1:
-                            res = model.decode_monitor_binary(data)
-                        else:
-                            res = mon.decode_json(data)
+                        res = model.decode_monitor(data)
                     except ValueError:
                         print('status data: {!r}'.format(data))
                     else:
