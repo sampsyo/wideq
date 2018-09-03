@@ -695,11 +695,10 @@ class ModelInfo(object):
 
         decoded = {}
         for item in self.data['Monitoring']['protocol']:
-            key = item['value']
             value = 0
             for i in range(item['startByte'], item['startByte'] + item['length']):
-                value = value * 256 + data[i - 1]
-            decoded[key] = str(value)
+                value = value * 256 + data[i]
+            decoded[item['value']] = str(value)
         return decoded
 
     def decode_monitor_json(self, data):
