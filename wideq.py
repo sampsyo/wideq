@@ -442,6 +442,7 @@ class Monitor(object):
             self.start()
             return None
 
+
     @staticmethod
     def decode_json(data):
         """Decode a bytestring that encodes JSON status data."""
@@ -682,7 +683,7 @@ class ModelInfo(object):
     def value(self, name):
         """Look up information about a value.
 
-        Return either an `EnumValue` or a `RangeValue`.
+        Return either an `EnumValue` or a `RangeValue`.p
         """
         d = self.data['Value'][name]
         if d['type'] in ('Enum', 'enum'):
@@ -715,6 +716,40 @@ class ModelInfo(object):
         options = self.value(key).options
         return options[value]
 
+    @property
+    def monitor_type(self):
+        """Get type of monitoring return data.
+        """
+
+        if self.data['Monitoring']['type'] == 'BINARY(BYTE)':
+            return 1
+        else:
+            return 0
+
+    def decode_monitor_binary(self, data):
+        """Decode binary encoded status data.
+        """
+
+        decoded = {}
+        for item in self.data['Monitoring']['protocol']:
+            value = 0
+            for i in range(item['startByte'], item['startByte'] + item['length']):
+                value = value * 256 + data[i]
+            decoded[item['value']] = str(value)
+        return decoded
+
+    def decode_monitor_json(self, data):
+        """Decode a bytestring that encodes JSON status data."""
+
+        return json.loads(data.decode('utf8'))
+
+    def decode_monitor(self, data):
+        """Decode  status data."""
+
+        if self.monitor_type == 1:
+            return self.decode_monitor_binary(data)
+        else:
+            return self.decode_monitor_json(data)
 
 class Device(object):
     """A higher-level interface to a specific device.
@@ -806,7 +841,7 @@ class ACOp(enum.Enum):
     """Whether a device is on or off."""
 
     OFF = "@AC_MAIN_OPERATION_OFF_W"
-    RIGHT_ON = "@AC_MAIN_OPERATION_RIGHT_ON_W"  # This one seems to mean "on"?
+    RIGHT_ON = "@AC_MAIN_OPERATION_RIGHT_ON_W"
     LEFT_ON = "@AC_MAIN_OPERATION_LEFT_ON_W"
     ALL_ON = "@AC_MAIN_OPERATION_ALL_ON_W"
 
@@ -979,9 +1014,6 @@ class ACDevice(Device):
         """
         return self._get_config('MFilter')
 
-    def get_sensormon(self):
-        return self._get_config('SensorMon')
-    
     def get_energy_target(self):
         """Get the configured energy target data."""
 
@@ -1063,19 +1095,6 @@ class ACStatus(object):
         return self._str_to_num(self.data['TempCfg'])
 
     @property
-    def sensor_pm1(self):
-        return self._str_to_num(self.data['SensorPM1'])
-
-    @property
-    def sensor_pm2(self):
-        return self.data['SensorPM2']
-
-    @property
-    def sensor_humidity(self):
-        humidity = self._str_to_num(self.data['SensorHumidity'])
-        return float(humidity)
-
-    @property
     def temp_cfg_f(self):
         return self.ac.c2f[self.temp_cfg_c]
 
@@ -1090,3 +1109,27 @@ class ACStatus(object):
     def is_on(self):
         op = ACOp(self.lookup_enum('Operation'))
         return op != ACOp.OFF
+        
+    @property
+    def humidity(self):
+        return self.data['SensorHumidity']
+    
+    @property
+    def sensorpm1(self):
+        return self.data['SensorPM1']
+
+    @property
+    def sensorpm2(self):
+        return self.data['SensorPM2']
+
+    @property
+    def sensorpm10(self):
+        return self.data['SensorPM10']
+
+    @property
+    def total_air_polution(self):
+        return self.data['TotalAirPolution']
+
+    @property
+    def air_polution(self):
+        return self.data['AirPolution']
