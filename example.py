@@ -42,24 +42,23 @@ def mon(client, device_id):
                 data = mon.poll()
                 if data:
                     try:
-                        res = mon.decode_json(data)
+                        res = model.decode_monitor(data)
                     except ValueError:
                         print('status data: {!r}'.format(data))
                     else:
                         for key, value in res.items():
                             try:
                                 desc = model.value(key)
+                                if isinstance(desc, wideq.EnumValue):
+                                    print('- {}: {}'.format(
+                                        key, desc.options.get(value, value)
+                                    ))
+                                elif isinstance(desc, wideq.RangeValue):
+                                    print('- {0}: {1} ({2.min}-{2.max})'.format(
+                                        key, value, desc,
+                                    ))
                             except KeyError:
                                 print('- {}: {}'.format(key, value))
-                            if isinstance(desc, wideq.EnumValue):
-                                print('- {}: {}'.format(
-                                    key, desc.options.get(value, value)
-                                ))
-                            elif isinstance(desc, wideq.RangeValue):
-                                print('- {0}: {1} ({2.min}-{2.max})'.format(
-                                    key, value, desc,
-
-                                ))
 
         except KeyboardInterrupt:
             pass
