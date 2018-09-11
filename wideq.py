@@ -680,14 +680,11 @@ class ModelInfo(object):
         return options[value]
 
     @property
-    def monitor_type(self):
-        """Get type of monitoring return data.
+    def binary_monitor_data(self):
+        """Check that type of monitoring is BINARY(BYTE).
         """
 
-        if self.data['Monitoring']['type'] == 'BINARY(BYTE)':
-            return 1
-        else:
-            return 0
+        return self.data['Monitoring']['type'] == 'BINARY(BYTE)'
 
     def decode_monitor_binary(self, data):
         """Decode binary encoded status data.
@@ -695,10 +692,11 @@ class ModelInfo(object):
 
         decoded = {}
         for item in self.data['Monitoring']['protocol']:
+            key = item['value']
             value = 0
-            for i in range(item['startByte'], item['startByte'] + item['length']):
-                value = value * 256 + data[i]
-            decoded[item['value']] = str(value)
+            for v in data[item['startByte']:item['startByte'] + item['length']]:
+                value = (value << 8) + v
+            decoded[key] = str(value)
         return decoded
 
     def decode_monitor_json(self, data):
@@ -709,10 +707,11 @@ class ModelInfo(object):
     def decode_monitor(self, data):
         """Decode  status data."""
 
-        if self.monitor_type == 1:
+        if self.binary_monitor_data:
             return self.decode_monitor_binary(data)
         else:
             return self.decode_monitor_json(data)
+
 
 class Device(object):
     """A higher-level interface to a specific device.
