@@ -42,7 +42,7 @@ def mon(client, device_id):
                 data = mon.poll()
                 if data:
                     try:
-                        res = mon.decode_json(data)
+                        res = model.decode_monitor(data)
                     except ValueError:
                         print('status data: {!r}'.format(data))
                     else:
@@ -58,7 +58,6 @@ def mon(client, device_id):
                             elif isinstance(desc, wideq.RangeValue):
                                 print('- {0}: {1} ({2.min}-{2.max})'.format(
                                     key, value, desc,
-
                                 ))
 
         except KeyboardInterrupt:
