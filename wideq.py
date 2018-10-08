@@ -700,7 +700,8 @@ class ModelInfo(object):
         for item in self.data['Monitoring']['protocol']:
             key = item['value']
             value = 0
-            for v in data[item['startByte']:item['startByte'] + item['length']]:
+            for v in data[item['startByte']:item['startByte'] +
+                          item['length']]:
                 value = (value << 8) + v
             decoded[key] = str(value)
         return decoded
