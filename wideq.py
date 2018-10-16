@@ -22,42 +22,57 @@ OAUTH_SECRET_KEY = 'c053c2a6ddeb7ad97cb0eed0dcb31cf8'
 OAUTH_CLIENT_KEY = 'LGAO221A02'
 DATE_FORMAT = '%a, %d %b %Y %H:%M:%S +0000'
 
-STATE_COOL = 'COOL'
-STATE_POWER_SAVE = 'POWER_SAVE'
-STATE_DRY = 'DRY'
-STATE_AIRCLEAN = 'AIRCLEAN'
-STATE_AIRCLEAN_OFF = 'AIRCLEAN_OFF'
-STATE_SMARTCARE = 'SMARTCARE'
-STATE_SMARTCARE_OFF = 'SMARTCARE_OFF'
-STATE_AUTODRY = 'AUTODRY'
-STATE_AUTODRY_OFF = 'AUTODRY_OFF'
 
+"""HVAC STATE"""
+STATE_COOL = '냉방'
+STATE_DRY = '제습'
+STATE_AIRCLEAN = 'ON'
+STATE_AIRCLEAN_OFF = 'OFF'
+STATE_SMARTCARE = 'ON'
+STATE_SMARTCARE_OFF = 'OFF'
+STATE_AUTODRY = 'ON'
+STATE_AUTODRY_OFF = 'OFF'
+STATE_POWERSAVE = 'ON'
+STATE_POWERSAVE_OFF = 'OFF'
+STATE_COOLPOWER = 'ON'
+STATE_COOLPOWER_OFF = 'OFF'
+STATE_LONGPOWER = 'ON'
+STATE_LONGPOWER_OFF = 'OFF'
 
-STATE_LOW = 'LOW'
-STATE_MID = 'MID'
-STATE_HIGH = 'HIGH'
-STATE_COOLPOWER = 'COOLPOWER'
-STATE_LONGPOWER = 'LONGPOWER'
-STATE_RIGHT_LOW_LEFT_MID = 'RIGHT_LOW_LEFT_MID'
-STATE_RIGHT_LOW_LEFT_HIGH = 'RIGHT_LOW_LEFT_HIGH'
-STATE_RIGHT_MID_LEFT_LOW = 'RIGHT_MID_LEFT_LOW'
-STATE_RIGHT_MID_LEFT_HIGH = 'RIGHT_MID_LEFT_HIGH'
-STATE_RIGHT_HIGH_LEFT_LOW = 'RIGHT_HIGH_LEFT_LOW'
-STATE_RIGHT_HIGH_LEFT_MID = 'RIGHT_HIGH_LEFT_MID'
-STATE_RIGHT_ONLY_LOW = 'RIGHT_ONLY_LOW'
-STATE_RIGHT_ONLY_MID = 'RIGHT_ONLY_MID'
-STATE_RIGHT_ONLY_HIGH = 'RIGHT_ONLY_HIGH'
-STATE_LEFT_ONLY_LOW = 'LEFT_ONLY_LOW'
-STATE_LEFT_ONLY_MID = 'LEFT_ONLY_MID'
-STATE_LEFT_ONLY_HIGH = 'LEFT_ONLY_HIGH'
+STATE_LOW = '약'
+STATE_MID = '중'
+STATE_HIGH = '강'
+STATE_RIGHT_LOW_LEFT_MID = '우약/좌중'
+STATE_RIGHT_LOW_LEFT_HIGH = '우약/좌강'
+STATE_RIGHT_MID_LEFT_LOW = '우중/좌약'
+STATE_RIGHT_MID_LEFT_HIGH = '우중/좌강'
+STATE_RIGHT_HIGH_LEFT_LOW = '우강/좌약'
+STATE_RIGHT_HIGH_LEFT_MID = '우강/좌중'
+STATE_RIGHT_ONLY_LOW = '우약'
+STATE_RIGHT_ONLY_MID = '우중'
+STATE_RIGHT_ONLY_HIGH = '우강'
+STATE_LEFT_ONLY_LOW = '좌약'
+STATE_LEFT_ONLY_MID = '좌중'
+STATE_LEFT_ONLY_HIGH = '좌강'
 
-STATE_UP_DOWN = 'UP_DOWN'
-STATE_LEFT_RIGHT = 'LEFT_RIGHT'
-STATE_RIGHTSIDE_LEFT_RIGHT = 'RIGHTSIDE_LEFT_RIGHT'
-STATE_LEFTSIDE_LEFT_RIGHT = 'LEFTSIDE_LEFT_RIGHT'
-STATE_UP_DOWN_STOP = 'UP_DOWN_STOP'
-STATE_LEFT_RIGHT_STOP = 'LEFT_RIGHT_STOP'
+STATE_LEFT_RIGHT = '좌/우'
+STATE_RIGHTSIDE_LEFT_RIGHT = '우측 좌/우'
+STATE_LEFTSIDE_LEFT_RIGHT = '좌측 좌/우'
+STATE_LEFT_RIGHT_STOP = '정지'
 
+STATE_UP_DOWN = 'ON'
+STATE_UP_DOWN_STOP = 'OFF'
+"""REFRIGERATOR STATE"""
+STATE_ICE_PLUS = 'ON'
+STATE_ICE_PLUS_OFF = 'OFF'
+
+STATE_FRESH_AIR_FILTER_POWER = '파워'
+STATE_FRESH_AIR_FILTER_AUTO = '자동'
+STATE_FRESH_AIR_FILTER_OFF = '꺼짐'
+
+STATE_SMART_SAVING_NIGHT = 'NIGHT'
+STATE_SMART_SAVING_CUSTOM = 'CUSTOM'
+STATE_SMART_SAVING_OFF = 'OFF'
 
 def gen_uuid():
     return str(uuid.uuid4())
@@ -156,6 +171,7 @@ def lgedm_post(url, data=None, access_token=None, session_id=None):
                 raise NotLoggedInError()
             else:
                 raise APIError(code, message)
+
 
     return out
 
@@ -410,6 +426,10 @@ class Session(object):
         })
         return res['returnData']
 
+    def delete_permission(self, device_id):
+        self.post('rti/delControlPermission', {
+            'deviceId': device_id,
+        })
 
 class Monitor(object):
     """A monitoring task for a device.
@@ -518,7 +538,7 @@ class Client(object):
         """
 
         for device in self.devices:
-            if device.id == device_id:
+            if device.id ==  device_id:
                 return device
         return None
 
@@ -683,7 +703,7 @@ class ModelInfo(object):
     def value(self, name):
         """Look up information about a value.
 
-        Return either an `EnumValue` or a `RangeValue`.p
+        Return either an `EnumValue` or a `RangeValue`.
         """
         d = self.data['Value'][name]
         if d['type'] in ('Enum', 'enum'):
@@ -717,14 +737,11 @@ class ModelInfo(object):
         return options[value]
 
     @property
-    def monitor_type(self):
-        """Get type of monitoring return data.
+    def binary_monitor_data(self):
+        """Check that type of monitoring is BINARY(BYTE).
         """
 
-        if self.data['Monitoring']['type'] == 'BINARY(BYTE)':
-            return 1
-        else:
-            return 0
+        return self.data['Monitoring']['type'] == 'BINARY(BYTE)'
 
     def decode_monitor_binary(self, data):
         """Decode binary encoded status data.
@@ -732,10 +749,11 @@ class ModelInfo(object):
 
         decoded = {}
         for item in self.data['Monitoring']['protocol']:
+            key = item['value']
             value = 0
-            for i in range(item['startByte'], item['startByte'] + item['length']):
-                value = value * 256 + data[i]
-            decoded[item['value']] = str(value)
+            for v in data[item['startByte']:item['startByte'] + item['length']]:
+                value = (value << 8) + v
+            decoded[key] = str(value)
         return decoded
 
     def decode_monitor_json(self, data):
@@ -746,7 +764,7 @@ class ModelInfo(object):
     def decode_monitor(self, data):
         """Decode  status data."""
 
-        if self.monitor_type == 1:
+        if self.binary_monitor_data:
             return self.decode_monitor_binary(data)
         else:
             return self.decode_monitor_json(data)
@@ -804,6 +822,12 @@ class Device(object):
         return value
 
 
+    def _delete_permission(self):
+        self.client.session.delete_permission(
+            self.device.id,
+        )
+
+"""------------------for Air Conditioner"""
 class ACMode(enum.Enum):
     """The operation mode for an AC/HVAC device."""
 
@@ -859,7 +883,7 @@ class SMARTCARE(enum.Enum):
 
 class AIRCLEAN(enum.Enum):
     OFF = "@AC_MAIN_AIRCLEAN_OFF_W"
-    ON = "@AC_MAIN_AIRCLEAN_OFF_W"
+    ON = "@AC_MAIN_AIRCLEAN_ON_W"
 
 class POWERSAVE(enum.Enum):
     OFF = "@OFF"
@@ -958,51 +982,51 @@ class ACDevice(Device):
         self._set_control('Operation', op_value)
 
     def set_icevalley(self, is_on):
-    
+
         mode = ICEVALLEY.ON if is_on else ICEVALLEY.OFF
         mode_value = self.model.enum_value('IceValley', mode.value)
         self._set_control('IceValley', mode_value)
 
     def set_longpower(self, is_on):
-    
+
         mode = LONGPOWER.ON if is_on else LONGPOWER.OFF
         mode_value = self.model.enum_value('FlowLongPower', mode.value)
         self._set_control('FlowLongPower', mode_value)
 
     def set_smartcare(self, is_on):
-    
+
         mode = SMARTCARE.ON if is_on else SMARTCARE.OFF
         mode_value = self.model.enum_value('SmartCare', mode.value)
         self._set_control('SmartCare', mode_value)
 
     def set_airclean(self, is_on):
-    
+
         mode = AIRCLEAN.ON if is_on else AIRCLEAN.OFF
         mode_value = self.model.enum_value('AirClean', mode.value)
         self._set_control('AirClean', mode_value)
 
     def set_powersave(self, is_on):
-    
+
         mode = POWERSAVE.ON if is_on else POWERSAVE.OFF
         mode_value = self.model.enum_value('PowerSave', mode.value)
         self._set_control('PowerSave', mode_value)
 
     def set_autodry(self, is_on):
-    
+
         mode = AUTODRY.ON if is_on else AUTODRY.OFF
         mode_value = self.model.enum_value('AutoDry', mode.value)
         self._set_control('AutoDry', mode_value)
 
     def set_wind_updown(self, is_on):
-    
+
         wdir = WDIRUPDOWN.ON if is_on else WDIRUPDOWN.OFF
         wdir_value = self.model.enum_value('WDirUpDown', wdir.value)
-        self._set_control('WDirUpDown', wdir_value) 
-    
+        self._set_control('WDirUpDown', wdir_value)
+
     def set_wind_leftright(self, mode):
-    
+
         wdir_value = self.model.enum_value('WDirLeftRight', mode.value)
-        self._set_control('WDirLeftRight', wdir_value)        
+        self._set_control('WDirLeftRight', wdir_value)
 
     def get_filter_state(self):
         """Get information about the filter."""
@@ -1031,7 +1055,6 @@ class ACDevice(Device):
         value = self._get_control('SpkVolume')
         return int(value)
 
-
     def monitor_start(self):
         """Start monitoring the device's status."""
 
@@ -1042,6 +1065,9 @@ class ACDevice(Device):
         """Stop monitoring the device's status."""
 
         self.mon.stop()
+
+    def delete_permission(self):
+        self._delete_permission()
 
     def poll(self):
         """Poll the device's current state.
@@ -1081,7 +1107,6 @@ class ACStatus(object):
         else:
             return f
 
-
     @property
     def temp_cur_c(self):
         return self._str_to_num(self.data['TempCur'])
@@ -1104,16 +1129,52 @@ class ACStatus(object):
     @property
     def mode(self):
         return ACMode(self.lookup_enum('OpMode'))
+    
+    @property
+    def windstrength_state(self):
+        return ACWindstrength(self.lookup_enum('WindStrength'))
+
+    @property
+    def wdirupdown_state(self):
+        return WDIRUPDOWN(self.lookup_enum('WDirUpDown'))
+
+    @property
+    def wdirleftright_state(self):
+        return WDIRLEFTRIGHT(self.lookup_enum('WDirLeftRight'))
 
     @property
     def is_on(self):
         op = ACOp(self.lookup_enum('Operation'))
         return op != ACOp.OFF
+
+    @property
+    def airclean_state(self):
+        return AIRCLEAN(self.lookup_enum('AirClean'))
+
+    @property
+    def icevalley_state(self):
+        return ICEVALLEY(self.lookup_enum('IceValley'))
         
+    @property
+    def longpower_state(self):
+        return LONGPOWER(self.lookup_enum('FlowLongPower'))
+
+    @property
+    def autodry_state(self):
+        return AUTODRY(self.lookup_enum('AutoDry'))
+
+    @property
+    def smartcare_state(self):
+        return SMARTCARE(self.lookup_enum('SmartCare'))
+
+    @property
+    def powersave_state(self):
+        return POWERSAVE(self.lookup_enum('PowerSave'))
+
     @property
     def humidity(self):
         return self.data['SensorHumidity']
-    
+
     @property
     def sensorpm1(self):
         return self.data['SensorPM1']
@@ -1133,3 +1194,135 @@ class ACStatus(object):
     @property
     def air_polution(self):
         return self.data['AirPolution']
+
+
+
+"""------------------for Refrigerator"""
+class ICEPLUS(enum.Enum):
+
+    OFF = "@CP_OFF_EN_W"
+    ON = "@CP_ON_EN_W"
+
+class FRESHAIRFILTER(enum.Enum):
+
+    OFF = "@CP_TERM_OFF_KO_W"
+    AUTO = "@RE_STATE_FRESH_AIR_FILTER_MODE_AUTO_W"
+    POWER = "@RE_STATE_FRESH_AIR_FILTER_MODE_POWER_W"
+
+class SMARTSAVING(enum.Enum):
+
+    OFF = "@CP_TERM_USE_NOT_W"
+    NIGHT = "@RE_SMARTSAVING_MODE_NIGHT_W"
+    CUSTOM = "@RE_SMARTSAVING_MODE_CUSTOM_W"
+
+
+class RefDevice(Device):
+
+    def set_reftemp(self, temp):
+        """Set the refrigerator temperature.
+        """
+        temp_value = self.model.enum_value('TempRefrigerator', temp)
+        self._set_control('RETM', temp_value)
+
+    def set_freezertemp(self, temp):
+        """Set the freezer temperature.
+        """
+        temp_value = self.model.enum_value('TempFreezer', temp)
+        self._set_control('REFT', temp_value)
+
+    def set_iceplus(self, mode):
+        """Set the device's operating mode to an `iceplus` value.
+        """
+
+        iceplus_value = self.model.enum_value('IcePlus', mode.value)
+        self._set_control('REIP', iceplus_value)
+
+    def set_freshairfilter(self, mode):
+        """Set the device's operating mode to an `freshairfilter` value.
+        """
+
+        freshairfilter_value = self.model.enum_value('FreshAirFilter', mode.value)
+        self._set_control('REHF', freshairfilter_value)
+
+    def monitor_start(self):
+        """Start monitoring the device's status."""
+
+        self.mon = Monitor(self.client.session, self.device.id)
+        self.mon.start()
+
+    def monitor_stop(self):
+        """Stop monitoring the device's status."""
+
+        self.mon.stop()
+
+    def delete_permission(self):
+        self._delete_permission()
+
+    def poll(self):
+        """Poll the device's current state.
+
+        Monitoring must be started first with `monitor_start`. Return
+        either an `ACStatus` object or `None` if the status is not yet
+        available.
+        """
+
+        data = self.mon.poll()
+        if data:
+            res = self.model.decode_monitor(data)
+            return RefStatus(self, res)
+
+        else:
+            return None
+
+
+class RefStatus(object):
+
+    """Higher-level information about an Ref device's current status.
+    """
+
+    def __init__(self, ref, data):
+        self.ref = ref
+        self.data = data
+
+    def lookup_enum(self, key):
+        return self.ref.model.enum_name(key, self.data[key])
+
+    @property
+    def current_reftemp(self):
+        return self.lookup_enum('TempRefrigerator')
+
+    @property
+    def current_freezertemp(self):
+        return self.lookup_enum('TempFreezer')
+
+    @property
+    def iceplus_state(self):
+        return ICEPLUS(self.lookup_enum('IcePlus'))
+
+    @property
+    def freshairfilter_state(self):
+        return FRESHAIRFILTER(self.lookup_enum('FreshAirFilter'))
+
+    @property
+    def smartsaving_mode(self):
+        return self.lookup_enum('SmartSavingMode')
+
+    @property
+    def waterfilter_state(self):
+        return self.data['WaterFilterUsedMonth']
+
+    @property
+    def door_state(self):
+        return self.lookup_enum('DoorOpenState')
+
+    @property
+    def smartsaving_state(self):
+        return self.lookup_enum('SmartSavingModeStatus')
+
+    @property
+    def locking_state(self):
+        return self.lookup_enum('LockingStatus')
+
+    @property
+    def activesaving_state(self):
+        return self.data['ActiveSavingStatus']
