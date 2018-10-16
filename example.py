@@ -42,29 +42,43 @@ def mon(client, device_id):
                 data = mon.poll()
                 if data:
                     try:
-                        res = mon.decode_json(data)
+                        res = model.decode_monitor(data)
                     except ValueError:
                         print('status data: {!r}'.format(data))
                     else:
                         for key, value in res.items():
                             try:
                                 desc = model.value(key)
+                                if isinstance(desc, wideq.EnumValue):
+                                    print('- {}: {}'.format(
+                                        key, desc.options.get(value, value)
+                                    ))
+                                elif isinstance(desc, wideq.RangeValue):
+                                    print('- {0}: {1} ({2.min}-{2.max})'.format(
+                                        key, value, desc,
+                                    ))
                             except KeyError:
                                 print('- {}: {}'.format(key, value))
-                            if isinstance(desc, wideq.EnumValue):
-                                print('- {}: {}'.format(
-                                    key, desc.options.get(value, value)
-                                ))
-                            elif isinstance(desc, wideq.RangeValue):
-                                print('- {0}: {1} ({2.min}-{2.max})'.format(
-                                    key, value, desc,
-
-                                ))
 
         except KeyboardInterrupt:
             pass
 
-
+def getDeviceInfo(client, device_id):
+    device = client.get_device(device_id)
+    deviceName = device.name
+    
+    with open(deviceName + '_info.json', 'w') as outfile:
+        json.dump(device.data, outfile)
+    
+    
+def getModelInfo(client, device_id):
+    device = client.get_device(device_id)
+    model = client.model_info(device)
+    modelName = model.data['Info']['modelName']
+    
+    with open(modelName + '_info.json', 'w') as outfile:
+        json.dump(model.data, outfile)
+        
 def ac_mon(client, device_id):
     """Monitor an AC/HVAC device, showing higher-level information about
     its status such as its temperature and operation mode.
@@ -86,8 +100,9 @@ def ac_mon(client, device_id):
                 print(
                     '{1}; '
                     '{0.mode.name}; '
-                    'cur {0.temp_cur_f}°F; '
-                    'cfg {0.temp_cfg_f}°F'
+                    'cur {0.temp_cur_f} F; '
+                    'cfg {0.temp_cfg_f} F; '
+                    'air clean {0.airclean_state.name}'
                     .format(
                         state,
                         'on' if state.is_on else 'off'
@@ -113,13 +128,37 @@ def turn(client, device_id, on_off):
     ac = wideq.ACDevice(client, client.get_device(device_id))
     ac.set_on(on_off == 'on')
 
+def set_reftemp(client, device_id, temp):
+    """Set the configured temperature for an AC device."""
+
+    ref = wideq.RefDevice(client, client.get_device(device_id))
+    ref.set_reftemp(temp)
+
+
+
+
+def ac_config(client, device_id):
+    ac = wideq.ACDevice(client, client.get_device(device_id))
+    print(ac.get_filter_state())
+    print(ac.get_mfilter_state())
+    print(ac.get_energy_target())
+    print(ac.get_airclean_state())
+    print(ac.get_on_time())
+    print(ac.get_volume())
+    print(ac.get_light())
+    print(ac.get_zones())
+
 
 EXAMPLE_COMMANDS = {
     'ls': ls,
     'mon': mon,
+    'dev': getDeviceInfo,
+    'model': getModelInfo,
     'ac-mon': ac_mon,
     'set-temp': set_temp,
+    'set-reftemp': set_reftemp,
     'turn': turn,
+    'ac-config': ac_config,
 }
 
 
