@@ -8,6 +8,7 @@ import hmac
 import datetime
 from collections import namedtuple
 import enum
+import time
 
 GATEWAY_URL = 'https://kic.lgthinq.com:46030/api/common/gatewayUriList'
 APP_KEY = 'wideq'
@@ -141,6 +142,117 @@ STATE_NO_ERROR = '정상'
 STATE_OPTIONITEM_ON = '켜짐'
 STATE_OPTIONITEM_OFF = '꺼짐'
 
+"""WASHER STATE"""
+STATE_WASHER_POWER_OFF = '꺼짐'
+STATE_WASHER_INITIAL = '코스선택'
+STATE_WASHER_PAUSE = '일시정지'
+STATE_WASHER_ERROR_AUTO_OFF = '에러_자동종료'
+STATE_WASHER_RESERVE = '예약중'
+STATE_WASHER_DETECTING = '세탁물 감지 중'
+STATE_WASHER_ADD_DRAIN = 'ADD_DRAIN'
+STATE_WASHER_DETERGENT_AMOUT = '세제량'
+STATE_WASHER_RUNNING = '세탁 중'
+STATE_WASHER_PREWASH = '애벌세탁 중'
+STATE_WASHER_RINSING = '헹굼 중'
+STATE_WASHER_RINSE_HOLD = '헹굼 대기'
+STATE_WASHER_SPINNING = '탈수 중'
+STATE_WASHER_DRYING = '건조 중'
+STATE_WASHER_END = '종료'
+STATE_WASHER_FRESHCARE = 'FreshCare'
+STATE_WASHER_TCL_ALARM_NORMAL = '통세척'
+STATE_WASHER_FROZEN_PREVENT_INITIAL = '동파방지_초기화'
+STATE_WASHER_FROZEN_PREVENT_RUNNING = '동파방지_동작중'
+STATE_WASHER_FROZEN_PREVENT_PAUSE = '동파방지_일시정지'
+STATE_WASHER_ERROR = '에러'
+
+STATE_WASHER_SOILLEVEL_LIGHT = '적은때'
+STATE_WASHER_SOILLEVEL_NORMAL = '표준'
+STATE_WASHER_SOILLEVEL_HEAVY = '강력'
+STATE_WASHER_SOILLEVEL_PRE_WASH = '애벌세탁'
+STATE_WASHER_SOILLEVEL_SOAKING = '불림'
+
+STATE_WASHER_WATERTEMP_COLD = '냉수'
+STATE_WASHER_WATERTEMP_30 = '30℃'
+STATE_WASHER_WATERTEMP_40 = '40℃'
+STATE_WASHER_WATERTEMP_60 = '60℃'
+STATE_WASHER_WATERTEMP_95 = '95℃'
+
+STATE_WASHER_SPINSPEED_EXTRA_LOW = '섬세'
+STATE_WASHER_SPINSPEED_LOW = '약'
+STATE_WASHER_SPINSPEED_MEDIUM = '중'
+STATE_WASHER_SPINSPEED_HIGH = '강'
+STATE_WASHER_SPINSPEED_EXTRA_HIGH = '건조맞춤'
+
+STATE_WASHER_RINSECOUNT_1 = '1회'
+STATE_WASHER_RINSECOUNT_2 = '2회'
+STATE_WASHER_RINSECOUNT_3 = '3회'
+STATE_WASHER_RINSECOUNT_4 = '4회'
+STATE_WASHER_RINSECOUNT_5 = '5회'
+
+STATE_WASHER_DRYLEVEL_WIND = '바람건조'
+STATE_WASHER_DRYLEVEL_TURBO = '터보건조'
+STATE_WASHER_DRYLEVEL_TIME_30 = '시간건조_30분'
+STATE_WASHER_DRYLEVEL_TIME_60 = '시간건조_60분'
+STATE_WASHER_DRYLEVEL_TIME_90 = '시간건조_90분'
+STATE_WASHER_DRYLEVEL_TIME_120 = '시간건조_120분'
+STATE_WASHER_DRYLEVEL_TIME_150 = '시간건조_150분'
+
+STATE_WASHER_NO_ERROR = '정상'
+STATE_WASHER_ERROR_dE2 = '문열림 에러 - 문이 닫혔는지 확인하세요'
+STATE_WASHER_ERROR_IE = '급수안됨'
+STATE_WASHER_ERROR_OE = '배수안됨'
+STATE_WASHER_ERROR_UE = '세탁물 치우침'
+STATE_WASHER_ERROR_FE = 'FE - 서비스 센터에 문의하세요'
+STATE_WASHER_ERROR_PE = 'PE - 서비스 센터에 문의하세요'
+STATE_WASHER_ERROR_LE = 'LE - 서비스 센터에 문의하세요'
+STATE_WASHER_ERROR_tE = 'tE - 서비스 센터에 문의하세요'
+STATE_WASHER_ERROR_dHE = 'dHE - 서비스 센터에 문의하세요'
+STATE_WASHER_ERROR_CE = 'CE - 서비스 센터에 문의하세요'
+STATE_WASHER_ERROR_PF = 'PF - 서비스 센터에 문의하세요'
+STATE_WASHER_ERROR_FF = '제품 얼음'
+STATE_WASHER_ERROR_dCE = 'dCE - 서비스 센터에 문의하세요'
+STATE_WASHER_ERROR_EE = 'EE - 서비스 센터에 문의하세요'
+STATE_WASHER_ERROR_PS = 'PS - 서비스 센터에 문의하세요'
+STATE_WASHER_ERROR_dE1 = '문열림 에러 - 문이 닫혔는지 확인하세요'
+STATE_WASHER_ERROR_LOE = '세제통 문열림 에러 - 세제통 문이 닫혔는지 확인하세요'
+
+STATE_WASHER_APCOURSE_COTTON = '표준세탁'
+STATE_WASHER_APCOURSE_SPEEDWASH_DRY = '스피드워시+건조'
+STATE_WASHER_APCOURSE_SPEEDWASH = '스피드워시'
+STATE_WASHER_APCOURSE_SINGLE_SHIRT_DRY = '셔츠한벌건조'
+STATE_WASHER_APCOURSE_RINSESPIN = '헹굼+탈수'
+STATE_WASHER_APCOURSE_SPEEDBOIL = '알뜰삶음'
+STATE_WASHER_APCOURSE_ALLERGYCARE = '알러지케어'
+STATE_WASHER_APCOURSE_STEAMCLEANING = '스팀클리닝'
+STATE_WASHER_APCOURSE_BABYWEAR = '아기옷'
+STATE_WASHER_APCOURSE_BLANKET_ROB = '이불살균털기'
+STATE_WASHER_APCOURSE_UTILITY = '기능성의류'
+STATE_WASHER_APCOURSE_BLANKET = '이불'
+STATE_WASHER_APCOURSE_LINGERIE_WOOL = '란제리/울'
+STATE_WASHER_APCOURSE_COLDWASH = '찬물세탁'
+STATE_WASHER_APCOURSE_TUBCLEAN_SANITARY = '통살균'
+STATE_WASHER_APCOURSE_DOWNLOAD_COUSE = '다운로드코스'
+
+STATE_WASHER_SMARTCOURSE_SILENT = '조용조용'
+STATE_WASHER_SMARTCOURSE_SMALL_LOAD = '소량 세탁'
+STATE_WASHER_SMARTCOURSE_SKIN_CARE = '스킨 케어'
+STATE_WASHER_SMARTCOURSE_RAINY_SEASON = '장마철 세탁'
+STATE_WASHER_SMARTCOURSE_SWEAT_STAIN = '땀얼룩 제거'
+STATE_WASHER_SMARTCOURSE_SINGLE_GARMENT = '한벌 세탁'
+STATE_WASHER_SMARTCOURSE_SCHOOL_UNIFORM = '교복'
+STATE_WASHER_SMARTCOURSE_STATIC_REMOVAL = '정전기 제거'
+STATE_WASHER_SMARTCOURSE_COLOR_CARE = '컬러 케어'
+STATE_WASHER_SMARTCOURSE_SPIN_ONLY = '탈수 전용'
+STATE_WASHER_SMARTCOURSE_DEODORIZATION = '냄새 제거'
+STATE_WASHER_SMARTCOURSE_BEDDING_CARE = '침구 케어'
+STATE_WASHER_SMARTCOURSE_CLOTH_CARE = '옷감 보호'
+STATE_WASHER_SMARTCOURSE_SMART_RINSE = '안심 헹굼'
+STATE_WASHER_SMARTCOURSE_ECO_WASH = '알뜰 세탁'
+
+STATE_WASHER_TERM_NO_SELECT = '선택 안함'
+
+STATE_WASHER_OPTIONITEM_ON = '켜짐'
+STATE_WASHER_OPTIONITEM_OFF = '꺼짐'
 
 def gen_uuid():
     return str(uuid.uuid4())
@@ -204,6 +316,12 @@ class MonitorError(APIError):
         self.device_id = device_id
         self.code = code
 
+class NotConnectError(APIError):
+    """The session is not valid or expired."""
+
+    def __init__(self):
+        pass
+
 
 def lgedm_post(url, data=None, access_token=None, session_id=None):
     """Make an HTTP request in the format used by the API servers.
@@ -237,6 +355,8 @@ def lgedm_post(url, data=None, access_token=None, session_id=None):
             message = out['returnMsg']
             if code == "0102":
                 raise NotLoggedInError()
+            elif code == "0106":
+                raise NotConnectError()
             else:
                 raise APIError(code, message)
 
@@ -704,10 +824,10 @@ class DeviceType(enum.Enum):
     MICROWAVE = 302
     COOKTOP = 303
     HOOD = 304
-    AC = 401  # Includes heat pumps, etc., possibly all HVAC devices.
+    AC = 401
     AIR_PURIFIER = 402
     DEHUMIDIFIER = 403
-    ROBOT_KING = 501  # Robotic vacuum cleaner?
+    ROBOT_KING = 501
     ARCH = 1001
     MISSG = 3001
     SENSOR = 3002
@@ -1474,7 +1594,7 @@ class DRYERSTATE(enum.Enum):
     RUNNING = "@WM_STATE_RUNNING_W"
     PAUSE = "@WM_STATE_PAUSE_W"
     END = "@WM_STATE_END_W"
-    ERROR = "@WM_STATE_END_W"
+    ERROR = "@WM_STATE_ERROR_W"
 
 class DRYERPROCESSSTATE(enum.Enum):
     
@@ -1676,3 +1796,276 @@ class DryerStatus(object):
     @property
     def handiron_state(self):
         return self.lookup_bit('Option1', 7)
+
+
+
+"""------------------for Washer"""
+
+class WASHERSTATE(enum.Enum):
+    
+    OFF = "@WM_STATE_POWER_OFF_W"
+    INITIAL = "@WM_STATE_INITIAL_W"
+    PAUSE = "@WM_STATE_PAUSE_W"
+    ERROR_AUTO_OFF = "@WM_STATE_ERROR_AUTO_OFF_W"
+    RESERVE = "@WM_STATE_RESERVE_W"
+    DETECTING = "@WM_STATE_DETECTING_W"
+    ADD_DRAIN = "WM_STATE_ADD_DRAIN_W"
+    DETERGENT_AMOUNT = "@WM_STATE_DETERGENT_AMOUNT_W"
+    RUNNING = "@WM_STATE_RUNNING_W"
+    PREWASH = "@WM_STATE_PREWASH_W"
+    RINSING = "@WM_STATE_RINSING_W"
+    RINSE_HOLD = "@WM_STATE_RINSE_HOLD_W"
+    SPINNING = "@WM_STATE_SPINNING_W"
+    DRYING = "@WM_STATE_DRYING_W"
+    END = "@WM_STATE_END_W"
+    FRESHCARE = "@WM_STATE_FRESHCARE_W"
+    TCL_ALARM_NORMAL = "TCL_ALARM_NORMAL"
+    FROZEN_PREVENT_INITIAL = "@WM_STATE_FROZEN_PREVENT_INITIAL_W"
+    FROZEN_PREVENT_RUNNING = "@WM_STATE_FROZEN_PREVENT_RUNNING_W"
+    FROZEN_PREVENT_PAUSE = "@WM_STATE_FROZEN_PREVENT_PAUSE_W"
+
+
+class WASHERSOILLEVEL(enum.Enum):
+    
+    NO_SELECT = "@WM_TERM_NO_SELECT_W"
+    LIGHT = "@WM_KR_TT27_WD_WIFI_OPTION_SOILLEVEL_LIGHT_W"
+    NORMAL = "@WM_KR_TT27_WD_WIFI_OPTION_SOILLEVEL_NORMAL_W"
+    HEAVY = "@WM_KR_TT27_WD_WIFI_OPTION_SOILLEVEL_HEAVY_W"
+    PRE_WASH = "@WM_KR_TT27_WD_WIFI_OPTION_SOILLEVEL_PRE_WASH_W"
+    SOAKING = "@WM_KR_TT27_WD_WIFI_OPTION_SOILLEVEL_SOAKING_W"
+    
+class WASHERWATERTEMP(enum.Enum):
+    
+    NO_SELECT = "@WM_TERM_NO_SELECT_W"
+    COLD = "@WM_KR_TT27_WD_WIFI_OPTION_WATERTEMP_COLD_W"
+    THIRTY = "@WM_KR_TT27_WD_WIFI_OPTION_WATERTEMP_30_W"
+    FOURTY = "@WM_KR_TT27_WD_WIFI_OPTION_WATERTEMP_40_W"
+    SIXTY = "@WM_KR_TT27_WD_WIFI_OPTION_WATERTEMP_60_W"
+    NINTYFIVE = "@WM_KR_TT27_WD_WIFI_OPTION_WATERTEMP_95_W"
+
+class WASHERSPINSPEED(enum.Enum):
+    
+    NO_SELECT = "@WM_TERM_NO_SELECT_W"
+    EXTRA_LOW = "@WM_KR_TT27_WD_WIFI_OPTION_SPINSPEED_EXTRA_LOW_W"
+    LOW = "@WM_KR_TT27_WD_WIFI_OPTION_SPINSPEED_LOW_W"
+    MEDIUM = "@WM_KR_TT27_WD_WIFI_OPTION_SPINSPEED_MEDIUM_W"
+    HIGH = "@WM_KR_TT27_WD_WIFI_OPTION_SPINSPEED_HIGH_W"
+    EXTRA_HIGH = "@WM_KR_TT27_WD_WIFI_OPTION_SPINSPEED_EXTRA_HIGH_W"
+
+class WASHERRINSECOUNT(enum.Enum):
+    
+    NO_SELECT = "@WM_TERM_NO_SELECT_W"
+    ONE = "@WM_KR_TT27_WD_WIFI_OPTION_RINSECOUNT_1_W"
+    TWO = "@WM_KR_TT27_WD_WIFI_OPTION_RINSECOUNT_2_W"
+    THREE = "@WM_KR_TT27_WD_WIFI_OPTION_RINSECOUNT_3_W"
+    FOUR = "@WM_KR_TT27_WD_WIFI_OPTION_RINSECOUNT_4_W"
+    FIVE = "@WM_KR_TT27_WD_WIFI_OPTION_RINSECOUNT_5_W"
+
+class WASHERDRYLEVEL(enum.Enum):
+    
+    NO_SELECT = "@WM_TERM_NO_SELECT_W"
+    WIND = "@WM_KR_TT27_WD_WIFI_OPTION_DRYLEVEL_WIND_W"
+    TURBO = "@WM_KR_TT27_WD_WIFI_OPTION_DRYLEVEL_TURBO_W"
+    TIME_30 = "@WM_KR_TT27_WD_WIFI_OPTION_DRYLEVEL_TIME_30_W"
+    TIME_60 = "@WM_KR_TT27_WD_WIFI_OPTION_DRYLEVEL_TIME_60_W"
+    TIME_90 = "@WM_KR_TT27_WD_WIFI_OPTION_DRYLEVEL_TIME_90_W"
+    TIME_120 = "@WM_KR_TT27_WD_WIFI_OPTION_DRYLEVEL_TIME_120_W"
+    TIME_150 = "@WM_KR_TT27_WD_WIFI_OPTION_DRYLEVEL_TIME_150_W"
+
+class WASHERERROR(enum.Enum):
+    
+    ERROR_dE2 = "@WM_KR_TT27_WD_WIFI_ERROR_DE2"
+    ERROR_IE = "@WM_KR_TT27_WD_WIFI_ERROR_IE"
+    ERROR_OE = "@WM_KR_TT27_WD_WIFI_ERROR_OE"
+    ERROR_UE = "@WM_KR_TT27_WD_WIFI_ERROR_UE"
+    ERROR_FE = "@WM_KR_TT27_WD_WIFI_ERROR_FE"
+    ERROR_PE = "@WM_KR_TT27_WD_WIFI_ERROR_PE"
+    ERROR_tE = "@WM_KR_TT27_WD_WIFI_ERROR_TE"
+    ERROR_LE = "@WM_KR_TT27_WD_WIFI_ERROR_LE"
+    ERROR_CE = "@WM_KR_TT27_WD_WIFI_ERROR_CE"
+    ERROR_dHE = "@WM_KR_TT27_WD_WIFI_ERROR_DHE"
+    ERROR_PF = "@WM_KR_TT27_WD_WIFI_ERROR_PF"
+    ERROR_FF = "@WM_KR_TT27_WD_WIFI_ERROR_FF"
+    ERROR_dCE = "@WM_KR_TT27_WD_WIFI_ERROR_DCE"
+    ERROR_EE = "@WM_KR_TT27_WD_WIFI_ERROR_EE"
+    ERROR_PS = "@WM_KR_TT27_WD_WIFI_ERROR_PS"
+    ERROR_dE1 = "@WM_KR_TT27_WD_WIFI_ERROR_DE1"
+    ERROR_LOE = "@WM_KR_TT27_WD_WIFI_ERROR_LOE"
+
+
+class WasherDevice(Device):
+    
+    def monitor_start(self):
+        """Start monitoring the device's status."""
+        
+        self.mon = Monitor(self.client.session, self.device.id)
+        self.mon.start()
+    
+    def monitor_stop(self):
+        """Stop monitoring the device's status."""
+        
+        self.mon.stop()
+    
+    def delete_permission(self):
+        self._delete_permission()
+    
+    def poll(self):
+        """Poll the device's current state.
+        
+        Monitoring must be started first with `monitor_start`. Return
+        either an `ACStatus` object or `None` if the status is not yet
+        available.
+        """
+        
+        data = self.mon.poll()
+        if data:
+            res = self.model.decode_monitor(data)
+            with open('/config/wideq/washer_polled_data.json','w', encoding="utf-8") as dumpfile:
+                json.dump(res, dumpfile, ensure_ascii=False, indent="\t")
+            return WasherStatus(self, res)
+        
+        else:
+            return None
+
+class WasherStatus(object):
+    
+    def __init__(self, washer, data):
+        self.washer = washer
+        self.data = data
+    
+    def lookup_enum(self, key):
+        return self.washer.model.enum_name(key, self.data[key])
+    
+    def lookup_reference(self, key):
+        return self.washer.model.reference_name(key, self.data[key])
+    
+    def lookup_bit(self, key, index):
+        bit_value = int(self.data[key])
+        bit_index = 2 ** index
+        mode = bin(bit_value & bit_index)
+        if mode == bin(0):
+            return 'OFF'
+        else:
+            return 'ON'
+
+    @property
+    def is_on(self):
+        run_state = WASHERSTATE(self.lookup_enum('State'))
+        return run_state != WASHERSTATE.OFF
+        
+    @property
+    def run_state(self):
+        return WASHERSTATE(self.lookup_enum('State'))
+
+    @property
+    def pre_state(self):
+        return WASHERSTATE(self.lookup_enum('PreState'))
+    
+    @property
+    def remaintime_hour(self):
+        return self.data['Remain_Time_H']
+    
+    @property
+    def remaintime_min(self):
+        return self.data['Remain_Time_M']
+    
+    @property
+    def initialtime_hour(self):
+        return self.data['Initial_Time_H']
+    
+    @property
+    def initialtime_min(self):
+        return self.data['Initial_Time_M']
+
+    @property
+    def reservetime_hour(self):
+        return self.data['Reserve_Time_H']
+    
+    @property
+    def reservetime_min(self):
+        return self.data['Reserve_Time_M']
+
+    @property
+    def current_course(self):
+        course = self.lookup_reference('APCourse')
+        if course == '-':
+            return 'OFF'
+        else:
+            return course
+
+    @property
+    def error_state(self):
+        error = self.lookup_reference('Error')
+        if error == '-':
+            return 'OFF'
+        elif error == 'No Error':
+            return 'NO_ERROR'
+        else:
+            return WASHERERROR(error)
+
+    @property
+    def wash_option_state(self):
+        soillevel = self.lookup_enum('SoilLevel')
+        if soillevel == '-':
+            return 'OFF'
+        return WASHERSOILLEVEL(soillevel)
+    
+    @property
+    def spin_option_state(self):
+        spinspeed = self.lookup_enum('SpinSpeed')
+        if spinspeed == '-':
+            return 'OFF'
+        return WASHERSPINSPEED(spinspeed)
+
+    @property
+    def water_temp_option_state(self):
+        water_temp = self.lookup_enum('WaterTemp')
+        if water_temp == '-':
+            return 'OFF'
+        return WASHERWATERTEMP(water_temp)
+
+    @property
+    def rinsecount_option_state(self):
+        rinsecount = self.lookup_enum('RinseCount')
+        if rinsecount == '-':
+            return 'OFF'
+        return WASHERRINSECOUNT(rinsecount)
+
+    @property
+    def drylevel_option_state(self):
+        drylevel = self.lookup_enum('DryLevel')
+        if drylevel == '-':
+            return 'OFF'
+        return WASHERDRYLEVEL(drylevel)
+   
+    @property
+    def current_smartcourse(self):
+        smartcourse = self.lookup_reference('SmartCourse')
+        if smartcourse == '-':
+            return 'OFF'
+        else:
+            return smartcourse
+
+    @property
+    def freshcare_state(self):
+        return self.lookup_bit('Option1', 1)
+
+    @property
+    def childlock_state(self):
+        return self.lookup_bit('Option1', 3)
+
+    @property
+    def steam_state(self):
+        return self.lookup_bit('Option1', 4)
+
+    @property
+    def turboshot_state(self):
+        return self.lookup_bit('Option2', 7)
+
+    @property
+    def tubclean_count(self):
+        return self.data['TCLCount']
+
+    @property
+    def load_level(self):
+        return self.lookup_enum('LoadLevel')
