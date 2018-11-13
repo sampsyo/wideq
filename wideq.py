@@ -1332,9 +1332,11 @@ class ACDevice(Device):
         """
         data = self.mon.poll()
         if data:
+            """
             res = self.model.decode_monitor(data)
             with open('/config/wideq/hvac_polled_data.json','w', encoding="utf-8") as dumpfile:
                 json.dump(res, dumpfile, ensure_ascii=False, indent="\t")
+            """
             return ACStatus(self, res)
         else:
             return None     
@@ -1523,9 +1525,11 @@ class RefDevice(Device):
         
         data = self.mon.poll()
         if data:
+            """
             res = self.model.decode_monitor(data)
             with open('/config/wideq/ref_polled_data.json','w', encoding="utf-8") as dumpfile:
                 json.dump(res, dumpfile, ensure_ascii=False, indent="\t")
+            """
             return RefStatus(self, res)
         
         else:
@@ -1658,9 +1662,11 @@ class DryerDevice(Device):
         
         data = self.mon.poll()
         if data:
+            """
             res = self.model.decode_monitor(data)
             with open('/config/wideq/dryer_polled_data.json','w', encoding="utf-8") as dumpfile:
                 json.dump(res, dumpfile, ensure_ascii=False, indent="\t")
+            """
             return DryerStatus(self, res)
         
         else:
@@ -1919,9 +1925,11 @@ class WasherDevice(Device):
         
         data = self.mon.poll()
         if data:
+            """
             res = self.model.decode_monitor(data)
             with open('/config/wideq/washer_polled_data.json','w', encoding="utf-8") as dumpfile:
                 json.dump(res, dumpfile, ensure_ascii=False, indent="\t")
+            """
             return WasherStatus(self, res)
         
         else:
