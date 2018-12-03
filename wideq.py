@@ -63,16 +63,30 @@ STATE_UP_DOWN = 'ON'
 STATE_UP_DOWN_STOP = 'OFF'
 
 """REFRIGERATOR STATE"""
-STATE_ICE_PLUS = 'ON'
-STATE_ICE_PLUS_OFF = 'OFF'
+STATE_ICE_PLUS = '켜짐'
+STATE_ICE_PLUS_OFF = '꺼짐'
 
+STATE_FRESH_AIR_FILTER_REPLACE_FILTER = '필터교체필요'
+STATE_FRESH_AIR_FILTER_SMART_CARE_ON = '켜짐'
+STATE_FRESH_AIR_FILTER_SMART_CARE_OFF = '꺼짐'
+STATE_FRESH_AIR_FILTER_SMART_CARE_WAIT = '대기'
 STATE_FRESH_AIR_FILTER_POWER = '파워'
 STATE_FRESH_AIR_FILTER_AUTO = '자동'
 STATE_FRESH_AIR_FILTER_OFF = '꺼짐'
 
+
 STATE_SMART_SAVING_NIGHT = 'NIGHT'
 STATE_SMART_SAVING_CUSTOM = 'CUSTOM'
 STATE_SMART_SAVING_OFF = 'OFF'
+
+STATE_REF_WATERFILTER_OK = '정상'
+STATE_REF_WATERFILTER_REPLACE = '교체필요'
+STATE_REF_WATERFILTER_NO_FILTER = '정수기없음'
+
+STATE_REF_ACTIVESAVING_ZERO = '0'
+STATE_REF_ACTIVESAVING_ONE = '1'
+STATE_REF_ACTIVESAVING_TWO = '2'
+STATE_REF_ACTIVESAVING_THREE = '3'
 
 """DRYER STATE"""
 STATE_DRYER_POWER_OFF = '꺼짐'
@@ -253,6 +267,24 @@ STATE_WASHER_TERM_NO_SELECT = '선택 안함'
 
 STATE_WASHER_OPTIONITEM_ON = '켜짐'
 STATE_WASHER_OPTIONITEM_OFF = '꺼짐'
+
+"""DEHUMIDIFIER STATE"""
+STATE_DEHUM_ON = '동작 중'
+STATE_DEHUM_OFF = '꺼짐'
+
+STATE_DEHUM_OPMODE_SMART_DEHUM = '스마트제습'
+STATE_DEHUM_OPMODE_FAST_DEHUM = '쾌속제습'
+STATE_DEHUM_OPMODE_SILENT_DEHUM = '저소음제습'
+STATE_DEHUM_OPMODE_CONCENTRATION_DRY = '집중건조'
+STATE_DEHUM_OPMODE_CLOTHING_DRY = '의류건조'
+STATE_DEHUM_OPMODE_IONIZER = '공기제균'
+
+STATE_DEHUM_WINDSTRENGTH_LOW = '약풍'
+STATE_DEHUM_WIDESTRENGTH_HIGH = '강풍'
+
+STATE_DEHUM_AIRREMOVAL_ON = '켜짐'
+STATE_DEHUM_AIRREMOVAL_OFF = '꺼짐'
+
 
 def gen_uuid():
     return str(uuid.uuid4())
@@ -923,6 +955,8 @@ class ModelInfo(object):
                     )
         elif d['type'] == 'Boolean':
             return EnumValue({'0': 'False', '1' : 'True'})
+        elif d['type'] == 'String':
+            pass 
         else:
             assert False, "unsupported value type {}".format(d['type'])
 
@@ -1034,7 +1068,7 @@ class Device(object):
         self.client = client
         self.device = device
         self.model = client.model_info(device)
-    
+
     def _set_control(self, key, value):
         """Set a device's control for `key` to `value`.
         """
@@ -1325,15 +1359,10 @@ class ACDevice(Device):
         either an `ACStatus` object or `None` if the status is not yet
         available.
         """
-        """ 
-        res = self.mon.poll_json()
-        if res:
-            return ACStatus(self, res)
-        """
         data = self.mon.poll()
         if data:
-            """
             res = self.model.decode_monitor(data)
+            """
             with open('/config/wideq/hvac_polled_data.json','w', encoding="utf-8") as dumpfile:
                 json.dump(res, dumpfile, ensure_ascii=False, indent="\t")
             """
@@ -1456,35 +1485,38 @@ class ACStatus(object):
 
 """------------------for Refrigerator"""
 class ICEPLUS(enum.Enum):
-    
+
     OFF = "@CP_OFF_EN_W"
     ON = "@CP_ON_EN_W"
 
 class FRESHAIRFILTER(enum.Enum):
-    
+
     OFF = "@CP_TERM_OFF_KO_W"
     AUTO = "@RE_STATE_FRESH_AIR_FILTER_MODE_AUTO_W"
     POWER = "@RE_STATE_FRESH_AIR_FILTER_MODE_POWER_W"
+    REPLACE_FILTER = "@RE_STATE_REPLACE_FILTER_W"
+    SMARTCARE_ON = "@RE_STATE_SMART_SMART_CARE_ON"
+    SMARTCARE_OFF = "@RE_STATE_SMART_SMART_CARE_OFF"
+    SMARTCARE_WAIT = "@RE_STATE_SMART_SMART_CARE_WAIT"
 
 class SMARTSAVING(enum.Enum):
-    
+
     OFF = "@CP_TERM_USE_NOT_W"
     NIGHT = "@RE_SMARTSAVING_MODE_NIGHT_W"
     CUSTOM = "@RE_SMARTSAVING_MODE_CUSTOM_W"
-
 
 class RefDevice(Device):
     
     def set_reftemp(self, temp):
         """Set the refrigerator temperature.
         """
-        temp_value = self.model.enum_value('TempRefrigerator', temp)
+        temp_value = self.model.enum_value('TempRefrigerator_C', temp)
         self._set_control('RETM', temp_value)
     
     def set_freezertemp(self, temp):
         """Set the freezer temperature.
         """
-        temp_value = self.model.enum_value('TempFreezer', temp)
+        temp_value = self.model.enum_value('TempFreezer_C', temp)
         self._set_control('REFT', temp_value)
     
     def set_iceplus(self, mode):
@@ -1501,6 +1533,9 @@ class RefDevice(Device):
         freshairfilter_value = self.model.enum_value('FreshAirFilter', mode.value)
         self._set_control('REHF', freshairfilter_value)
     
+    def set_activesaving(self, value):
+        self._set_control('REAS', value)
+
     def monitor_start(self):
         """Start monitoring the device's status."""
         
@@ -1525,8 +1560,8 @@ class RefDevice(Device):
         
         data = self.mon.poll()
         if data:
-            """
             res = self.model.decode_monitor(data)
+            """
             with open('/config/wideq/ref_polled_data.json','w', encoding="utf-8") as dumpfile:
                 json.dump(res, dumpfile, ensure_ascii=False, indent="\t")
             """
@@ -1548,13 +1583,23 @@ class RefStatus(object):
     def lookup_enum(self, key):
         return self.ref.model.enum_name(key, self.data[key])
     
+    def lookup_enum_temp(self, key, value):
+        return self.ref.model.enum_name(key, value)
+        
     @property
     def current_reftemp(self):
-        return self.lookup_enum('TempRefrigerator')
-    
+        temp = self.lookup_enum('TempRefrigerator')
+        return self.lookup_enum_temp('TempRefrigerator_C', temp)
+
+    @property
+    def current_midtemp(self):
+        temp = self.lookup_enum('TempMiddle')
+        return self.lookup_enum_temp('TempMiddle_C', temp)
+
     @property
     def current_freezertemp(self):
-        return self.lookup_enum('TempFreezer')
+        temp = self.lookup_enum('TempFreezer')
+        return self.lookup_enum_temp('TempFreezer_C', temp)
     
     @property
     def iceplus_state(self):
@@ -1570,7 +1615,12 @@ class RefStatus(object):
     
     @property
     def waterfilter_state(self):
-        return self.data['WaterFilterUsedMonth']
+        try:
+            waterfilter = self.lookup_enum('WaterFilterUsedMonth')
+        except AttributeError:
+            return self.data['WaterFilterUsedMonth']
+        if waterfilter:
+            return waterfilter
     
     @property
     def door_state(self):
@@ -1662,8 +1712,8 @@ class DryerDevice(Device):
         
         data = self.mon.poll()
         if data:
-            """
             res = self.model.decode_monitor(data)
+            """
             with open('/config/wideq/dryer_polled_data.json','w', encoding="utf-8") as dumpfile:
                 json.dump(res, dumpfile, ensure_ascii=False, indent="\t")
             """
@@ -1925,8 +1975,8 @@ class WasherDevice(Device):
         
         data = self.mon.poll()
         if data:
-            """
             res = self.model.decode_monitor(data)
+            """
             with open('/config/wideq/washer_polled_data.json','w', encoding="utf-8") as dumpfile:
                 json.dump(res, dumpfile, ensure_ascii=False, indent="\t")
             """
@@ -2077,3 +2127,153 @@ class WasherStatus(object):
     @property
     def load_level(self):
         return self.lookup_enum('LoadLevel')
+
+
+"""------------------for Dehumidifier"""
+class DEHUMOperation(enum.Enum):
+    
+    ON = "@operation_on"
+    OFF = "@operation_off"
+
+class DEHUMOPMode(enum.Enum):
+    
+    SMART_DEHUM = "@AP_MAIN_MID_OPMODE_SMART_DEHUM_W"
+    FAST_DEHUM = "@AP_MAIN_MID_OPMODE_FAST_DEHUM_W"
+    SILENT_DEHUM = "@AP_MAIN_MID_OPMODE_CILENT_DEHUM_W"
+    CONCENTRATION_DRY = "@AP_MAIN_MID_OPMODE_CONCENTRATION_DRY_W"
+    CLOTHING_DRY = "@AP_MAIN_MID_OPMODE_CLOTHING_DRY_W"
+    IONIZER = "@AP_MAIN_MID_OPMODE_IONIZER_W"
+
+class DEHUMWindStrength(enum.Enum):
+
+    LOW = "@AP_MAIN_MID_WINDSTRENGTH_DHUM_LOW_W"
+    HIGH = "@AP_MAIN_MID_WINDSTRENGTH_DHUM_HIGH_W"
+
+class DEHUMAIRREMOVAL(enum.Enum):
+
+    OFF = "@AP_OFF_W"
+    ON = "@AP_ON_W"
+
+class DIAGCODE(enum.Enum):
+
+    FAN_ERROR = "@ERROR_FAN"
+    NORMAL = "@NORMAL"
+    EEPROM_ERROR = "@ERROR_EEPROM"
+
+class DehumDevice(Device):
+
+
+    def set_on(self, is_on):
+        mode = DEHUMOperation.ON if is_on else DEHUMOperation.OFF
+        mode_value = self.model.enum_value('Operation', mode.value)
+        self._set_control('Operation', mode_value)
+            
+    def set_mode(self, mode):
+        
+        mode_value = self.model.enum_value('OpMode', mode.value)
+        self._set_control('OpMode', mode_value)
+
+    def set_humidity(self, hum):
+        """Set the device's target temperature in Celsius degrees.
+        """
+        self._set_control('HumidityCfg', hum)
+    
+    def set_windstrength(self, mode):
+
+        windstrength_value = self.model.enum_value('WindStrength', mode.value)
+        self._set_control('WindStrength', windstrength_value)
+    
+    def set_airremoval(self, is_on):
+        
+        mode = DEHUMAIRREMOVAL.ON if is_on else DEHUMAIRREMOVAL.OFF
+        mode_value = self.model.enum_value('AirRemoval', mode.value)
+        self._set_control('AirRemoval', mode_value)
+
+    def monitor_start(self):
+        """Start monitoring the device's status."""
+        
+        self.mon = Monitor(self.client.session, self.device.id)
+        self.mon.start()
+    
+    def monitor_stop(self):
+        """Stop monitoring the device's status."""
+        
+        self.mon.stop()
+    
+    def delete_permission(self):
+        self._delete_permission()
+    
+    def poll(self):
+        """Poll the device's current state.
+            
+        Monitoring must be started first with `monitor_start`. Return
+        either an `ACStatus` object or `None` if the status is not yet
+        available.
+        """
+        data = self.mon.poll()
+        if data:
+            res = self.model.decode_monitor(data)
+            """
+            with open('/config/wideq/dehumidifier_polled_data.json','w', encoding="utf-8") as dumpfile:
+                json.dump(res, dumpfile, ensure_ascii=False, indent="\t")
+            """
+            return DEHUMStatus(self, res)
+        else:
+            return None     
+
+class DEHUMStatus(object):
+    """Higher-level information about an AC device's current status.
+    """
+    
+    def __init__(self, dehum, data):
+        self.dehum = dehum
+        self.data = data
+
+
+    def lookup_enum(self, key):
+        return self.dehum.model.enum_name(key, self.data[key])
+
+    @property
+    def is_on(self):
+        op = DEHUMOperation(self.lookup_enum('Operation'))
+        return op == DEHUMOperation.ON
+
+    @property
+    def mode(self):
+        return DEHUMOPMode(self.lookup_enum('OpMode'))
+   
+    @property
+    def windstrength_state(self):
+        return DEHUMWindStrength(self.lookup_enum('WindStrength'))
+    
+    @property
+    def airremoval_state(self):
+        return DEHUMAIRREMOVAL(self.lookup_enum('AirRemoval'))
+    
+    @property
+    def current_humidity(self):
+        return self.data['SensorHumidity']
+    
+    @property
+    def target_humidity(self):
+        return self.data['HumidityCfg']
+    
+    @property
+    def sensorpm1(self):
+        return self.data['SensorPM1']
+    
+    @property
+    def sensorpm2(self):
+        return self.data['SensorPM2']
+    
+    @property
+    def sensorpm10(self):
+        return self.data['SensorPM10']
+    
+    @property
+    def total_air_polution(self):
+        return self.data['TotalAirPolution']
+    
+    @property
+    def air_polution(self):
+        return self.data['AirPolution']
