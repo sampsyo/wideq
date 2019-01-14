@@ -389,6 +389,8 @@ def lgedm_post(url, data=None, access_token=None, session_id=None):
                 raise NotLoggedInError()
             elif code == "0106":
                 raise NotConnectError()
+            elif code == "0010":
+                return out
             else:
                 raise APIError(code, message)
 
@@ -650,6 +652,20 @@ class Session(object):
         self.post('rti/delControlPermission', {
             'deviceId': device_id,
         })
+
+    def get_power_data(self, device_id, period):
+        res = self.post('aircon/inquiryPowerData', {
+            'deviceId': device_id,
+            'period': period,
+        })
+        code = res.get('returnCd')  # returnCode can be missing.
+        if code == '0000':
+            return res['powerData']
+        elif code == '0010':
+            return '0'
+        else:
+            raise MonitorError(device_id, code)
+
 
 class Monitor(object):
     """A monitoring task for a device.
@@ -1110,6 +1126,15 @@ class Device(object):
             self.device.id,
         )
 
+    def _get_power_data(self, sDate, eDate):
+        period = 'Day_'+sDate+'T000000Z/'+eDate+'T000000Z'
+        data = self.client.session.get_power_data(
+               self.device.id,
+                period,
+        )
+        return data
+
+
 """------------------for Air Conditioner"""
 class ACMode(enum.Enum):
     """The operation mode for an AC/HVAC device."""
@@ -1351,6 +1376,12 @@ class ACDevice(Device):
     
     def delete_permission(self):
         self._delete_permission()
+
+    def get_energy_usage(self):
+        sDate = '20190101'
+        eDate = '20190131'
+        value = self._get_power_data(sDate, eDate)
+        return value
     
     def poll(self):
         """Poll the device's current state.
@@ -1480,8 +1511,6 @@ class ACStatus(object):
     @property
     def air_polution(self):
         return self.data['AirPolution']
-
-
 
 """------------------for Refrigerator"""
 class ICEPLUS(enum.Enum):
@@ -2277,3 +2306,4 @@ class DEHUMStatus(object):
     @property
     def air_polution(self):
         return self.data['AirPolution']
+
