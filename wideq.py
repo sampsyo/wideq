@@ -5,7 +5,7 @@ import base64
 import json
 import hashlib
 import hmac
-import datetime
+from datetime import datetime, timedelta
 from collections import namedtuple
 import enum
 import time
@@ -285,6 +285,9 @@ STATE_DEHUM_WIDESTRENGTH_HIGH = '강풍'
 STATE_DEHUM_AIRREMOVAL_ON = '켜짐'
 STATE_DEHUM_AIRREMOVAL_OFF = '꺼짐'
 
+"""WATERPURIFIER STATE"""
+STATE_WATERPURIFIER_COCKCLEAN_WAIT = '셀프케어 대기 중'
+STATE_WATERPURIFIER_COCKCLEAN_ON = '셀프케어 진행 중'
 
 def gen_uuid():
     return str(uuid.uuid4())
@@ -467,7 +470,7 @@ def refresh_auth(oauth_root, refresh_token):
     # through a request to the date/time endpoint:
     # https://us.lgeapi.com/datetime
     # But we can also just generate a timestamp.
-    timestamp = datetime.datetime.utcnow().strftime(DATE_FORMAT)
+    timestamp = datetime.utcnow().strftime(DATE_FORMAT)
 
     # The signature for the requests is on a string consisting of two
     # parts: (1) a fake request URL containing the refresh token, and (2)
@@ -666,6 +669,19 @@ class Session(object):
         else:
             raise MonitorError(device_id, code)
 
+    def get_water_usage(self, device_id, typeCode, sDate, eDate):
+        res = self.post('rms/inquiryWaterConsumptionInfo', {
+            'deviceId': device_id,
+            'type': typeCode,
+            'startDate': sDate,
+            'endDate': eDate,
+        })
+        
+        code = res.get('returnCd')  # returnCode can be missing.
+        if code != '0000':
+            raise MonitorError(device_id, code)
+        else:
+            return res['item']
 
 class Monitor(object):
     """A monitoring task for a device.
@@ -1134,6 +1150,14 @@ class Device(object):
         )
         return data
 
+    def _get_water_usage(self, typeCode, sDate, eDate):
+        data = self.client.session.get_water_usage(
+               self.device.id,
+                typeCode,
+                sDate,
+                eDate,
+        )
+        return data
 
 """------------------for Air Conditioner"""
 class ACMode(enum.Enum):
@@ -1776,7 +1800,6 @@ class DryerStatus(object):
         else:
             return 'ON'
 
-
     @property
     def is_on(self):
         run_state = DRYERSTATE(self.lookup_enum('State'))
@@ -2307,3 +2330,114 @@ class DEHUMStatus(object):
     def air_polution(self):
         return self.data['AirPolution']
 
+
+
+"""------------------for Water Purifier"""
+class COCKCLEAN(enum.Enum):
+
+    WAITING = "@WP_WAITING_W"
+    COCKCLEANING = "@WP_COCK_CLEANING_W"
+
+class WPDevice(Device):
+
+    def day_water_usage(self, watertype):
+        typeCode = 'DAY'
+
+        sDate = datetime.today().strftime("%Y%m%d")
+
+        res = self._get_water_usage(typeCode, sDate, sDate)
+        data = res['itemDetail']
+        for usage_data in data:
+            if usage_data['waterType'] == watertype:
+                return usage_data['waterAmount']
+
+    def week_water_usage(self, watertype):
+        typeCode = 'WEEK'
+        
+        amount = 0
+        weekday = datetime.today().weekday()
+
+        startdate = datetime.today() + timedelta(days=-(weekday+1))
+        enddate = datetime.today() + timedelta(days=(6-(weekday+1)))
+        sDate = datetime.date(startdate).strftime("%Y%m%d")
+        eDate = datetime.date(enddate).strftime("%Y%m%d")
+
+        res = self._get_water_usage(typeCode, sDate, eDate)
+        for weekdata in res:
+            for usage_data in weekdata['itemDetail']:
+                if usage_data['waterType'] == watertype:
+                    amount = amount + int(usage_data['waterAmount'])
+        return amount
+
+    def month_water_usage(self, watertype):
+        typeCode = 'MONTH'
+
+        startdate = datetime.today().replace(day=1)
+        sDate = datetime.date(startdate).strftime("%Y%m%d")
+        eDate = datetime.today().strftime("%Y%m%d")
+
+        res = self._get_water_usage(typeCode, sDate, eDate)
+        data = res['itemDetail']
+        for usage_data in data:
+            if usage_data['waterType'] == watertype:
+                return usage_data['waterAmount']
+
+
+    def year_water_usage(self, watertype):
+        typeCode = 'YEAR'
+
+        startdate = datetime.today().replace(month=1, day=1)
+        sDate = datetime.date(startdate).strftime("%Y%m%d")
+        eDate = datetime.today().strftime("%Y%m%d")
+
+        res = self._get_water_usage(typeCode, sDate, eDate)
+        data = res['itemDetail']
+        for usage_data in data:
+            if usage_data['waterType'] == watertype:
+                return usage_data['waterAmount']
+
+
+    def monitor_start(self):
+        """Start monitoring the device's status."""
+        
+        self.mon = Monitor(self.client.session, self.device.id)
+        self.mon.start()
+    
+    def monitor_stop(self):
+        """Stop monitoring the device's status."""
+        
+        self.mon.stop()
+    
+    def delete_permission(self):
+        self._delete_permission()
+    
+    def poll(self):
+        """Poll the device's current state.
+            
+        Monitoring must be started first with `monitor_start`. Return
+        either an `ACStatus` object or `None` if the status is not yet
+        available.
+        """
+        data = self.mon.poll()
+        if data:
+            res = self.model.decode_monitor(data)
+            """
+            with open('/config/wideq/waterpurifier_polled_data.json','w', encoding="utf-8") as dumpfile:
+                json.dump(cockclean, dumpfile, ensure_ascii=False, indent="\t")
+            """
+            return WPStatus(self, res)
+        else:
+            return None
+
+class WPStatus(object):
+    
+    def __init__(self, wp, data):
+        self.wp = wp
+        self.data = data
+
+    def lookup_enum(self, key):
+        return self.wp.model.enum_name(key, self.data[key])
+
+    @property
+    def cockclean_state(self):
+        return COCKCLEAN(self.lookup_enum('CockClean'))
