@@ -2309,27 +2309,6 @@ class DEHUMStatus(object):
     @property
     def target_humidity(self):
         return self.data['HumidityCfg']
-    
-    @property
-    def sensorpm1(self):
-        return self.data['SensorPM1']
-    
-    @property
-    def sensorpm2(self):
-        return self.data['SensorPM2']
-    
-    @property
-    def sensorpm10(self):
-        return self.data['SensorPM10']
-    
-    @property
-    def total_air_polution(self):
-        return self.data['TotalAirPolution']
-    
-    @property
-    def air_polution(self):
-        return self.data['AirPolution']
-
 
 
 """------------------for Water Purifier"""
