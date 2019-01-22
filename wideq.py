@@ -65,14 +65,15 @@ STATE_WDIRVSTEP_FOURTH = '4단계'
 STATE_WDIRVSTEP_FIFTH = '5단계'
 STATE_WDIRVSTEP_SIXTH = '6단계'
 
+
 """REFRIGERATOR STATE"""
 STATE_ICE_PLUS = '켜짐'
 STATE_ICE_PLUS_OFF = '꺼짐'
 
 STATE_FRESH_AIR_FILTER_REPLACE_FILTER = '필터교체필요'
-STATE_FRESH_AIR_FILTER_SMART_CARE_ON = '스마트케어 켜짐'
-STATE_FRESH_AIR_FILTER_SMART_CARE_OFF = '스마트케어 꺼짐'
-STATE_FRESH_AIR_FILTER_SMART_CARE_WAIT = '스마트케어 대기'
+STATE_FRESH_AIR_FILTER_SMART_CARE_ON = '켜짐'
+STATE_FRESH_AIR_FILTER_SMART_CARE_OFF = '꺼짐'
+STATE_FRESH_AIR_FILTER_SMART_CARE_WAIT = '대기'
 STATE_FRESH_AIR_FILTER_POWER = '파워'
 STATE_FRESH_AIR_FILTER_AUTO = '자동'
 STATE_FRESH_AIR_FILTER_OFF = '꺼짐'
@@ -1252,6 +1253,17 @@ class WDIRVSTEP(enum.Enum):
     FIFTH = "5"
     SIXTH = "6"
 
+class FOURVAIN_WDIRVSTEP(enum.Enum):
+
+    OFF = "0"
+    FIRST = "8737"
+    SECOND = "8738"
+    THIRD = "8739"
+    FOURTH = "8740"
+    FIFTH = "8741"
+    SIXTH = "8742"
+
+
 class ACETCMODE(enum.Enum):
     OFF = "@OFF"
     ON = "@ON" 
@@ -1488,6 +1500,10 @@ class ACStatus(object):
     @property
     def wdirvstep_state(self):
         return WDIRVSTEP(self.data['WDirVStep'])
+
+    @property
+    def fourvain_wdirvstep_state(self):
+        return FOURVAIN_WDIRVSTEP(self.data['WDirVStep'])
 
     @property
     def sac_airclean_state(self):
