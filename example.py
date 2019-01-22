@@ -4,8 +4,7 @@ import time
 import sys
 
 STATE_FILE = 'wideq_state.json'
-
-
+   
 def authenticate(gateway):
     """Interactively authenticate the user via a browser to get an OAuth
     session.
@@ -21,10 +20,34 @@ def authenticate(gateway):
 
 def ls(client):
     """List the user's devices."""
+    list = {}
+    i=1
 
     for device in client.devices:
-        print('{0.id}: {0.name} ({0.type.name} {0.model_id})'.format(device))
+        res = {
+            'device_id':device.id,
+            'device_type':device.type.name,
+            'device_model':device.model_id,
+            'device_macaddress':device.macaddress,
+            }
+        list['Device Name :'+device.name] = res
 
+        print('device_name: ''{0.name}'.format(device),
+              'device_id: ' '{0.id}'.format(device),
+              'device_type: ''{0.type.name}'.format(device),
+              'device_model: ' '{0.model_id}'.format(device),
+              'device_macaddress: ' '{0.macaddress}'.format(device),
+              sep='\n', end='\n\n')
+                 
+    # Save my device list
+    with open('my_device_list.json', 'w',encoding="utf-8") as outfile:
+         json.dump(list, outfile, ensure_ascii = False)
+"""
+def ls(client):
+
+    for device in client.devices:
+        print('{0.id}: {0.name} ({0.type.name} {0.model_id}) {0.macaddress}'.format(device))
+"""
 
 def mon(client, device_id):
     """Monitor any device, displaying generic information about its
@@ -68,7 +91,7 @@ def getDeviceInfo(client, device_id):
     deviceName = device.name
     
     with open(deviceName + '_info.json', 'w') as outfile:
-        json.dump(device.data, outfile)
+        json.dump(device.data, outfile, ensure_ascii = False)
     
     
 def getModelInfo(client, device_id):
@@ -77,7 +100,7 @@ def getModelInfo(client, device_id):
     modelName = model.data['Info']['modelName']
     
     with open(modelName + '_info.json', 'w') as outfile:
-        json.dump(model.data, outfile)
+        json.dump(model.data, outfile, ensure_ascii = False)
         
 def ac_mon(client, device_id):
     """Monitor an AC/HVAC device, showing higher-level information about
@@ -121,7 +144,12 @@ def set_temp(client, device_id, temp):
     ac = wideq.ACDevice(client, client.get_device(device_id))
     ac.set_fahrenheit(int(temp))
 
+def set_vstep(client, device_id, value):
+    """Set the configured temperature for an AC device."""
 
+    ac = wideq.ACDevice(client, client.get_device(device_id))
+    ac.set_wdirvstep(value)
+    
 def turn(client, device_id, on_off):
     """Turn on/off an AC device."""
 
@@ -148,6 +176,22 @@ def ac_config(client, device_id):
     print(ac.get_light())
     print(ac.get_zones())
 
+def wp_config(client, device_id):
+    wp = wideq.WPDevice(client, client.get_device(device_id))
+    print('day')
+    print(wp.day_water_usage('C'))
+    print('week')
+    print(wp.week_water_usage('C'))
+    print('month')
+    print(wp.month_water_usage('N'))
+    print('year')
+    print(wp.year_water_usage('C'))
+    print(wp.year_water_usage('N'))    
+    print(wp.year_water_usage('H'))
+
+def ac_power(client, device_id):
+    ac = wideq.ACDevice(client, client.get_device(device_id))
+    print(ac.get_energy_usage())
 
 EXAMPLE_COMMANDS = {
     'ls': ls,
@@ -159,6 +203,9 @@ EXAMPLE_COMMANDS = {
     'set-reftemp': set_reftemp,
     'turn': turn,
     'ac-config': ac_config,
+    'wp-config': wp_config,
+    'ac-power': ac_power,
+    'set-vstep': set_vstep
 }
 
 
@@ -197,7 +244,7 @@ def example(args):
     # Save the updated state.
     state = client.dump()
     with open(STATE_FILE, 'w') as f:
-        json.dump(state, f)
+        json.dump(state, f, ensure_ascii = False)
 
 
 if __name__ == '__main__':
