@@ -25,22 +25,19 @@ DATE_FORMAT = '%a, %d %b %Y %H:%M:%S +0000'
 """HVAC STATE"""
 STATE_COOL = '냉방'
 STATE_DRY = '제습'
-STATE_AIRCLEAN = 'ON'
-STATE_AIRCLEAN_OFF = 'OFF'
-STATE_SMARTCARE = 'ON'
-STATE_SMARTCARE_OFF = 'OFF'
-STATE_AUTODRY = 'ON'
-STATE_AUTODRY_OFF = 'OFF'
-STATE_POWERSAVE = 'ON'
-STATE_POWERSAVE_OFF = 'OFF'
-STATE_COOLPOWER = 'ON'
-STATE_COOLPOWER_OFF = 'OFF'
-STATE_LONGPOWER = 'ON'
-STATE_LONGPOWER_OFF = 'OFF'
+STATE_HEAT = '난방'
+STATE_AI = '인공지능'
+STATE_FAN = '송풍'
+STATE_ACO = 'ACO'
+
+STATE_MODE_ON = 'ON'
+STATE_MODE_OFF = 'OFF'
 
 STATE_LOW = '약'
 STATE_MID = '중'
 STATE_HIGH = '강'
+STATE_AUTO = '자동'
+STATE_POWER = '파워'
 STATE_RIGHT_LOW_LEFT_MID = '우약/좌중'
 STATE_RIGHT_LOW_LEFT_HIGH = '우약/좌강'
 STATE_RIGHT_MID_LEFT_LOW = '우중/좌약'
@@ -55,21 +52,27 @@ STATE_LEFT_ONLY_MID = '좌중'
 STATE_LEFT_ONLY_HIGH = '좌강'
 
 STATE_LEFT_RIGHT = '좌/우'
+STATE_LEFT_RIGHT_ON = '좌/우'
 STATE_RIGHTSIDE_LEFT_RIGHT = '우측 좌/우'
 STATE_LEFTSIDE_LEFT_RIGHT = '좌측 좌/우'
 STATE_LEFT_RIGHT_STOP = '정지'
 
-STATE_UP_DOWN = 'ON'
-STATE_UP_DOWN_STOP = 'OFF'
+STATE_WDIRVSTEP_OFF = '꺼짐'
+STATE_WDIRVSTEP_FIRST = '1단계'
+STATE_WDIRVSTEP_SECOND = '2단계'
+STATE_WDIRVSTEP_THIRD = '3단계'
+STATE_WDIRVSTEP_FOURTH = '4단계'
+STATE_WDIRVSTEP_FIFTH = '5단계'
+STATE_WDIRVSTEP_SIXTH = '6단계'
 
 """REFRIGERATOR STATE"""
 STATE_ICE_PLUS = '켜짐'
 STATE_ICE_PLUS_OFF = '꺼짐'
 
 STATE_FRESH_AIR_FILTER_REPLACE_FILTER = '필터교체필요'
-STATE_FRESH_AIR_FILTER_SMART_CARE_ON = '켜짐'
-STATE_FRESH_AIR_FILTER_SMART_CARE_OFF = '꺼짐'
-STATE_FRESH_AIR_FILTER_SMART_CARE_WAIT = '대기'
+STATE_FRESH_AIR_FILTER_SMART_CARE_ON = '스마트케어 켜짐'
+STATE_FRESH_AIR_FILTER_SMART_CARE_OFF = '스마트케어 꺼짐'
+STATE_FRESH_AIR_FILTER_SMART_CARE_WAIT = '스마트케어 대기'
 STATE_FRESH_AIR_FILTER_POWER = '파워'
 STATE_FRESH_AIR_FILTER_AUTO = '자동'
 STATE_FRESH_AIR_FILTER_OFF = '꺼짐'
@@ -928,7 +931,11 @@ class DeviceInfo(object):
     @property
     def name(self):
         return self.data['alias']
-    
+
+    @property
+    def macaddress(self):
+        return self.data['macAddress']
+
     @property
     def type(self):
         """The kind of device, as a `DeviceType` value."""
@@ -954,6 +961,10 @@ class ModelInfo(object):
     def __init__(self, data):
         self.data = data
     
+    @property
+    def model_type(self):
+        return self.data['Info']['modelType']
+
     def value_type(self, name):
         if name in self.data['Value']:
             return self.data['Value'][name]['type']
@@ -1109,7 +1120,17 @@ class Device(object):
             self.device.id,
             {key: value},
             )
-    
+
+    def _set_control_ac_wdirvstep(self, key1, value1, key2, value2, key3, value3):
+        """Set a device's control for `key` to `value`.
+        """
+        
+        self.client.session.set_device_controls(
+            self.device.id,
+            {key1: value1, key2: value2, key3:value3},
+            )
+
+
     def _get_config(self, key):
         """Look up a device's configuration for a given value.
             
@@ -1165,7 +1186,7 @@ class ACMode(enum.Enum):
     
     COOL = "@AC_MAIN_OPERATION_MODE_COOL_W"
     DRY = "@AC_MAIN_OPERATION_MODE_DRY_W"
-    FAN_ONLY = "@AC_MAIN_OPERATION_MODE_FAN_W"
+    FAN = "@AC_MAIN_OPERATION_MODE_FAN_W"
     AI = "@AC_MAIN_OPERATION_MODE_AI_W"
     HEAT = "@AC_MAIN_OPERATION_MODE_HEAT_W"
     AIRCLEAN = "@AC_MAIN_OPERATION_MODE_AIRCLEAN_W"
@@ -1192,6 +1213,13 @@ class ACWindstrength(enum.Enum):
     LEFT_ONLY_LOW = "@AC_MAIN_WIND_STRENGTH_LOW_LEFT_W"
     LEFT_ONLY_MID = "@AC_MAIN_WIND_STRENGTH_MID_LEFT_W"
     LEFT_ONLY_HIGH = "@AC_MAIN_WIND_STRENGTH_HIGH_LEFT_W"
+    SYSTEM_SLOW = "@AC_MAIN_WIND_STRENGTH_SLOW_W"
+    SYSTEM_LOW = "@AC_MAIN_WIND_STRENGTH_LOW_W"
+    SYSTEM_MID = "@AC_MAIN_WIND_STRENGTH_MID_W"
+    SYSTEM_HIGH = "@AC_MAIN_WIND_STRENGTH_HIGH_W"
+    SYSTEM_POWER = "@AC_MAIN_WIND_STRENGTH_POWER_W"
+    SYSTEM_AUTO = "@AC_MAIN_WIND_STRENGTH_AUTO_W"
+    
 
 class ACOp(enum.Enum):
     """Whether a device is on or off."""
@@ -1201,43 +1229,32 @@ class ACOp(enum.Enum):
     LEFT_ON = "@AC_MAIN_OPERATION_LEFT_ON_W"
     ALL_ON = "@AC_MAIN_OPERATION_ALL_ON_W"
 
-class ICEVALLEY(enum.Enum):
-    OFF = "@OFF"
-    ON = "@ON"
-
-class LONGPOWER(enum.Enum):
-    OFF = "@OFF"
-    ON = "@ON"
-
-class SMARTCARE(enum.Enum):
-    OFF = "@OFF"
-    ON = "@ON"
-
 class AIRCLEAN(enum.Enum):
+
     OFF = "@AC_MAIN_AIRCLEAN_OFF_W"
     ON = "@AC_MAIN_AIRCLEAN_ON_W"
 
-class POWERSAVE(enum.Enum):
-    OFF = "@OFF"
-    ON = "@ON"
-
-class AUTODRY(enum.Enum):
-    OFF = "@OFF"
-    ON = "@ON"
-
-class POWERSAVEDRY(enum.Enum):
-    OFF = "@OFF"
-    ON = "@ON"
-
-class WDIRUPDOWN(enum.Enum):
-    OFF = "@OFF"
-    ON = "@ON"
-
 class WDIRLEFTRIGHT(enum.Enum):
+
     LEFT_RIGHT_STOP = "@OFF"
+    LEFT_RIGTH_ON = "@ON"
     RIGHTSIDE_LEFT_RIGHT = "@RIGHT_ON"
     LEFTSIDE_LEFT_RIGHT = "@LEFT_ON"
     LEFT_RIGHT = "@ALL_ON"
+
+class WDIRVSTEP(enum.Enum):
+
+    OFF = "0"
+    FIRST = "1"
+    SECOND = "2"
+    THIRD = "3"
+    FOURTH = "4"
+    FIFTH = "5"
+    SIXTH = "6"
+
+class ACETCMODE(enum.Enum):
+    OFF = "@OFF"
+    ON = "@ON" 
 
 class ACDevice(Device):
     """Higher-level operations on an AC/HVAC device, such as a heat
@@ -1288,14 +1305,21 @@ class ACDevice(Device):
         """
         
         self.set_celsius(self.f2c[f])
-    
+
+    def set_on(self, is_on):
+        """Turn on or off the device (according to a boolean).
+        """
+        
+        op = ACOp.ALL_ON if is_on else ACOp.OFF
+        op_value = self.model.enum_value('Operation', op.value)
+        self._set_control('Operation', op_value)
+
     def set_mode(self, mode):
         """Set the device's operating mode to an `OpMode` value.
         """
         
         mode_value = self.model.enum_value('OpMode', mode.value)
         self._set_control('OpMode', mode_value)
-    
     
     def set_windstrength(self, mode):
         """Set the device's operating mode to an `windstrength` value.
@@ -1304,62 +1328,27 @@ class ACDevice(Device):
         windstrength_value = self.model.enum_value('WindStrength', mode.value)
         self._set_control('WindStrength', windstrength_value)
     
-    
-    def set_on(self, is_on):
-        """Turn on or off the device (according to a boolean).
-        """
+    def set_wind_leftright(self, mode):
         
-        op = ACOp.ALL_ON if is_on else ACOp.OFF
-        op_value = self.model.enum_value('Operation', op.value)
-        self._set_control('Operation', op_value)
-    
-    def set_icevalley(self, is_on):
-        
-        mode = ICEVALLEY.ON if is_on else ICEVALLEY.OFF
-        mode_value = self.model.enum_value('IceValley', mode.value)
-        self._set_control('IceValley', mode_value)
-    
-    def set_longpower(self, is_on):
-        
-        mode = LONGPOWER.ON if is_on else LONGPOWER.OFF
-        mode_value = self.model.enum_value('FlowLongPower', mode.value)
-        self._set_control('FlowLongPower', mode_value)
-    
-    def set_smartcare(self, is_on):
-        
-        mode = SMARTCARE.ON if is_on else SMARTCARE.OFF
-        mode_value = self.model.enum_value('SmartCare', mode.value)
-        self._set_control('SmartCare', mode_value)
-    
+        wdir_value = self.model.enum_value('WDirLeftRight', mode.value)
+        self._set_control('WDirLeftRight', wdir_value)
+
+    def set_wdirvstep(self, mode):
+
+        self._set_control_ac_wdirvstep('WDirVStep',int(mode.value), 'PowerSave', 0, 'Jet', 0)
+
     def set_airclean(self, is_on):
         
         mode = AIRCLEAN.ON if is_on else AIRCLEAN.OFF
         mode_value = self.model.enum_value('AirClean', mode.value)
         self._set_control('AirClean', mode_value)
-    
-    def set_powersave(self, is_on):
-        
-        mode = POWERSAVE.ON if is_on else POWERSAVE.OFF
-        mode_value = self.model.enum_value('PowerSave', mode.value)
-        self._set_control('PowerSave', mode_value)
-    
-    def set_autodry(self, is_on):
-        
-        mode = AUTODRY.ON if is_on else AUTODRY.OFF
-        mode_value = self.model.enum_value('AutoDry', mode.value)
-        self._set_control('AutoDry', mode_value)
-    
-    def set_wind_updown(self, is_on):
-        
-        wdir = WDIRUPDOWN.ON if is_on else WDIRUPDOWN.OFF
-        wdir_value = self.model.enum_value('WDirUpDown', wdir.value)
-        self._set_control('WDirUpDown', wdir_value)
-    
-    def set_wind_leftright(self, mode):
-        
-        wdir_value = self.model.enum_value('WDirLeftRight', mode.value)
-        self._set_control('WDirLeftRight', wdir_value)
-    
+
+    def set_etc_mode(self, name, is_on):
+
+        mode = ACETCMODE.ON if is_on else ACETCMODE.OFF
+        mode_value = self.model.enum_value(name, mode.value)
+        self._set_control(name, mode_value)
+
     def get_filter_state(self):
         """Get information about the filter."""
         
@@ -1386,7 +1375,7 @@ class ACDevice(Device):
         
         value = self._get_control('SpkVolume')
         return int(value)
-    
+
     def monitor_start(self):
         """Start monitoring the device's status."""
         
@@ -1447,6 +1436,11 @@ class ACStatus(object):
             return int(f)
         else:
             return f
+    
+    @property
+    def is_on(self):
+        op = ACOp(self.lookup_enum('Operation'))
+        return op != ACOp.OFF
 
     @property
     def temp_cur_c(self):
@@ -1466,7 +1460,11 @@ class ACStatus(object):
     
     def lookup_enum(self, key):
         return self.ac.model.enum_name(key, self.data[key])
-    
+
+    @property
+    def model_type(self):
+        return self.ac.model.model_type()
+
     @property
     def mode(self):
         return ACMode(self.lookup_enum('OpMode'))
@@ -1476,42 +1474,53 @@ class ACStatus(object):
         return ACWindstrength(self.lookup_enum('WindStrength'))
     
     @property
-    def wdirupdown_state(self):
-        return WDIRUPDOWN(self.lookup_enum('WDirUpDown'))
-    
-    @property
     def wdirleftright_state(self):
         return WDIRLEFTRIGHT(self.lookup_enum('WDirLeftRight'))
-    
+
     @property
-    def is_on(self):
-        op = ACOp(self.lookup_enum('Operation'))
-        return op != ACOp.OFF
-    
+    def wdirupdown_state(self):
+        return ACETCMODE(self.lookup_enum('WDirUpDown'))    
+
     @property
     def airclean_state(self):
         return AIRCLEAN(self.lookup_enum('AirClean'))
+
+    @property
+    def wdirvstep_state(self):
+        return WDIRVSTEP(self.data['WDirVStep'])
+
+    @property
+    def sac_airclean_state(self):
+        return ACETCMODE(self.lookup_enum('AirClean'))    
     
     @property
     def icevalley_state(self):
-        return ICEVALLEY(self.lookup_enum('IceValley'))
+        return ACETCMODE(self.lookup_enum('IceValley'))
     
     @property
     def longpower_state(self):
-        return LONGPOWER(self.lookup_enum('FlowLongPower'))
+        return ACETCMODE(self.lookup_enum('FlowLongPower'))
     
     @property
     def autodry_state(self):
-        return AUTODRY(self.lookup_enum('AutoDry'))
+        return ACETCMODE(self.lookup_enum('AutoDry'))
     
     @property
     def smartcare_state(self):
-        return SMARTCARE(self.lookup_enum('SmartCare'))
+        return ACETCMODE(self.lookup_enum('SmartCare'))
+    
+    @property
+    def sensormon_state(self):
+        return ACETCMODE(self.lookup_enum('SensorMon'))
     
     @property
     def powersave_state(self):
-        return POWERSAVE(self.lookup_enum('PowerSave'))
-    
+        return ACETCMODE(self.lookup_enum('PowerSave'))
+
+    @property
+    def jet_state(self):
+        return ACETCMODE(self.lookup_enum('Jet'))
+
     @property
     def humidity(self):
         return self.data['SensorHumidity']
@@ -1527,7 +1536,7 @@ class ACStatus(object):
     @property
     def sensorpm10(self):
         return self.data['SensorPM10']
-    
+
     @property
     def total_air_polution(self):
         return self.data['TotalAirPolution']
