@@ -75,6 +75,13 @@ class NotLoggedInError(APIError):
         pass
 
 
+class NotConnectedError(APIError):
+    """The service can't contact the specified device."""
+
+    def __init__(self):
+        pass
+
+
 class TokenError(APIError):
     """An authentication token was rejected."""
 
@@ -124,6 +131,8 @@ def lgedm_post(url, data=None, access_token=None, session_id=None):
             message = out['returnMsg']
             if code == "0102":
                 raise NotLoggedInError()
+            elif code == "0106":
+                raise NotConnectedError()
             else:
                 raise APIError(code, message)
 
