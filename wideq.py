@@ -293,6 +293,37 @@ STATE_DEHUM_AIRREMOVAL_OFF = '꺼짐'
 STATE_WATERPURIFIER_COCKCLEAN_WAIT = '셀프케어 대기 중'
 STATE_WATERPURIFIER_COCKCLEAN_ON = '셀프케어 진행 중'
 
+"""AIRPURIFIER STATE"""
+STATE_AIRPURIFIER_ON = '켜짐'
+STATE_AIRPURIFIER_OFF = '꺼짐'
+
+STATE_AIRPURIFIER_CIRCULATOR_CLEAN = '클린부스터'
+STATE_AIRPURIFIER_BABY_CARE = '싱글청정'
+STATE_AIRPURIFIER_DUAL_CLEAN = '듀얼청정'
+STATE_AIRPURIFIER_AUTO_MODE = '오토모드'
+
+STATE_AIRPURIFIER_LOW = '약'
+STATE_AIRPURIFIER_MID = '중'
+STATE_AIRPURIFIER_HIGH = '강'
+STATE_AIRPURIFIER_POWER = '파워'
+STATE_AIRPURIFIER_AUTO = '자동'
+
+STATE_AIRPURIFIER_CIR_LOW = '청정세기_약'
+STATE_AIRPURIFIER_CIR_MID = '청정세기_중'
+STATE_AIRPURIFIER_CIR_HIGH = '청정세기_강'
+STATE_AIRPURIFIER_CIR_POWER = '청정세기_파워'
+STATE_AIRPURIFIER_CIR_AUTO = '청정세기_자동'
+
+STATE_AIRPURIFIER_TOTALAIRPOLUTION_GOOD = '좋음'
+STATE_AIRPURIFIER_TOTALAIRPOLUTION_NORMAL = '보통'
+STATE_AIRPURIFIER_TOTALAIRPOLUTION_BAD = '나쁨'
+STATE_AIRPURIFIER_TOTALAIRPOLUTION_VERYBAD = '매우나쁨'
+
+STATE_AIRPURIFIER_SMELL_WEEK = '약함'
+STATE_AIRPURIFIER_SMELL_NORMAL = '보통'
+STATE_AIRPURIFIER_SMELL_STRONG = '강함'
+STATE_AIRPURIFIER_SMELL_VERYSTRONG = '매우강함'
+
 def gen_uuid():
     return str(uuid.uuid4())
 
@@ -621,6 +652,21 @@ class Session(object):
             'cmdOpt': 'Stop',
             'deviceId': device_id,
             'workId': work_id,
+        })
+
+    def set_device_operation(self, device_id, values):
+        """Control a device's settings.
+
+        `values` is a key/value map containing the settings to update.
+        """
+
+        return self.post('rti/rtiControl', {
+            'cmd': 'Control',
+            'cmdOpt': 'Operation',
+            'value': values,
+            'deviceId': device_id,
+            'workId': gen_uuid(),
+            'data': '',
         })
 
     def set_device_controls(self, device_id, values):
@@ -1112,6 +1158,15 @@ class Device(object):
         self.client = client
         self.device = device
         self.model = client.model_info(device)
+
+    def _set_operation(self, value):
+        """Set a device's operation for a given `value`.
+        """
+        
+        self.client.session.set_device_controls(
+            self.device.id,
+            value,
+            )
 
     def _set_control(self, key, value):
         """Set a device's control for `key` to `value`.
@@ -2239,7 +2294,6 @@ class DIAGCODE(enum.Enum):
 
 class DehumDevice(Device):
 
-
     def set_on(self, is_on):
         mode = DEHUMOperation.ON if is_on else DEHUMOperation.OFF
         mode_value = self.model.enum_value('Operation', mode.value)
@@ -2305,7 +2359,6 @@ class DEHUMStatus(object):
     def __init__(self, dehum, data):
         self.dehum = dehum
         self.data = data
-
 
     def lookup_enum(self, key):
         return self.dehum.model.enum_name(key, self.data[key])
@@ -2445,3 +2498,186 @@ class WPStatus(object):
     @property
     def cockclean_state(self):
         return COCKCLEAN(self.lookup_enum('CockClean'))
+
+"""------------------for Air Purifier"""
+class APOperation(enum.Enum):
+    
+    ON = "@operation_on"
+    OFF = "@operation_off"
+
+class APOPMode(enum.Enum):
+    
+    CLEANBOOSTER = "@AP_MAIN_MID_OPMODE_CIRCULATOR_CLEAN_W"
+    SINGLECLEAN = "@AP_MAIN_MID_OPMODE_BABY_CARE_W"
+    DUALCLEAN = "@AP_MAIN_MID_OPMODE_DUAL_CLEAN_W"
+    AUTO = "@AP_MAIN_MID_OPMODE_AUTO_W"
+
+class APWindStrength(enum.Enum):
+
+    LOW = "@AP_MAIN_MID_WINDSTRENGTH_LOW_W"
+    MID = "@AP_MAIN_MID_WINDSTRENGTH_MID_W"
+    HIGH = "@AP_MAIN_MID_WINDSTRENGTH_HIGH_W"
+    POWER = "@AP_MAIN_MID_WINDSTRENGTH_POWER_W"
+    AUTO = "@AP_MAIN_MID_WINDSTRENGTH_AUTO_W"
+
+class APCirculateStrength(enum.Enum):
+
+    LOW = "@AP_MAIN_MID_CIRCULATORSTRENGTH_LOW_W"
+    MID = "@AP_MAIN_MID_CIRCULATORSTRENGTH_MID_W"
+    HIGH = "@AP_MAIN_MID_CIRCULATORSTRENGTH_HIGH_W"
+    POWER = "@AP_MAIN_MID_CIRCULATORSTRENGTH_POWER_W"
+    AUTO = "@AP_MAIN_MID_CIRCULATORSTRENGTH_AUTO_W"
+
+class APETCMODE(enum.Enum):
+
+    OFF = "@AP_OFF_W"
+    ON = "@AP_ON_W"
+
+class APTOTALAIRPOLUTION(enum.Enum):
+
+    GOOD = '1'
+    NORMAL = '2'
+    BAD = '3'
+    VERYBAD = '4'
+
+class APSMELL(enum.Enum):
+
+    WEEK = '1'
+    NORMAL = '2'
+    STRONG = '3'
+    VERYSTRONG = '4'
+
+
+class APDevice(Device):
+
+    def set_on(self, is_on):
+        mode = APOperation.ON if is_on else APOperation.OFF
+        mode_value = self.model.enum_value('Operation', mode.value)
+        self._set_control('Operation', mode_value)
+            
+    def set_mode(self, mode):
+        
+        mode_value = self.model.enum_value('OpMode', mode.value)
+        self._set_control('OpMode', mode_value)
+
+    def set_windstrength(self, mode):
+
+        windstrength_value = self.model.enum_value('WindStrength', mode.value)
+        self._set_control('WindStrength', windstrength_value)
+
+    def set_circulatestrength(self, mode):
+
+        circulatestrength_value = self.model.enum_value('CirculateStrength', mode.value)
+        self._set_control('CirculateStrength', circulatestrength_value)
+
+    def set_circulatedir(self, is_on):
+        
+        mode = APETCMODE.ON if is_on else APETCMODE.OFF
+        mode_value = self.model.enum_value('CirculateDir', mode.value)
+        self._set_control('CirculateDir', mode_value)
+
+    def set_airremoval(self, is_on):
+        
+        mode = APETCMODE.ON if is_on else APETCMODE.OFF
+        mode_value = self.model.enum_value('AirRemoval', mode.value)
+        self._set_control('AirRemoval', mode_value)
+
+    def set_signallighting(self, is_on):
+        
+        mode = APETCMODE.ON if is_on else APETCMODE.OFF
+        mode_value = self.model.enum_value('SignalLighting', mode.value)
+        self._set_control('SignalLighting', mode_value)
+
+    def get_filter_state(self):
+        """Get information about the filter."""
+        
+        return self._get_config('Filter')
+
+    def monitor_start(self):
+        """Start monitoring the device's status."""
+        
+        self.mon = Monitor(self.client.session, self.device.id)
+        self.mon.start()
+    
+    def monitor_stop(self):
+        """Stop monitoring the device's status."""
+        
+        self.mon.stop()
+    
+    def delete_permission(self):
+        self._delete_permission()
+    
+    def poll(self):
+        """Poll the device's current state.
+            
+        Monitoring must be started first with `monitor_start`. Return
+        either an `ACStatus` object or `None` if the status is not yet
+        available.
+        """
+        data = self.mon.poll()
+        if data:
+            res = self.model.decode_monitor(data)
+            """
+            with open('/config/wideq/airpurifier_polled_data.json','w', encoding="utf-8") as dumpfile:
+                json.dump(res, dumpfile, ensure_ascii=False, indent="\t")
+            """
+            return APStatus(self, res)
+        else:
+            return None
+
+class APStatus(object):
+
+    def __init__(self, ap, data):
+        self.ap = ap
+        self.data = data
+
+    def lookup_enum(self, key):
+        return self.ap.model.enum_name(key, self.data[key])
+
+    @property
+    def is_on(self):
+        op = APOperation(self.lookup_enum('Operation'))
+        return op == APOperation.ON
+
+    @property
+    def mode(self):
+        return APOPMode(self.lookup_enum('OpMode'))
+   
+    @property
+    def windstrength_state(self):
+        return APWindStrength(self.lookup_enum('WindStrength'))
+
+    @property
+    def circulatestrength_state(self):
+        return APCirculateStrength(self.lookup_enum('CirculateStrength'))
+    @property
+    def circulatedir_state(self):
+        return APETCMODE(self.lookup_enum('CirculateDir'))
+
+    @property
+    def airremoval_state(self):
+        return APETCMODE(self.lookup_enum('AirRemoval'))
+
+    @property
+    def signallighting_state(self):
+        return APETCMODE(self.lookup_enum('SignalLighting'))
+
+    @property
+    def sensorpm1(self):
+        return self.data['SensorPM1']
+    
+    @property
+    def sensorpm2(self):
+        return self.data['SensorPM2']
+    
+    @property
+    def sensorpm10(self):
+        return self.data['SensorPM10']
+
+    @property
+    def total_air_polution(self):
+        return APTOTALAIRPOLUTION(self.data['TotalAirPolution'])
+    
+    @property
+    def air_polution(self):
+        return APSMELL(self.data['AirPolution'])
