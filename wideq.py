@@ -2568,6 +2568,7 @@ class APOperation(enum.Enum):
 
 class APOPMode(enum.Enum):
     
+    NOT_SUPPORTED = "@NON"
     CLEANBOOSTER = "@AP_MAIN_MID_OPMODE_CIRCULATOR_CLEAN_W"
     SINGLECLEAN = "@AP_MAIN_MID_OPMODE_BABY_CARE_W"
     CLEAN = "@AP_MAIN_MID_OPMODE_CLEAN_W"
@@ -2576,6 +2577,7 @@ class APOPMode(enum.Enum):
 
 class APWindStrength(enum.Enum):
 
+    NOT_SUPPORTED = "@NON"
     LOWST_LOW = "@AP_MAIN_MID_WINDSTRENGTH_LOWST_LOW_W"
     LOWST = "@AP_MAIN_MID_WINDSTRENGTH_LOWST_W"
     LOW = "@AP_MAIN_MID_WINDSTRENGTH_LOW_W"
@@ -2729,6 +2731,16 @@ class APStatus(object):
     def mode(self):
         return APOPMode(self.lookup_enum('OpMode'))
    
+    @property
+    def support_oplist(self):
+
+        dict_support_opmode = self.ap.model.option_item('SupportOpMode')
+        support_opmode = []
+        for option in dict_support_opmode.values():
+            support_opmode.append(APOPMode(option).name)
+    
+        return support_opmode
+
     @property
     def windstrength_state(self):
         return APWindStrength(self.lookup_enum('WindStrength'))
