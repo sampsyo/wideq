@@ -33,23 +33,23 @@ STATE_ACO = 'ACO'
 STATE_MODE_ON = 'ON'
 STATE_MODE_OFF = 'OFF'
 
-STATE_LOW = '약'
-STATE_MID = '중'
-STATE_HIGH = '강'
+STATE_LOW = '약풍'
+STATE_MID = '중풍'
+STATE_HIGH = '강풍'
 STATE_AUTO = '자동'
 STATE_POWER = '파워'
-STATE_RIGHT_LOW_LEFT_MID = '우약/좌중'
-STATE_RIGHT_LOW_LEFT_HIGH = '우약/좌강'
-STATE_RIGHT_MID_LEFT_LOW = '우중/좌약'
-STATE_RIGHT_MID_LEFT_HIGH = '우중/좌강'
-STATE_RIGHT_HIGH_LEFT_LOW = '우강/좌약'
-STATE_RIGHT_HIGH_LEFT_MID = '우강/좌중'
-STATE_RIGHT_ONLY_LOW = '우약'
-STATE_RIGHT_ONLY_MID = '우중'
-STATE_RIGHT_ONLY_HIGH = '우강'
-STATE_LEFT_ONLY_LOW = '좌약'
-STATE_LEFT_ONLY_MID = '좌중'
-STATE_LEFT_ONLY_HIGH = '좌강'
+STATE_RIGHT_LOW_LEFT_MID = '우약풍/좌중풍'
+STATE_RIGHT_LOW_LEFT_HIGH = '우약풍/좌강풍'
+STATE_RIGHT_MID_LEFT_LOW = '우중풍/좌약풍'
+STATE_RIGHT_MID_LEFT_HIGH = '우중풍/좌강풍'
+STATE_RIGHT_HIGH_LEFT_LOW = '우강풍/좌약풍'
+STATE_RIGHT_HIGH_LEFT_MID = '우강풍/좌중풍'
+STATE_RIGHT_ONLY_LOW = '우약풍'
+STATE_RIGHT_ONLY_MID = '우중풍'
+STATE_RIGHT_ONLY_HIGH = '우강풍'
+STATE_LEFT_ONLY_LOW = '좌약풍'
+STATE_LEFT_ONLY_MID = '좌중풍'
+STATE_LEFT_ONLY_HIGH = '좌강풍'
 
 STATE_LEFT_RIGHT = '좌/우'
 STATE_LEFT_RIGHT_ON = '좌/우'
@@ -1004,6 +1004,10 @@ class DeviceInfo(object):
         return self.data['macAddress']
 
     @property
+    def model_name(self):
+        return self.data['modelNm']
+
+    @property
     def type(self):
         """The kind of device, as a `DeviceType` value."""
         
@@ -1076,7 +1080,14 @@ class ModelInfo(object):
         """
             
         return self.data['Value'][name]['default']
-        
+
+    def option_item(self, name):
+        """Get the default value, if it exists, for a given value.
+        """
+            
+        options = self.value(name).options
+        return options
+
     def enum_value(self, key, name):
         """Look up the encoded value for a friendly enum name.
         """
@@ -1259,7 +1270,7 @@ class Device(object):
 """------------------for Air Conditioner"""
 class ACMode(enum.Enum):
     """The operation mode for an AC/HVAC device."""
-    
+    NOT_SUPPORTED = "@NON"
     COOL = "@AC_MAIN_OPERATION_MODE_COOL_W"
     DRY = "@AC_MAIN_OPERATION_MODE_DRY_W"
     FAN = "@AC_MAIN_OPERATION_MODE_FAN_W"
@@ -1274,6 +1285,7 @@ class ACMode(enum.Enum):
 class ACWindstrength(enum.Enum):
     """The wind strength mode for an AC/HVAC device."""
     
+    NOT_SUPPORTED = "@NON"
     LOW = "@AC_MAIN_WIND_STRENGTH_LOW_LEFT_W|AC_MAIN_WIND_STRENGTH_LOW_RIGHT_W"
     MID = "@AC_MAIN_WIND_STRENGTH_MID_LEFT_W|AC_MAIN_WIND_STRENGTH_MID_RIGHT_W"
     HIGH = "@AC_MAIN_WIND_STRENGTH_HIGH_LEFT_W|AC_MAIN_WIND_STRENGTH_HIGH_RIGHT_W"
@@ -1295,7 +1307,9 @@ class ACWindstrength(enum.Enum):
     SYSTEM_HIGH = "@AC_MAIN_WIND_STRENGTH_HIGH_W"
     SYSTEM_POWER = "@AC_MAIN_WIND_STRENGTH_POWER_W"
     SYSTEM_AUTO = "@AC_MAIN_WIND_STRENGTH_AUTO_W"
-    
+    SYSTEM_LOW_CLEAN = "@AC_MAIN_WIND_STRENGTH_LOW_CLEAN_W"
+    SYSTEM_MID_CLEAN = "@AC_MAIN_WIND_STRENGTH_MID_CLEAN_W"
+    SYSTEM_HIGH_CLEAN = "@AC_MAIN_WIND_STRENGTH_HIGH_CLEAN_W"
 
 class ACOp(enum.Enum):
     """Whether a device is on or off."""
@@ -1553,6 +1567,26 @@ class ACStatus(object):
         return self.ac.model.model_type()
 
     @property
+    def support_oplist(self):
+
+        dict_support_opmode = self.ac.model.option_item('SupportOpMode')
+        support_opmode = []
+        for option in dict_support_opmode.values():
+            support_opmode.append(ACMode(option).name)
+    
+        return support_opmode
+
+    @property
+    def support_fanlist(self):
+
+        dict_support_fanmode = self.ac.model.option_item('SupportWindStrength')
+        support_fanmode = []
+        for option in dict_support_fanmode.values():
+            support_fanmode.append(ACWindstrength(option).name)
+    
+        return support_fanmode
+    
+    @property
     def mode(self):
         return ACMode(self.lookup_enum('OpMode'))
     
@@ -1630,11 +1664,11 @@ class ACStatus(object):
 
     @property
     def total_air_polution(self):
-        return self.data['TotalAirPolution']
+        return APTOTALAIRPOLUTION(self.data['TotalAirPolution'])
     
     @property
     def air_polution(self):
-        return self.data['AirPolution']
+        return APSMELL(self.data['AirPolution'])
 
 """------------------for Refrigerator"""
 class ICEPLUS(enum.Enum):
@@ -2573,12 +2607,13 @@ class APCirculateStrength(enum.Enum):
 
 class APETCMODE(enum.Enum):
 
-    NOT_SUPPORTED = "@NONSUPPORT"
+    NOT_SUPPORT = "@NONSUPPORT"
     OFF = "@AP_OFF_W"
     ON = "@AP_ON_W"
 
 class APTOTALAIRPOLUTION(enum.Enum):
-
+    
+    NOT_SUPPORT = '0'
     GOOD = '1'
     NORMAL = '2'
     BAD = '3'
@@ -2586,6 +2621,7 @@ class APTOTALAIRPOLUTION(enum.Enum):
 
 class APSMELL(enum.Enum):
 
+    NOT_SUPPORT = '0'
     WEEK = '1'
     NORMAL = '2'
     STRONG = '3'
@@ -2631,6 +2667,12 @@ class APDevice(Device):
         mode = APETCMODE.ON if is_on else APETCMODE.OFF
         mode_value = self.model.enum_value('SignalLighting', mode.value)
         self._set_control('SignalLighting', mode_value)
+
+    def set_airfast(self, is_on):
+        
+        mode = APETCMODE.ON if is_on else APETCMODE.OFF
+        mode_value = self.model.enum_value('AirFast', mode.value)
+        self._set_control('AirFast', mode_value)
 
     def get_filter_state(self):
         """Get information about the filter."""
@@ -2705,6 +2747,10 @@ class APStatus(object):
     @property
     def signallighting_state(self):
         return APETCMODE(self.lookup_enum('SignalLighting'))
+
+    @property
+    def airfast_state(self):
+        return APETCMODE(self.lookup_enum('AirFast'))
 
     @property
     def sensorpm1(self):
