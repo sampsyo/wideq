@@ -752,7 +752,18 @@ class Session(object):
             raise MonitorError(device_id, code)
         else:
             return res['item']
+            
+    def get_outdoor_weather(self, area):
+        res = self.post('weather/weatherNewsData',{
+            'area': area
+        })
+        code = res.get('returnCd')  # returnCode can be missing.
+        if code != '0000':
+            raise MonitorError(device_id, code)
+        else:
+            return res
 
+        
 class Monitor(object):
     """A monitoring task for a device.
         
@@ -1490,6 +1501,10 @@ class ACDevice(Device):
     
     def delete_permission(self):
         self._delete_permission()
+
+    def get_outdoor_weather(self, area):
+        data = self.client.session.get_outdoor_weather(area)
+        return data
 
     def get_energy_usage(self):
         sDate = '20190101'
@@ -2568,7 +2583,6 @@ class APOperation(enum.Enum):
 
 class APOPMode(enum.Enum):
     
-    NOT_SUPPORTED = "@NON"
     CLEANBOOSTER = "@AP_MAIN_MID_OPMODE_CIRCULATOR_CLEAN_W"
     SINGLECLEAN = "@AP_MAIN_MID_OPMODE_BABY_CARE_W"
     CLEAN = "@AP_MAIN_MID_OPMODE_CLEAN_W"
@@ -2577,7 +2591,6 @@ class APOPMode(enum.Enum):
 
 class APWindStrength(enum.Enum):
 
-    NOT_SUPPORTED = "@NON"
     LOWST_LOW = "@AP_MAIN_MID_WINDSTRENGTH_LOWST_LOW_W"
     LOWST = "@AP_MAIN_MID_WINDSTRENGTH_LOWST_W"
     LOW = "@AP_MAIN_MID_WINDSTRENGTH_LOW_W"
@@ -2730,7 +2743,7 @@ class APStatus(object):
     @property
     def mode(self):
         return APOPMode(self.lookup_enum('OpMode'))
-   
+
     @property
     def support_oplist(self):
 
