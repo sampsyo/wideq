@@ -1281,6 +1281,7 @@ class Device(object):
 """------------------for Air Conditioner"""
 class ACMode(enum.Enum):
     """The operation mode for an AC/HVAC device."""
+    OFF = "@OFF"
     NOT_SUPPORTED = "@NON"
     COOL = "@AC_MAIN_OPERATION_MODE_COOL_W"
     DRY = "@AC_MAIN_OPERATION_MODE_DRY_W"
@@ -1292,11 +1293,14 @@ class ACMode(enum.Enum):
     AROMA = "@AC_MAIN_OPERATION_MODE_AROMA_W"
     ENERGY_SAVING = "@AC_MAIN_OPERATION_MODE_ENERGY_SAVING_W"
     SMARTCARE = "@AC_MAIN_WIND_MODE_SMARTCARE_W"
+    ICEVALLEY = "@AC_MAIN_WIND_MODE_ICEVALLEY_W"
+    LONGPOWER = "@AC_MAIN_WIND_MODE_LONGPOWER_W"
 
 class ACWindstrength(enum.Enum):
     """The wind strength mode for an AC/HVAC device."""
     
     NOT_SUPPORTED = "@NON"
+    FIX = "@AC_MAIN_WIND_DIRECTION_FIX_W"
     LOW = "@AC_MAIN_WIND_STRENGTH_LOW_LEFT_W|AC_MAIN_WIND_STRENGTH_LOW_RIGHT_W"
     MID = "@AC_MAIN_WIND_STRENGTH_MID_LEFT_W|AC_MAIN_WIND_STRENGTH_MID_RIGHT_W"
     HIGH = "@AC_MAIN_WIND_STRENGTH_HIGH_LEFT_W|AC_MAIN_WIND_STRENGTH_HIGH_RIGHT_W"
@@ -1321,6 +1325,20 @@ class ACWindstrength(enum.Enum):
     SYSTEM_LOW_CLEAN = "@AC_MAIN_WIND_STRENGTH_LOW_CLEAN_W"
     SYSTEM_MID_CLEAN = "@AC_MAIN_WIND_STRENGTH_MID_CLEAN_W"
     SYSTEM_HIGH_CLEAN = "@AC_MAIN_WIND_STRENGTH_HIGH_CLEAN_W"
+
+class ACSwingMode(enum.Enum):
+    FIX = "@AC_MAIN_WIND_DIRECTION_FIX_W"
+    UPDOWN = "@AC_MAIN_WIND_DIRECTION_UP_DOWN_W"
+    LEFTRIGHT = "@AC_MAIN_WIND_DIRECTION_LEFT_RIGHT_W"
+
+class ACPACMode(enum.Enum):
+    NONE = "@NON"
+    POWERSAVE = "@ENERGYSAVING"
+    AUTODRY = "@AUTODRY"
+    AIRCLEAN = "@AIRCLEAN"
+    ECOMODE = "@ECOMODE"
+    POWERSAVEDRY = "@ENERGYSAVINGDRY"
+    INDIVIDUALCTRL = "@INDIVIDUALCTRL"
 
 class ACOp(enum.Enum):
     """Whether a device is on or off."""
@@ -1592,6 +1610,16 @@ class ACStatus(object):
         return support_opmode
 
     @property
+    def support_windmode(self):
+
+        dict_support_windmode = self.ac.model.option_item('SupportWindMode')
+        support_windmode = []
+        for option in dict_support_windmode.values():
+            support_windmode.append(ACMode(option).name)
+    
+        return support_windmode
+
+    @property
     def support_fanlist(self):
 
         dict_support_fanmode = self.ac.model.option_item('SupportWindStrength')
@@ -1600,7 +1628,27 @@ class ACStatus(object):
             support_fanmode.append(ACWindstrength(option).name)
     
         return support_fanmode
+
+    @property
+    def support_swingmode(self):
+
+        dict_support_swingmode = self.ac.model.option_item('SupportWindDir')
+        support_swingmode = []
+        for option in dict_support_swingmode.values():
+            support_swingmode.append(ACSwingMode(option).name)
     
+        return support_swingmode
+
+    @property
+    def support_pacmode(self):
+
+        dict_support_pacmode = self.ac.model.option_item('SupportPACMode')
+        support_pacmode = []
+        for option in dict_support_pacmode.values():
+            support_pacmode.append(ACPACMode(option).name)
+    
+        return support_pacmode
+
     @property
     def mode(self):
         return ACMode(self.lookup_enum('OpMode'))
