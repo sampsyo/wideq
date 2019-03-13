@@ -1331,6 +1331,13 @@ class ACSwingMode(enum.Enum):
     UPDOWN = "@AC_MAIN_WIND_DIRECTION_UP_DOWN_W"
     LEFTRIGHT = "@AC_MAIN_WIND_DIRECTION_LEFT_RIGHT_W"
 
+class ACReserveMode(enum.Enum):
+    NONE = "@NON"
+    SLEEPTIMER = "@SLEEP_TIMER"
+    EASYTIMER = "@EASY_TIMER"
+    ONOFFTIMER = "@ONOFF_TIMER"
+    WEEKLYSCHEDULE = "@WEEKLY_SCHEDULE"
+
 class ACPACMode(enum.Enum):
     NONE = "@NON"
     POWERSAVE = "@ENERGYSAVING"
@@ -1479,6 +1486,10 @@ class ACDevice(Device):
         mode_value = self.model.enum_value(name, mode.value)
         self._set_control(name, mode_value)
 
+    def set_sleep_time(self, sleeptime):
+
+        self._set_control('SleepTime', sleeptime)
+
     def get_filter_state(self):
         """Get information about the filter."""
         
@@ -1524,12 +1535,41 @@ class ACDevice(Device):
         data = self.client.session.get_outdoor_weather(area)
         return data
 
-    def get_energy_usage(self):
-        sDate = '20190101'
-        eDate = '20190131'
+    def get_energy_usage_day(self):
+        sDate = datetime.today().strftime("%Y%m%d")
+        eDate = sDate
         value = self._get_power_data(sDate, eDate)
         return value
-    
+
+    def get_energy_usage_week(self):
+        weekday = datetime.today().weekday()
+
+        startdate = datetime.today() + timedelta(days=-(weekday+1))
+        enddate = datetime.today() + timedelta(days=(6-(weekday+1)))
+        sDate = datetime.date(startdate).strftime("%Y%m%d")
+        eDate = datetime.date(enddate).strftime("%Y%m%d")
+
+        value = self._get_power_data(sDate, eDate)
+        return value
+
+    def get_energy_usage_month(self):
+        weekday = datetime.today().weekday()
+
+        startdate = datetime.today().replace(day=1)
+        sDate = datetime.date(startdate).strftime("%Y%m%d")
+        eDate = datetime.today().strftime("%Y%m%d")
+        
+        value = self._get_power_data(sDate, eDate)
+        return value
+
+    def get_outtotalinstantpower(self):
+        value = self._get_config('OutTotalInstantPower')
+        return value['OutTotalInstantPower']
+
+    def get_inoutinstantpower(self):
+        value = self._get_config('InOutInstantPower')
+        return value['InOutInstantPower']
+
     def poll(self):
         """Poll the device's current state.
             
@@ -1650,6 +1690,16 @@ class ACStatus(object):
         return support_pacmode
 
     @property
+    def support_reservemode(self):
+
+        dict_support_reservemode = self.ac.model.option_item('SupportReserve')
+        support_reservemode = []
+        for option in dict_support_reservemode.values():
+            support_reservemode.append(ACReserveMode(option).name)
+    
+        return support_reservemode
+
+    @property
     def mode(self):
         return ACMode(self.lookup_enum('OpMode'))
     
@@ -1724,6 +1774,10 @@ class ACStatus(object):
     @property
     def sensorpm10(self):
         return self.data['SensorPM10']
+
+    @property
+    def sleeptime(self):
+        return self.data['SleepTime']
 
     @property
     def total_air_polution(self):
