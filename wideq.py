@@ -2685,6 +2685,7 @@ class APOperation(enum.Enum):
 
 class APOPMode(enum.Enum):
     
+    NONE = "@NON"
     CLEANBOOSTER = "@AP_MAIN_MID_OPMODE_CIRCULATOR_CLEAN_W"
     SINGLECLEAN = "@AP_MAIN_MID_OPMODE_BABY_CARE_W"
     CLEAN = "@AP_MAIN_MID_OPMODE_CLEAN_W"
