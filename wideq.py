@@ -28,7 +28,7 @@ STATE_DRY = '제습'
 STATE_HEAT = '난방'
 STATE_AI = '인공지능'
 STATE_FAN = '송풍'
-STATE_ACO = 'ACO'
+STATE_AIRCLEAN = '공기청정'
 
 STATE_MODE_ON = 'ON'
 STATE_MODE_OFF = 'OFF'
@@ -64,7 +64,7 @@ STATE_WDIRVSTEP_THIRD = '3단계'
 STATE_WDIRVSTEP_FOURTH = '4단계'
 STATE_WDIRVSTEP_FIFTH = '5단계'
 STATE_WDIRVSTEP_SIXTH = '6단계'
-
+STATE_WDIRVSTEP_HUNDREDTH = '자동'
 
 """REFRIGERATOR STATE"""
 STATE_ICE_PLUS_ON = '켜짐'
@@ -1338,7 +1338,7 @@ class ACReserveMode(enum.Enum):
     ONOFFTIMER = "@ONOFF_TIMER"
     WEEKLYSCHEDULE = "@WEEKLY_SCHEDULE"
 
-class ACPACMode(enum.Enum):
+class ACEXTRAMode(enum.Enum):
     NONE = "@NON"
     POWERSAVE = "@ENERGYSAVING"
     AUTODRY = "@AUTODRY"
@@ -1346,6 +1346,23 @@ class ACPACMode(enum.Enum):
     ECOMODE = "@ECOMODE"
     POWERSAVEDRY = "@ENERGYSAVINGDRY"
     INDIVIDUALCTRL = "@INDIVIDUALCTRL"
+    COMBINATION_OF_COMMAND = "@COMBINATION_OF_COMMAND"  
+    QUITE_MODE = "@QUITE_MODE"
+
+class ACRACSubMode(enum.Enum):
+    NONE = "@NON"
+    UP_DOWN = "@AC_MAIN_WIND_DIRECTION_SWING_UP_DOWN_W"
+    LEFT_RIGHT = "@AC_MAIN_WIND_DIRECTION_SWING_LEFT_RIGHT_W"
+    JET = "@AC_MAIN_WIND_MODE_JET_W"
+
+class ACAirPolution(enum.Enum):
+    NONE = "@NON"
+    MONITORING_SUPPORT = "@SENSOR_MONITORING_SET_SUPPORT"
+    TOTALCLEAN_SUPPORT = "@TOTAL_CLEAN_SUPPORT"
+    PM1_SUPPORT = "@PM1_0_SUPPORT"
+    PM10_SUPPORT = "@PM10_SUPPORT"
+    PM2_SUPPORT = "@PM2_5_SUPPORT"
+    SENSOR_HUMID_SUPPORT = "@SENSOR_HUMID_SUPPORT"
 
 class ACOp(enum.Enum):
     """Whether a device is on or off."""
@@ -1377,6 +1394,7 @@ class WDIRVSTEP(enum.Enum):
     FOURTH = "4"
     FIFTH = "5"
     SIXTH = "6"
+    HUNDREDTH = "100"
 
 class FOURVAIN_WDIRVSTEP(enum.Enum):
 
@@ -1636,10 +1654,6 @@ class ACStatus(object):
         return self.ac.model.enum_name(key, self.data[key])
 
     @property
-    def model_type(self):
-        return self.ac.model.model_type()
-
-    @property
     def support_oplist(self):
 
         dict_support_opmode = self.ac.model.option_item('SupportOpMode')
@@ -1681,13 +1695,33 @@ class ACStatus(object):
 
     @property
     def support_pacmode(self):
-
-        dict_support_pacmode = self.ac.model.option_item('SupportPACMode')
-        support_pacmode = []
-        for option in dict_support_pacmode.values():
-            support_pacmode.append(ACPACMode(option).name)
-    
+        if self.ac.model.model_type == 'PAC':
+            dict_support_pacmode = self.ac.model.option_item('SupportPACMode')
+            support_pacmode = []
+            for option in dict_support_pacmode.values():
+                support_pacmode.append(ACEXTRAMode(option).name)
+        
         return support_pacmode
+
+    @property
+    def support_racmode(self):
+        if self.ac.model.model_type == 'RAC':
+            dict_support_racmode = self.ac.model.option_item('SupportRACMode')
+            support_racmode = []
+            for option in dict_support_racmode.values():
+                support_racmode.append(ACEXTRAMode(option).name)
+        
+            return support_racmode
+    
+    @property
+    def support_racsubmode(self):
+        if self.ac.model.model_type == 'RAC':
+            dict_support_racsubmode = self.ac.model.option_item('SupportRACSubMode')
+            support_racsubmode = []
+            for option in dict_support_racsubmode.values():
+                support_racsubmode.append(ACRACSubMode(option).name)
+        
+            return support_racsubmode
 
     @property
     def support_reservemode(self):
@@ -1698,6 +1732,16 @@ class ACStatus(object):
             support_reservemode.append(ACReserveMode(option).name)
     
         return support_reservemode
+
+    @property
+    def support_airpolution(self):
+
+        dict_support_airpolution = self.ac.model.option_item('SupportAirPolution')
+        support_airpolution = []
+        for option in dict_support_airpolution.values():
+            support_airpolution.append(ACAirPolution(option).name)
+    
+        return support_airpolution
 
     @property
     def mode(self):
