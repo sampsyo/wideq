@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='wideq_kr',
-    version='0.0.6',
+    version='0.0.8',
     description='LG SmartThinQ API client for Korean',
     author='wkd8176',
     author_email='wkd8176@gmail.com',
