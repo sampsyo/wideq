@@ -446,7 +446,6 @@ def lgedm_post(url, data=None, access_token=None, session_id=None):
         headers['x-thinq-jsessionId'] = session_id
 
     res = requests.post(url, json={DATA_ROOT: data}, headers=headers)
-    print(res)
     out = res.json()[DATA_ROOT]
 
     # Check for API errors.
