@@ -38,6 +38,8 @@ STATE_MID = '중풍'
 STATE_HIGH = '강풍'
 STATE_AUTO = '자동'
 STATE_POWER = '파워'
+STATE_COOLPOWER = '쿨파워'
+STATE_LONGPOWER = '롱파워'
 STATE_RIGHT_LOW_LEFT_MID = '우약풍/좌중풍'
 STATE_RIGHT_LOW_LEFT_HIGH = '우약풍/좌강풍'
 STATE_RIGHT_MID_LEFT_LOW = '우중풍/좌약풍'
@@ -64,7 +66,15 @@ STATE_WDIRVSTEP_THIRD = '3단계'
 STATE_WDIRVSTEP_FOURTH = '4단계'
 STATE_WDIRVSTEP_FIFTH = '5단계'
 STATE_WDIRVSTEP_SIXTH = '6단계'
-STATE_WDIRVSTEP_HUNDREDTH = '자동'
+STATE_WDIRVSTEP_AUTO = '자동'
+
+STATE_WDIRHSTEP_OFF = '꺼짐'
+STATE_WDIRHSTEP_FIRST = '1단계'
+STATE_WDIRHSTEP_SECOND = '2단계'
+STATE_WDIRHSTEP_THIRD = '3단계'
+STATE_WDIRHSTEP_FOURTH = '4단계'
+STATE_WDIRHSTEP_FIFTH = '5단계'
+STATE_WDIRHSTEP_AUTO = '자동'
 
 """REFRIGERATOR STATE"""
 STATE_ICE_PLUS_ON = '켜짐'
@@ -436,6 +446,7 @@ def lgedm_post(url, data=None, access_token=None, session_id=None):
         headers['x-thinq-jsessionId'] = session_id
 
     res = requests.post(url, json={DATA_ROOT: data}, headers=headers)
+    print(res)
     out = res.json()[DATA_ROOT]
 
     # Check for API errors.
@@ -617,7 +628,6 @@ class Session(object):
 
         Return a list of dicts with information about the devices.
         """
-
         return as_list(self.post('device/deviceList')['item'])
 
     def monitor_start(self, device_id):
@@ -762,6 +772,20 @@ class Session(object):
             raise MonitorError(device_id, code)
         else:
             return res
+
+    def get_dustsensor_data(self):
+        res = self.post('v2/devices/97b2fc516b00b58c376cd8123f56cc8f/data?data=sensor.pm25%2Bsensor.pm10%2Bsensor.pm1&type=last')
+        """
+        code = res.get('returnCd')  # returnCode can be missing.
+        if code != '0000':
+            raise MonitorError(device_id, code)
+        else:
+        """    
+        print(res)
+        with open('/config/wideq-1/dust_sensor_data.json','w', encoding="utf-8") as dumpfile:
+            json.dump(res, dumpfile, ensure_ascii=False, indent="\t")        
+
+        return res
 
         
 class Monitor(object):
@@ -973,6 +997,10 @@ class DeviceType(enum.Enum):
     AIR_PURIFIER = 402
     DEHUMIDIFIER = 403
     ROBOT_KING = 501
+    TV = 701
+    BOILER = 801
+    SPEAKER = 901
+    HOMEVU = 902
     ARCH = 1001
     MISSG = 3001
     SENSOR = 3002
@@ -983,6 +1011,9 @@ class DeviceType(enum.Enum):
     IOT_DUST_SENSOR = 3006
     EMS_AIR_STATION = 4001
     AIR_SENSOR = 4003
+    PURICARE_AIR_DETECTOR = 4004
+    V2PHONE = 6001
+    HOMEROBOT = 9000
 
 
 class DeviceInfo(object):
@@ -993,7 +1024,7 @@ class DeviceInfo(object):
     
     def __init__(self, data):
         self.data = data
-    
+
     @property
     def model_id(self):
         return self.data['modelNm']
@@ -1021,7 +1052,11 @@ class DeviceInfo(object):
     @property
     def type(self):
         """The kind of device, as a `DeviceType` value."""
-        
+        """
+        with open('/config/wideq-1/device_info.json','w', encoding="utf-8") as dumpfile:
+            json.dump(self.data, dumpfile, ensure_ascii=False, indent="\t")
+        """
+
         return DeviceType(self.data['deviceType'])
     
     def load_model_info(self):
@@ -1219,13 +1254,13 @@ class Device(object):
             {key: value},
             )
 
-    def _set_control_ac_wdirvstep(self, key1, value1, key2, value2, key3, value3):
+    def _set_control_ac_wdirstep(self, key, value):
         """Set a device's control for `key` to `value`.
         """
         
         self.client.session.set_device_controls(
             self.device.id,
-            {key1: value1, key2: value2, key3:value3},
+            {key: value},
             )
 
 
@@ -1278,6 +1313,20 @@ class Device(object):
         )
         return data
 
+    def _get_dustsensor_data(self):
+        data = self.client.session.get_dustsensor_data()
+        """
+        code = res.get('returnCd')  # returnCode can be missing.
+        if code != '0000':
+            raise MonitorError(device_id, code)
+        else:
+        """    
+        print(data)
+        with open('/config/wideq-1/dust_sensor_data.json','w', encoding="utf-8") as dumpfile:
+            json.dump(data, dumpfile, ensure_ascii=False, indent="\t")        
+
+        return data
+
 """------------------for Air Conditioner"""
 class ACMode(enum.Enum):
     """The operation mode for an AC/HVAC device."""
@@ -1304,6 +1353,9 @@ class ACWindstrength(enum.Enum):
     LOW = "@AC_MAIN_WIND_STRENGTH_LOW_LEFT_W|AC_MAIN_WIND_STRENGTH_LOW_RIGHT_W"
     MID = "@AC_MAIN_WIND_STRENGTH_MID_LEFT_W|AC_MAIN_WIND_STRENGTH_MID_RIGHT_W"
     HIGH = "@AC_MAIN_WIND_STRENGTH_HIGH_LEFT_W|AC_MAIN_WIND_STRENGTH_HIGH_RIGHT_W"
+    COOLPOWER = "@AC_MAIN_WIND_STRENGTH_POWER_LEFT_W|AC_MAIN_WIND_STRENGTH_POWER_RIGHT_W"
+    LONGPOWER ="@AC_MAIN_WIND_STRENGTH_LONGPOWER_LEFT_W|AC_MAIN_WIND_STRENGTH_LONGPOWER_RIGHT_W"
+    AUTO = "@AC_MAIN_WIND_STRENGTH_AUTO_LEFT_W|AC_MAIN_WIND_STRENGTH_AUTO_RIGHT_W"
     RIGHT_LOW_LEFT_MID = "@AC_MAIN_WIND_STRENGTH_MID_LEFT_W|AC_MAIN_WIND_STRENGTH_LOW_RIGHT_W"
     RIGHT_LOW_LEFT_HIGH = "@AC_MAIN_WIND_STRENGTH_HIGH_LEFT_W|AC_MAIN_WIND_STRENGTH_LOW_RIGHT_W"
     RIGHT_MID_LEFT_LOW = "@AC_MAIN_WIND_STRENGTH_LOW_LEFT_W|AC_MAIN_WIND_STRENGTH_MID_RIGHT_W"
@@ -1394,7 +1446,19 @@ class WDIRVSTEP(enum.Enum):
     FOURTH = "4"
     FIFTH = "5"
     SIXTH = "6"
-    HUNDREDTH = "100"
+    AUTO = "100"
+
+class WDIRHSTEP(enum.Enum):
+
+    OFF = "0"
+    FIRST = "1"
+    SECOND = "2"
+    THIRD = "3"
+    FOURTH = "4"
+    FIFTH = "5"
+    THIRTEEN = "13"
+    THIRTYFIVE = "35"
+    AUTO = "100"
 
 class FOURVAIN_WDIRVSTEP(enum.Enum):
 
@@ -1488,9 +1552,14 @@ class ACDevice(Device):
         wdir_value = self.model.enum_value('WDirLeftRight', mode.value)
         self._set_control('WDirLeftRight', wdir_value)
 
+
+    def set_wdirhstep(self, mode):
+
+        self._set_control_ac_wdirstep('WDirHStep',int(mode.value))
+
     def set_wdirvstep(self, mode):
 
-        self._set_control_ac_wdirvstep('WDirVStep',int(mode.value), 'PowerSave', 0, 'Jet', 0)
+        self._set_control_ac_wdirstep('WDirVStep',int(mode.value))
 
     def set_airclean(self, is_on):
         
@@ -1552,6 +1621,9 @@ class ACDevice(Device):
     def get_outdoor_weather(self, area):
         data = self.client.session.get_outdoor_weather(area)
         return data
+
+    def get_dustsensor(self, device_id):
+        data = self.client.session.get_dustsensor_data(device_id)
 
     def get_energy_usage_day(self):
         sDate = datetime.today().strftime("%Y%m%d")
@@ -1766,6 +1838,10 @@ class ACStatus(object):
     @property
     def wdirvstep_state(self):
         return WDIRVSTEP(self.data['WDirVStep'])
+
+    @property
+    def wdirhstep_state(self):
+        return WDIRHSTEP(self.data['WDirHStep'])
 
     @property
     def fourvain_wdirvstep_state(self):
