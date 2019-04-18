@@ -21,8 +21,6 @@ def authenticate(gateway):
 def ls(client):
     """List the user's devices."""
     list = {}
-    i=1
-
     for device in client.devices:
         res = {
             'device_id':device.id,
@@ -167,6 +165,7 @@ def set_reftemp(client, device_id, temp):
 
 def ac_config(client, device_id):
     ac = wideq.ACDevice(client, client.get_device(device_id))
+    
     print(ac.get_filter_state())
     print(ac.get_mfilter_state())
     print(ac.get_energy_target())
@@ -191,7 +190,19 @@ def wp_config(client, device_id):
 
 def ac_power(client, device_id):
     ac = wideq.ACDevice(client, client.get_device(device_id))
-    print(ac.get_energy_usage())
+    print(ac.get_outtotalinstantpower())
+    print(ac.get_inoutinstantpower())
+    print(ac.get_energy_usage_day())
+    print(ac.get_energy_usage_week())
+    print(ac.get_energy_usage_month())
+
+def ac_outdoor_temp(client, device_id):
+    ac = wideq.ACDevice(client, client.get_device(device_id))
+    print(ac.get_outdoor_temp())
+    
+def ac_dust(client, device_id):
+    ac = wideq.Device(client, client.get_device(device_id))
+    return ac._get_dustsensor_data()
 
 EXAMPLE_COMMANDS = {
     'ls': ls,
@@ -205,7 +216,9 @@ EXAMPLE_COMMANDS = {
     'ac-config': ac_config,
     'wp-config': wp_config,
     'ac-power': ac_power,
-    'set-vstep': set_vstep
+    'set-vstep': set_vstep,
+    'ac-outdoor-temp': ac_outdoor_temp,
+    'ac-dust': ac_dust
 }
 
 
