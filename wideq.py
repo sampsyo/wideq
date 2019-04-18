@@ -74,6 +74,8 @@ STATE_WDIRHSTEP_SECOND = '2단계'
 STATE_WDIRHSTEP_THIRD = '3단계'
 STATE_WDIRHSTEP_FOURTH = '4단계'
 STATE_WDIRHSTEP_FIFTH = '5단계'
+STATE_WDIRHSTEP_THIRTEENTH = '좌측'
+STATE_WDIRHSTEP_THIRTYFIFTH = '우측'
 STATE_WDIRHSTEP_AUTO = '자동'
 
 """REFRIGERATOR STATE"""
@@ -1387,6 +1389,7 @@ class ACReserveMode(enum.Enum):
     SLEEPTIMER = "@SLEEP_TIMER"
     EASYTIMER = "@EASY_TIMER"
     ONOFFTIMER = "@ONOFF_TIMER"
+    TIMEBS = "@TIMEBS_ONOFF"
     WEEKLYSCHEDULE = "@WEEKLY_SCHEDULE"
 
 class ACEXTRAMode(enum.Enum):
@@ -1455,8 +1458,8 @@ class WDIRHSTEP(enum.Enum):
     THIRD = "3"
     FOURTH = "4"
     FIFTH = "5"
-    THIRTEEN = "13"
-    THIRTYFIVE = "35"
+    THIRTEENTH = "13"
+    THIRTYFIFTH = "35"
     AUTO = "100"
 
 class FOURVAIN_WDIRVSTEP(enum.Enum):
@@ -1786,13 +1789,15 @@ class ACStatus(object):
     
     @property
     def support_racsubmode(self):
-        if self.ac.model.model_type == 'RAC':
+        if self.ac.model.model_type == 'RAC' or self.ac.model.model_type == 'SAC_CST':
             dict_support_racsubmode = self.ac.model.option_item('SupportRACSubMode')
             support_racsubmode = []
             for option in dict_support_racsubmode.values():
                 support_racsubmode.append(ACRACSubMode(option).name)
         
             return support_racsubmode
+
+
 
     @property
     def support_reservemode(self):
