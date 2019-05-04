@@ -209,18 +209,25 @@ STATE_WASHER_WATERTEMP_30 = '30℃'
 STATE_WASHER_WATERTEMP_40 = '40℃'
 STATE_WASHER_WATERTEMP_60 = '60℃'
 STATE_WASHER_WATERTEMP_95 = '95℃'
+STATE_WASHER_WATERTEMP_90 = '90℃'
+STATE_WASHER_WATERTEMP_35 = '35℃'
+STATE_WASHER_WATERTEMP_38 = '38℃'
 
 STATE_WASHER_SPINSPEED_EXTRA_LOW = '섬세'
 STATE_WASHER_SPINSPEED_LOW = '약'
 STATE_WASHER_SPINSPEED_MEDIUM = '중'
 STATE_WASHER_SPINSPEED_HIGH = '강'
 STATE_WASHER_SPINSPEED_EXTRA_HIGH = '건조맞춤'
+STATE_WASHER_SPINSPEED_ON = '켜짐'
+STATE_WASHER_SPINSPEED_OFF = '꺼짐'
 
 STATE_WASHER_RINSECOUNT_1 = '1회'
 STATE_WASHER_RINSECOUNT_2 = '2회'
 STATE_WASHER_RINSECOUNT_3 = '3회'
 STATE_WASHER_RINSECOUNT_4 = '4회'
 STATE_WASHER_RINSECOUNT_5 = '5회'
+STATE_WASHER_RINSECOUNT_6 = '6회'
+STATE_WASHER_RINSECOUNT_OFF = '꺼짐'
 
 STATE_WASHER_DRYLEVEL_WIND = '바람건조'
 STATE_WASHER_DRYLEVEL_TURBO = '터보건조'
@@ -231,23 +238,27 @@ STATE_WASHER_DRYLEVEL_TIME_120 = '시간건조_120분'
 STATE_WASHER_DRYLEVEL_TIME_150 = '시간건조_150분'
 
 STATE_WASHER_NO_ERROR = '정상'
-STATE_WASHER_ERROR_dE2 = '문열림 에러 - 문이 닫혔는지 확인하세요'
-STATE_WASHER_ERROR_IE = '급수안됨'
-STATE_WASHER_ERROR_OE = '배수안됨'
-STATE_WASHER_ERROR_UE = '세탁물 치우침'
-STATE_WASHER_ERROR_FE = 'FE - 서비스 센터에 문의하세요'
-STATE_WASHER_ERROR_PE = 'PE - 서비스 센터에 문의하세요'
-STATE_WASHER_ERROR_LE = 'LE - 서비스 센터에 문의하세요'
-STATE_WASHER_ERROR_tE = 'tE - 서비스 센터에 문의하세요'
-STATE_WASHER_ERROR_dHE = 'dHE - 서비스 센터에 문의하세요'
-STATE_WASHER_ERROR_CE = 'CE - 서비스 센터에 문의하세요'
-STATE_WASHER_ERROR_PF = 'PF - 서비스 센터에 문의하세요'
-STATE_WASHER_ERROR_FF = '제품 얼음'
-STATE_WASHER_ERROR_dCE = 'dCE - 서비스 센터에 문의하세요'
-STATE_WASHER_ERROR_EE = 'EE - 서비스 센터에 문의하세요'
-STATE_WASHER_ERROR_PS = 'PS - 서비스 센터에 문의하세요'
-STATE_WASHER_ERROR_dE1 = '문열림 에러 - 문이 닫혔는지 확인하세요'
-STATE_WASHER_ERROR_LOE = '세제통 문열림 에러 - 세제통 문이 닫혔는지 확인하세요'
+STATE_WASHER_ERROR_dE2 = '문 잠금 에러 - 세탁기 문이 잠기지 않았습니다. 세탁기 문을 여닫는 부분에 이물질이 있는지 확인해주세요.'
+STATE_WASHER_ERROR_IE = '급수 에러 - 급수가 되지 않습니다. 수도꼭지가 잠겨 있는지 확인해주세요. 수압이 낮은지 확인해주세요. 급수구가 막혀있는지 확인해주세요. 급수 호스가 연결되어 있는지 확인해주세요.'
+STATE_WASHER_ERROR_OE = '배수 에러 - 배수가 잘 되지 않습니다. 배수 호스가 높이 설치되어 있는지 확인해주세요. 배수 호스가 꺾이거나 막혀있는지 확인해주세요. 배수 호스가 얼었는지 확인해주세요.'
+STATE_WASHER_ERROR_UE = '탈수 에러 - 탈수가 되지 않아 진동과 소음이 심합니다. 세탁물이 한쪽으로 치우쳐 있는지 확인해주세요. 세탁기가 수평 상태인지 확인해주세요.'
+STATE_WASHER_ERROR_FE = '물 수위 에러 - 세탁통의 물 수위가 높습니다. 급수 밸브를 잠근 후 LG전자 서비스 센터로 연락해주세요.'
+STATE_WASHER_ERROR_PE = '물 수위 센서 에러 - 물 수위 센서가 제대로 작동하지 않습니다.'
+STATE_WASHER_ERROR_LE = '드라이버 모터 에러 세탁기 내부 모터에 문제가 발생하였습니다. 세탁량을 줄이고 다시 시도해주세요.'
+STATE_WASHER_ERROR_tE = '온도 센서 에러 - 온도 센서가 제대로 작동하지 않습니다.'
+STATE_WASHER_ERROR_dHE = 'dHE 에러 - LG전자 서비스 센터로 연락해주세요.'
+STATE_WASHER_ERROR_CE = 'CE 에러 - LG전자 서비스 센터로 연락해주세요.'
+STATE_WASHER_ERROR_PF = 'PF 에러 - LG전자 서비스 센터로 연락해주세요.'
+STATE_WASHER_ERROR_FF = '동결 감지 에러 - 세탁 시작 시 수온이 3 ℃ 이하이거나 세탁기가 얼어 있습니다. 사용 설명서를 확인하여 얼어있는 부품을 녹인 후 사용해주세요.'
+STATE_WASHER_ERROR_dCE = 'dCE 에러 - LG전자 서비스 센터로 연락해주세요.'
+STATE_WASHER_ERROR_EE = 'EE 에러 - LG전자 서비스 센터로 연락해주세요.'
+STATE_WASHER_ERROR_PS = '알 수 없는 에러 - LG전자 서비스 센터로 연락해주세요.'
+STATE_WASHER_ERROR_dE1 = '문 열림 에러 - 세탁기 문이 열려 있습니다. 세탁기 문을 닫아주세요.'
+STATE_WASHER_ERROR_LOE = '세제 투입구 열림 에러 - 세제 투입구가 열려있습니다. 세제 투입구를 닫아주세요. 건조 기능을 사용할 때는 세제 투입구를 항상 닫아주세요.'
+STATE_WASHER_ERROR_TL_DO_W = '세탁통 뚜껑 열림 에러 - 세탁통의 뚜껑을 딸깍 소리가 날 때까지 닫으세요.'
+STATE_WASHER_ERROR_TL_LE = '과부하 에러 - 세탁기 모터 또는 컴프레서에 문제가 발생하였습니다. 세탁물의 양을 줄이고 다시 시도해도 에러가 지속될 시 서비스 센터에 연락해주세요.'
+STATE_WASHER_ERROR_TL_AE = '클러치 에러 - LG전자 서비스 센터 또는 대리점에 연락해주세요.'
+STATE_WASHER_ERROR_E7 = '메인 세탁기 감지 스위치 에러 - 미니워시 상단에 트롬이 감지되지 않습니다. 미니워시의 전원을 끄고 서비스 센터에 연락하세요.'
 
 STATE_WASHER_APCOURSE_COTTON = '표준세탁'
 STATE_WASHER_APCOURSE_SPEEDWASH_DRY = '스피드워시+건조'
@@ -2317,12 +2328,14 @@ class WASHERSTATE(enum.Enum):
 
 class WASHERSOILLEVEL(enum.Enum):
     
+    NOT_SUPPORTED = "-"
     NO_SELECT = "@WM_TERM_NO_SELECT_W"
     LIGHT = "@WM_KR_TT27_WD_WIFI_OPTION_SOILLEVEL_LIGHT_W"
     NORMAL = "@WM_KR_TT27_WD_WIFI_OPTION_SOILLEVEL_NORMAL_W"
     HEAVY = "@WM_KR_TT27_WD_WIFI_OPTION_SOILLEVEL_HEAVY_W"
     PRE_WASH = "@WM_KR_TT27_WD_WIFI_OPTION_SOILLEVEL_PRE_WASH_W"
     SOAKING = "@WM_KR_TT27_WD_WIFI_OPTION_SOILLEVEL_SOAKING_W"
+    
     
 class WASHERWATERTEMP(enum.Enum):
     
@@ -2332,6 +2345,13 @@ class WASHERWATERTEMP(enum.Enum):
     FOURTY = "@WM_KR_TT27_WD_WIFI_OPTION_WATERTEMP_40_W"
     SIXTY = "@WM_KR_TT27_WD_WIFI_OPTION_WATERTEMP_60_W"
     NINTYFIVE = "@WM_KR_TT27_WD_WIFI_OPTION_WATERTEMP_95_W"
+    TL_COLD = "@WM_OPTION_TEMP_COLD_W"
+    TL_30 = "30"
+    TL_40 = "40"
+    TL_60 = "60"
+    TL_90 = "90"
+    TL_35 = "35"
+    TL_38 = "38"
 
 class WASHERSPINSPEED(enum.Enum):
     
@@ -2341,6 +2361,8 @@ class WASHERSPINSPEED(enum.Enum):
     MEDIUM = "@WM_KR_TT27_WD_WIFI_OPTION_SPINSPEED_MEDIUM_W"
     HIGH = "@WM_KR_TT27_WD_WIFI_OPTION_SPINSPEED_HIGH_W"
     EXTRA_HIGH = "@WM_KR_TT27_WD_WIFI_OPTION_SPINSPEED_EXTRA_HIGH_W"
+    ON = "ON"
+    OFF = "OFF"
 
 class WASHERRINSECOUNT(enum.Enum):
     
@@ -2350,6 +2372,13 @@ class WASHERRINSECOUNT(enum.Enum):
     THREE = "@WM_KR_TT27_WD_WIFI_OPTION_RINSECOUNT_3_W"
     FOUR = "@WM_KR_TT27_WD_WIFI_OPTION_RINSECOUNT_4_W"
     FIVE = "@WM_KR_TT27_WD_WIFI_OPTION_RINSECOUNT_5_W"
+    TL_0 = "0"
+    TL_1 = "1"
+    TL_2 = "2"
+    TL_3 = "3"
+    TL_4 = "4"
+    TL_5 = "5"
+    TL_6 = "6"
 
 class WASHERDRYLEVEL(enum.Enum):
     
@@ -2381,7 +2410,32 @@ class WASHERERROR(enum.Enum):
     ERROR_PS = "@WM_KR_TT27_WD_WIFI_ERROR_PS"
     ERROR_dE1 = "@WM_KR_TT27_WD_WIFI_ERROR_DE1"
     ERROR_LOE = "@WM_KR_TT27_WD_WIFI_ERROR_LOE"
+    TL_ERROR_IE = "@WM_KR_TL_ERROR_IE"
+    TL_ERROR_OE = "@WM_KR_TL_ERROR_OE"
+    TL_ERROR_UE = "@WM_KR_TL_ERROR_UE"
+    TL_ERROR_DE1 = "@WM_KR_TL_ERROR_DE1"
+    TL_ERROR_PE = "@WM_KR_TL_ERROR_PE"
+    TL_ERROR_DO_W = "@WM_KR_FL_ERROR_DO_W"
+    TL_ERROR_LE = "@WM_KR_TL_ERROR_LE"
+    TL_ERROR_AE = "@WM_KR_TL_ERROR_AE"
+    TL_ERROR_TE = "@WM_KR_TL_ERROR_TE"
+    TL_ERROR_FE = "@WM_KR_TL_ERROR_FE"
+    TL_ERROR_DE2 = "@WM_KR_TL_ERROR_DE2"
+    TL_ERROR_FF = "@WM_KR_TL_ERROR_FF"
+    TL_ERROR_E7 = "@WM_WW_G+_MINI_GOOD_ERROR_E7"
 
+class WATERLEVEL(enum.Enum):
+    NOT_SUPPORTED = "-"
+
+class WATERFLOW(enum.Enum):
+    NOT_SUPPORTED = "-"
+
+class SOAK(enum.Enum):
+    NOT_SUPPORTED = "-"
+
+class WASHER_ETC(enum.Enum):
+    ON = "@CP_ON_EN_W"
+    OFF = "@CP_OFF_EN_W"
 
 class WasherDevice(Device):
     
@@ -2477,9 +2531,12 @@ class WasherStatus(object):
     def reservetime_min(self):
         return self.data['Reserve_Time_M']
 
-    @property
-    def current_course(self):
-        course = self.lookup_reference('APCourse')
+    def current_course(self, device_type):
+        if device_type == 'TL':
+            course = self.lookup_reference('Course')
+        else:
+            course = self.lookup_reference('APCourse')
+
         if course == '-':
             return 'OFF'
         else:
@@ -2509,12 +2566,16 @@ class WasherStatus(object):
             return 'OFF'
         return WASHERSPINSPEED(spinspeed)
 
-    @property
-    def water_temp_option_state(self):
-        water_temp = self.lookup_enum('WaterTemp')
+    def water_temp_option_state(self, device_type):
+        if device_type == 'TL':
+            water_temp = self.lookup_enum('WTemp')
+        else:
+            water_temp = self.lookup_enum('WaterTemp')
+
         if water_temp == '-':
             return 'OFF'
         return WASHERWATERTEMP(water_temp)
+
 
     @property
     def rinsecount_option_state(self):
@@ -2542,17 +2603,39 @@ class WasherStatus(object):
     def freshcare_state(self):
         return self.lookup_bit('Option1', 1)
 
+    def childlock_state(self, device_type):
+        if device_type == 'TL':
+            return self.lookup_bit('Option1', 0)
+        else:
+            return self.lookup_bit('Option1', 3)
+
     @property
-    def childlock_state(self):
+    def doorlock_state(self):
         return self.lookup_bit('Option1', 3)
 
-    @property
-    def steam_state(self):
-        return self.lookup_bit('Option1', 4)
+    def steam_state(self, device_type):
+        if device_type == 'TL':
+            return self.lookup_bit('Option1', 2)
+        else:
+            return self.lookup_bit('Option1', 4)
+
+    def turboshot_state(self, device_type):
+        if device_type == 'TL':
+            return self.lookup_bit('Option2', 3)
+        else:
+            return self.lookup_bit('Option2', 7)
 
     @property
-    def turboshot_state(self):
-        return self.lookup_bit('Option2', 7)
+    def buzzer_state(self):
+        return self.lookup_bit('Option2', 0)
+
+    @property
+    def sterilize_state(self):
+        return self.lookup_bit('Option2', 1)
+
+    @property
+    def heater_state(self):
+        return self.lookup_bit('Option2', 2)
 
     @property
     def tubclean_count(self):
