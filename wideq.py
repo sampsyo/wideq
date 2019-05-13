@@ -277,6 +277,14 @@ STATE_WASHER_APCOURSE_COLDWASH = '찬물세탁'
 STATE_WASHER_APCOURSE_TUBCLEAN_SANITARY = '통살균'
 STATE_WASHER_APCOURSE_DOWNLOAD_COUSE = '다운로드코스'
 
+STATE_WASHER_COURSE_SMALL_LOAD = '소량세탁'
+STATE_WASHER_COURSE_UNDERWEAR = '면 속옷'
+STATE_WASHER_COURSE_WOOL = '란제리/울'
+STATE_WASHER_COURSE_BOILING = '소량삶음'
+STATE_WASHER_COURSE_BABYCARE = '아기옷'
+STATE_WASHER_COURSE_RINSE_SPIN = '헹굼+탈수'
+STATE_WASHER_COURSE_TUBCLEAN = '통살균'
+
 STATE_WASHER_SMARTCOURSE_SILENT = '조용조용'
 STATE_WASHER_SMARTCOURSE_SMALL_LOAD = '소량 세탁'
 STATE_WASHER_SMARTCOURSE_SKIN_CARE = '스킨 케어'
@@ -286,12 +294,14 @@ STATE_WASHER_SMARTCOURSE_SINGLE_GARMENT = '한벌 세탁'
 STATE_WASHER_SMARTCOURSE_SCHOOL_UNIFORM = '교복'
 STATE_WASHER_SMARTCOURSE_STATIC_REMOVAL = '정전기 제거'
 STATE_WASHER_SMARTCOURSE_COLOR_CARE = '컬러 케어'
-STATE_WASHER_SMARTCOURSE_SPIN_ONLY = '탈수 전용'
+STATE_WASHER_SMARTCOURSE_SPIN_ONLY = '탈수 단독'
 STATE_WASHER_SMARTCOURSE_DEODORIZATION = '냄새 제거'
 STATE_WASHER_SMARTCOURSE_BEDDING_CARE = '침구 케어'
 STATE_WASHER_SMARTCOURSE_CLOTH_CARE = '옷감 보호'
 STATE_WASHER_SMARTCOURSE_SMART_RINSE = '안심 헹굼'
 STATE_WASHER_SMARTCOURSE_ECO_WASH = '알뜰 세탁'
+STATE_WASHER_SMARTCOURSE_COLD_WASH = '찬물 세탁'
+STATE_WASHER_SMARTCOURSE_SOILED_ITEMS = '적은때 세탁'
 
 STATE_WASHER_TERM_NO_SELECT = '선택 안함'
 
@@ -1193,10 +1203,26 @@ class ModelInfo(object):
         reference = self.value(key).reference
                     
         if value in reference:
+            comment = reference[value]['name']
+            return comment if comment else reference[value]['_comment']
+        else:
+            return '-'
+
+    def reference_comment(self, key, value):
+        """Look up the friendly name for an encoded reference value
+        """
+        value = str(value)
+        if not self.value_type(key):
+            return value
+                
+        reference = self.value(key).reference
+                    
+        if value in reference:
             comment = reference[value]['_comment']
             return comment if comment else reference[value]['label']
         else:
             return '-'
+
 
     @property
     def binary_monitor_data(self):
@@ -1641,8 +1667,24 @@ class ACDevice(Device):
     def get_energy_usage_day(self):
         sDate = datetime.today().strftime("%Y%m%d")
         eDate = sDate
-        value = self._get_power_data(sDate, eDate)
-        return value
+        data = self._get_power_data(sDate, eDate)
+        if data == '0':
+            return data
+        else:
+            energy_data = data.split('_')
+            energy = int(energy_data[2])
+            return energy
+
+    def get_usage_time_day(self):
+        sDate = datetime.today().strftime("%Y%m%d")
+        eDate = sDate
+        data = self._get_power_data(sDate, eDate)
+        if data == '0':
+            return data
+        else: 
+            time_data = data.split('_')
+            time = int(energy_data[1])
+            return time
 
     def get_energy_usage_week(self):
         weekday = datetime.today().weekday()
@@ -1652,8 +1694,43 @@ class ACDevice(Device):
         sDate = datetime.date(startdate).strftime("%Y%m%d")
         eDate = datetime.date(enddate).strftime("%Y%m%d")
 
-        value = self._get_power_data(sDate, eDate)
-        return value
+        data = self._get_power_data(sDate, eDate)
+        if data == '0':
+            return data
+        else:
+            value = data.split('/')
+            value_no = len(value)
+            energy = []
+            i = 0
+            for i in range(0, value_no):
+                energy_data = value[i].split('_')
+                energy.append(int(energy_data[2]))
+                i = i+1
+            energy_sum = sum(energy)
+            return energy_sum
+
+    def get_usage_time_week(self):
+        weekday = datetime.today().weekday()
+
+        startdate = datetime.today() + timedelta(days=-(weekday+1))
+        enddate = datetime.today() + timedelta(days=(6-(weekday+1)))
+        sDate = datetime.date(startdate).strftime("%Y%m%d")
+        eDate = datetime.date(enddate).strftime("%Y%m%d")
+
+        data = self._get_power_data(sDate, eDate)
+        if data == '0':
+            return data
+        else:
+            value = data.split('/')
+            value_no = len(value)
+            time = []
+            i = 0
+            for i in range(0, value_no):
+                time_data = value[i].split('_')
+                time.append(int(time_data[1]))
+                i = i+1
+            time_sum = sum(time)
+            return time_sum     
 
     def get_energy_usage_month(self):
         weekday = datetime.today().weekday()
@@ -1662,8 +1739,42 @@ class ACDevice(Device):
         sDate = datetime.date(startdate).strftime("%Y%m%d")
         eDate = datetime.today().strftime("%Y%m%d")
         
-        value = self._get_power_data(sDate, eDate)
-        return value
+        data = self._get_power_data(sDate, eDate)
+        if data == '0':
+            return data
+        else:
+            value = data.split('/')
+            value_no = len(value)
+            energy = []
+            i = 0
+            for i in range(0, value_no):
+                energy_data = value[i].split('_')
+                energy.append(int(energy_data[2]))
+                i = i+1
+            energy_sum = sum(energy)
+            return energy_sum
+
+    def get_usage_time_month(self):
+        weekday = datetime.today().weekday()
+
+        startdate = datetime.today().replace(day=1)
+        sDate = datetime.date(startdate).strftime("%Y%m%d")
+        eDate = datetime.today().strftime("%Y%m%d")
+        
+        data = self._get_power_data(sDate, eDate)
+        if data == '0':
+            return data
+        else:
+            value = data.split('/')
+            value_no = len(value)
+            time = []
+            i = 0
+            for i in range(0, value_no):
+                time_data = value[i].split('_')
+                time.append(int(time_data[1]))
+                i = i+1
+            time_sum = sum(time)
+            return time_sum
 
     def get_outtotalinstantpower(self):
         value = self._get_config('OutTotalInstantPower')
@@ -2053,7 +2164,11 @@ class RefStatus(object):
     
     @property
     def freshairfilter_state(self):
-        return FRESHAIRFILTER(self.lookup_enum('FreshAirFilter'))
+        filter_state = self.lookup_enum('FreshAirFilter')
+        if filter_state == '255':
+            return '255'
+        else: 
+            return FRESHAIRFILTER(self.lookup_enum('FreshAirFilter'))
     
     @property
     def smartsaving_mode(self):
@@ -2181,8 +2296,8 @@ class DryerStatus(object):
     def lookup_enum(self, key):
         return self.dryer.model.enum_name(key, self.data[key])
     
-    def lookup_reference(self, key):
-        return self.dryer.model.reference_name(key, self.data[key])
+    def lookup_reference_comment(self, key):
+        return self.dryer.model.reference_comment(key, self.data[key])
     
     def lookup_bit(self, key, index):
         bit_value = int(self.data[key])
@@ -2236,7 +2351,7 @@ class DryerStatus(object):
     
     @property
     def current_course(self):
-        course = self.lookup_reference('Course')
+        course = self.lookup_reference_comment('Course')
         if course == '-':
             return 'OFF'
         else:
@@ -2244,7 +2359,7 @@ class DryerStatus(object):
 
     @property
     def error_state(self):
-        error = self.lookup_reference('Error')
+        error = self.lookup_reference_comment('Error')
         if error == '-':
             return 'OFF'
         elif error == 'No Error':
@@ -2272,7 +2387,7 @@ class DryerStatus(object):
     
     @property
     def current_smartcourse(self):
-        smartcourse = self.lookup_reference('SmartCourse')
+        smartcourse = self.lookup_reference_comment('SmartCourse')
         if smartcourse == '-':
             return 'OFF'
         else:
@@ -2301,6 +2416,55 @@ class DryerStatus(object):
 
 
 """------------------for Washer"""
+
+class WASHERCOURSE(enum.Enum):
+
+    COTTON = "@WM_KR_TT27_WD_WIFI_COURSE_COTTON_W"
+    SPEEDWASH_DRY = "@WM_KR_TT27_WD_WIFI_COURSE_SPEEDWASH_DRY_W"
+    SPEEDWASH = "@WM_KR_TT27_WD_WIFI_COURSE_SPEEDWASH_W"
+    SINGLE_SHIRT_DRY = "@WM_KR_TT27_WD_WIFI_COURSE_SINGLE_SHIRT_DRY_W"
+    RINSESPIN = "@WM_KR_TT27_WD_WIFI_COURSE_RINSESPIN_W"
+    SPEEDBOIL = "@WM_KR_TT27_WD_WIFI_COURSE_SPEEDBOIL_W"
+    ALLERGYCARE = "@WM_KR_TT27_WD_WIFI_COURSE_ALLERGYCARE_W"
+    STEAMCLEANING = "@WM_KR_TT27_WD_WIFI_COURSE_STEAMCLEANING_W"
+    BABYWEAR = "@WM_KR_TT27_WD_WIFI_COURSE_BABYWEAR_W"
+    BLANKET_ROB = "@WM_KR_TT27_WD_WIFI_COURSE_BLANKET_ROB_W"
+    UTILITY = "@WM_KR_TT27_WD_WIFI_COURSE_UTILITY_W"
+    BLANKET = "@WM_KR_TT27_WD_WIFI_COURSE_BLANKET_W"
+    LINGERIE_WOOL = "@WM_KR_TT27_WD_WIFI_COURSE_LINGERIE_WOOL_W"
+    COLDWASH = "@WM_KR_TT27_WD_WIFI_COURSE_COLDWASH_W"
+    TUBCLEAN_SANITARY = "@WM_KR_TT27_WD_WIFI_COURSE_TUBCLEAN_SANITARY_W"
+    SMALL_LOAD = "@WM_KR_TL_G+_MINI_GOOD_COURSE_SMALL_LOAD_W"
+    UNDERWEAR = "@WM_KR_TL_G+_MINI_GOOD_COURSE_UNDERWEAR_W"
+    WOOL = "@WM_KR_TL_G+_MINI_GOOD_COURSE_WOOL_W"
+    BOILING = "@WM_KR_TL_G+_MINI_GOOD_COURSE_BOILING_W"
+    BABYCARE = "@WM_KR_TL_G+_MINI_GOOD_COURSE_BABYCARE_W"
+    RINSE_SPIN = "@WM_KR_TL_G+_MINI_GOOD_COURSE_RINSE_SPIN_W"
+    TUBCLEAN = "@WM_KR_TL_G+_MINI_GOOD_COURSE_TUBCLEAN_W"
+
+class WASHERSMARTCOURSE(enum.Enum):
+
+    SILENT = "@WM_KR_TT27_WD_WIFI_SMARTCOURSE_SILENT_W"
+    SMALL_LOAD = "@WM_KR_TT27_WD_WIFI_SMARTCOURSE_SMALL_LOAD_W"
+    SKIN_CARE = "@WM_KR_TT27_WD_WIFI_SMARTCOURSE_SKIN_CARE_W"
+    RAINY_SEASON = "@WM_KR_TT27_WD_WIFI_SMARTCOURSE_RAINY_SEASON_W"
+    SWEAT_STAIN = "@WM_KR_TT27_WD_WIFI_SMARTCOURSE_SWEAT_STAIN_W"
+    SINGLE_GARMENT = "@WM_KR_TT27_WD_WIFI_SMARTCOURSE_SINGLE_GARMENT_W"
+    SCHOOL_UNIFORM = "@WM_KR_TT27_WD_WIFI_SMARTCOURSE_SCHOOL_UNIFORM_W"
+    STATIC_REMOVAL = "@WM_KR_TT27_WD_WIFI_SMARTCOURSE_STATIC_REMOVAL_W"
+    COLOR_CARE = "@WM_KR_TT27_WD_WIFI_SMARTCOURSE_COLOR_CARE_W"
+    SPIN_ONLY = "@WM_KR_TT27_WD_WIFI_SMARTCOURSE_SPIN_ONLY_W"
+    DEODORIZATION = "@WM_KR_TT27_WD_WIFI_SMARTCOURSE_DEODORIZATION_W"
+    BEDDING_CARE = "@WM_KR_TT27_WD_WIFI_SMARTCOURSE_BEDDING_CARE_W"
+    CLOTH_CARE = "@WM_KR_TT27_WD_WIFI_SMARTCOURSE_CLOTH_CARE_W"
+    SMART_RINSE = "@WM_KR_TT27_WD_WIFI_SMARTCOURSE_SMART_RINSE_W"
+    ECO_WASH = "@WM_KR_TT27_WD_WIFI_SMARTCOURSE_ECO_WASH_W"
+    MINIWASH_SKIN_CARE = "@WM_KR_TL_G+_MINI_GOOD_SMARTCOURSE_SKIN_CARE_W"
+    COLD_WASH = "@WM_WW_FL_SMARTCOURSE_COLD_WASH_W"
+    MINIWASH_CLOTHS_CARE = "@WM_KR_TL_G+_MINI_GOOD_SMARTCOURSE_CLOTHS_CARE_W"
+    MINIWASH_SMART_RINSE = "@WM_KR_TL_G+_MINI_GOOD_SMARTCOURSE_SMART_RINSE_W"
+    SOILED_ITEMS = "@WM_WW_FL_SMARTCOURSE_LIGHTLY_SOILED_ITEMS_W"
+    MINIWASH_SPIN_ONLY = "@WM_KR_TL_G+_MINI_GOOD_SMARTCOURSE_SPIN_ONLY_W"
 
 class WASHERSTATE(enum.Enum):
     
@@ -2485,6 +2649,9 @@ class WasherStatus(object):
     def lookup_reference(self, key):
         return self.washer.model.reference_name(key, self.data[key])
     
+    def lookup_reference_comment(self, key):
+        return self.washer.model.reference_comment(key, self.data[key])
+
     def lookup_bit(self, key, index):
         bit_value = int(self.data[key])
         bit_index = 2 ** index
@@ -2540,11 +2707,11 @@ class WasherStatus(object):
         if course == '-':
             return 'OFF'
         else:
-            return course
+            return WASHERCOURSE(course)
 
     @property
     def error_state(self):
-        error = self.lookup_reference('Error')
+        error = self.lookup_reference_comment('Error')
         if error == '-':
             return 'OFF'
         elif error == 'No Error':
@@ -2597,7 +2764,7 @@ class WasherStatus(object):
         if smartcourse == '-':
             return 'OFF'
         else:
-            return smartcourse
+            return WASHERSMARTCOURSE(smartcourse)
 
     @property
     def freshcare_state(self):
