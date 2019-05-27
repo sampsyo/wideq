@@ -268,23 +268,23 @@ STATE_WASHER_DRYLEVEL_TIME_120 = 'Time 120'
 STATE_WASHER_DRYLEVEL_TIME_150 = 'Time 150'
 
 STATE_WASHER_NO_ERROR  = "No Error"
-STATE_WASHER_ERROR_dE2  = "Washer error de2"
-STATE_WASHER_ERROR_IE  = "Washer error ie"
-STATE_WASHER_ERROR_OE  = "Washer error oe"
-STATE_WASHER_ERROR_UE  = "Washer error ue"
-STATE_WASHER_ERROR_FE  = "Washer error fe"
-STATE_WASHER_ERROR_PE  = "Washer error pe"
-STATE_WASHER_ERROR_LE  = "Washer error le"
-STATE_WASHER_ERROR_tE  = "Washer error te"
-STATE_WASHER_ERROR_dHE  = "Washer error dhe"
-STATE_WASHER_ERROR_CE  = "Washer error ce"
-STATE_WASHER_ERROR_PF  = "Washer error pf"
-STATE_WASHER_ERROR_FF  = "Washer error ff"
-STATE_WASHER_ERROR_dCE  = "Washer error dce"
-STATE_WASHER_ERROR_EE  = "Washer error ee"
-STATE_WASHER_ERROR_PS  = "Washer error ps"
-STATE_WASHER_ERROR_dE1  = "Washer error de1"
-STATE_WASHER_ERROR_LOE  = "Washer error loe"
+STATE_WASHER_ERROR_dE2  = "DE2 Error - Door Lock Error"
+STATE_WASHER_ERROR_IE  = "IE Error - No Fill Error"
+STATE_WASHER_ERROR_OE  = "OE Error - Not Draining Error"
+STATE_WASHER_ERROR_UE  = "UE Error - Out of Balance Load"
+STATE_WASHER_ERROR_FE  = "FE Error - Overfill Error"
+STATE_WASHER_ERROR_PE  = "PE Error - Water Sensor Error"
+STATE_WASHER_ERROR_LE  = "LE Error - Locked Motor Error"
+STATE_WASHER_ERROR_tE  = "tE Error - Thermistor Error"
+STATE_WASHER_ERROR_dHE  = "dHE Error"
+STATE_WASHER_ERROR_CE  = "CE Error"
+STATE_WASHER_ERROR_PF  = "PF Error - Power Failure Error"
+STATE_WASHER_ERROR_FF  = "FF Error - Freeze Error"
+STATE_WASHER_ERROR_dCE  = "dCE Error"
+STATE_WASHER_ERROR_EE  = "EE Error - EEPROM Error"
+STATE_WASHER_ERROR_PS  = "PS Error"
+STATE_WASHER_ERROR_dE1  = "DE1 Error - Door Open Error"
+STATE_WASHER_ERROR_LOE  = "LOE Error - Sliding Lid Open Error"
 STATE_WASHER_ERROR_TL_DO_W = 'Washer error tl do w'
 STATE_WASHER_ERROR_TL_LE = 'Washer error tl le'
 STATE_WASHER_ERROR_TL_AE = 'Washer error tl ae'
@@ -3150,13 +3150,13 @@ class WASHERRINSECOUNT(enum.Enum):
 class WASHERDRYLEVEL(enum.Enum):
 
     NO_SELECT = "@WM_TERM_NO_SELECT_W"
-    WIND = "@WM_KR_TT27_WD_WIFI_OPTION_DRYLEVEL_WIND_W"
-    TURBO = "@WM_KR_TT27_WD_WIFI_OPTION_DRYLEVEL_TURBO_W"
-    TIME_30 = "@WM_KR_TT27_WD_WIFI_OPTION_DRYLEVEL_TIME_30_W"
-    TIME_60 = "@WM_KR_TT27_WD_WIFI_OPTION_DRYLEVEL_TIME_60_W"
-    TIME_90 = "@WM_KR_TT27_WD_WIFI_OPTION_DRYLEVEL_TIME_90_W"
-    TIME_120 = "@WM_KR_TT27_WD_WIFI_OPTION_DRYLEVEL_TIME_120_W"
-    TIME_150 = "@WM_KR_TT27_WD_WIFI_OPTION_DRYLEVEL_TIME_150_W"
+    WIND = "@WM_MX_OPTION_DRY_WIND_W"
+    TURBO = "@WM_MX_OPTION_DRY_TURBO_W"
+    TIME_30 = "@WM_OPTION_DRY_TIME_30_W"
+    TIME_60 = "@WM_OPTION_DRY_TIME_60_W"
+    TIME_90 = "@WM_OPTION_DRY_TIME_90_W"
+    TIME_120 = "@WM_OPTION_DRY_TIME_120_W"
+    TIME_150 = "@WM_OPTION_DRY_TIME_150_W"
 
 class WASHERERROR(enum.Enum):
 
