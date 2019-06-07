@@ -3241,7 +3241,10 @@ class WasherDevice(Device):
         """Start monitoring the device's status."""
 
         self.mon = Monitor(self.client.session, self.device.id)
-        self.mon.start()
+        try:
+            self.mon.start()
+        except NotConnectError:
+            pass
 
     def monitor_stop(self):
         """Stop monitoring the device's status."""
@@ -3249,7 +3252,10 @@ class WasherDevice(Device):
         self.mon.stop()
 
     def delete_permission(self):
-        self._delete_permission()
+        try:
+            self._delete_permission()
+        except NotConnectError:
+            pass
 
     def poll(self):
         """Poll the device's current state.
