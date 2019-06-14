@@ -2758,10 +2758,11 @@ class DRYERPROCESSSTATE(enum.Enum):
 
 class DRYLEVEL(enum.Enum):
 
-    IRON = "@WM_DRY24_DRY_LEVEL_IRON_W"
-    CUPBOARD = "@WM_DRY24_DRY_LEVEL_CUPBOARD_W"
-    EXTRA = "@WM_DRY24_DRY_LEVEL_EXTRA_W"
+    IRON = "@WM_DRY27_DRY_LEVEL_IRON_W"
+    CUPBOARD = "@WM_DRY27_DRY_LEVEL_CUPBOARD_W"
+    EXTRA = "@WM_DRY27_DRY_LEVEL_EXTRA_W"
     NORMAL = "@WM_DRY27_DRY_LEVEL_NORMAL_W"
+    MORE = "@WM_DRY27_DRY_LEVEL_MORE_W"
 
 class ECOHYBRID(enum.Enum):
 
@@ -3237,25 +3238,27 @@ class WASHER_ETC(enum.Enum):
 
 class WasherDevice(Device):
 
-    def monitor_start(self):
+    def monitor_start(self, raise_error=True):
         """Start monitoring the device's status."""
 
         self.mon = Monitor(self.client.session, self.device.id)
         try:
             self.mon.start()
         except NotConnectError:
-            pass
+            if raise_error:
+                raise
 
     def monitor_stop(self):
         """Stop monitoring the device's status."""
 
         self.mon.stop()
 
-    def delete_permission(self):
+    def delete_permission(self, raise_error=True):
         try:
             self._delete_permission()
         except NotConnectError:
-            pass
+            if raise_error:
+                raise
 
     def poll(self):
         """Poll the device's current state.
