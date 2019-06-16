@@ -11,7 +11,7 @@ import datetime
 from collections import namedtuple
 import enum
 
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 
 GATEWAY_URL = 'https://kic.lgthinq.com:46030/api/common/gatewayUriList'
 APP_KEY = 'wideq'
@@ -585,7 +585,7 @@ class Client(object):
         self._session, self._devices = self.auth.start_session()
 
     @classmethod
-    def from_token(cls, refresh_token):
+    def from_token(cls, refresh_token, country=None, language=None):
         """Construct a client using just a refresh token.
 
         This allows simpler state storage (e.g., for human-written
@@ -593,7 +593,10 @@ class Client(object):
         to reload the gateway servers and restart the session.
         """
 
-        client = cls()
+        client = cls(
+            country=country or DEFAULT_COUNTRY,
+            language=language or DEFAULT_LANGUAGE,
+        )
         client._auth = Auth(client.gateway, None, refresh_token)
         client.refresh()
         return client
