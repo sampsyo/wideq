@@ -14,8 +14,8 @@ GATEWAY_URL = 'https://kic.lgthinq.com:46030/api/common/gatewayUriList'
 APP_KEY = 'wideq'
 SECURITY_KEY = 'nuts_securitykey'
 DATA_ROOT = 'lgedmRoot'
-COUNTRY = 'US'
-LANGUAGE = 'en-US'
+DEFAULT_COUNTRY = 'US'
+DEFAULT_LANGUAGE = 'en-US'
 SVC_CODE = 'SVC202'
 CLIENT_ID = 'LGAO221A02'
 OAUTH_SECRET_KEY = 'c053c2a6ddeb7ad97cb0eed0dcb31cf8'
@@ -139,25 +139,28 @@ def lgedm_post(url, data=None, access_token=None, session_id=None):
     return out
 
 
-def gateway_info():
+def gateway_info(country, language):
     """Load information about the hosts to use for API interaction.
+
+    `country` and `language` are codes, like "US" and "en-US,"
+    respectively.
     """
 
     return lgedm_post(
         GATEWAY_URL,
-        {'countryCode': COUNTRY, 'langCode': LANGUAGE},
+        {'countryCode': country, 'langCode': language},
     )
 
 
-def oauth_url(auth_base):
+def oauth_url(auth_base, country, language):
     """Construct the URL for users to log in (in a browser) to start an
     authenticated session.
     """
 
     url = urljoin(auth_base, 'login/sign_in')
     query = urlencode({
-        'country': COUNTRY,
-        'language': LANGUAGE,
+        'country': country,
+        'language': language,
         'svcCode': SVC_CODE,
         'authSvr': 'oauth2',
         'client_id': CLIENT_ID,
@@ -177,15 +180,15 @@ def parse_oauth_callback(url):
     return params['access_token'][0], params['refresh_token'][0]
 
 
-def login(api_root, access_token):
+def login(api_root, access_token, country, language):
     """Use an access token to log into the API and obtain a session and
     return information about the session.
     """
 
     url = urljoin(api_root + '/', 'member/login')
     data = {
-        'countryCode': COUNTRY,
-        'langCode': LANGUAGE,
+        'countryCode': country,
+        'langCode': language,
         'loginType': 'EMP',
         'token': access_token,
     }
@@ -234,18 +237,21 @@ def refresh_auth(oauth_root, refresh_token):
 
 
 class Gateway(object):
-    def __init__(self, auth_base, api_root, oauth_root):
+    def __init__(self, auth_base, api_root, oauth_root, country, language):
         self.auth_base = auth_base
         self.api_root = api_root
         self.oauth_root = oauth_root
+        self.country = country
+        self.language = language
 
     @classmethod
-    def discover(cls):
-        gw = gateway_info()
-        return cls(gw['empUri'], gw['thinqUri'], gw['oauthUri'])
+    def discover(cls, country, language):
+        gw = gateway_info(country, language)
+        return cls(gw['empUri'], gw['thinqUri'], gw['oauthUri'],
+                   country, language)
 
     def oauth_url(self):
-        return oauth_url(self.auth_base)
+        return oauth_url(self.auth_base, self.country, self.language)
 
 
 class Auth(object):
@@ -267,7 +273,8 @@ class Auth(object):
         Session object and a list of the user's devices.
         """
 
-        session_info = login(self.gateway.api_root, self.access_token)
+        session_info = login(self.gateway.api_root, self.access_token,
+                             self.gateway.country, self.gateway.language)
         session_id = session_info['jsessionId']
         return Session(self, session_id), get_list(session_info, 'item')
 
@@ -448,7 +455,8 @@ class Client(object):
     and allows serialization of state.
     """
 
-    def __init__(self, gateway=None, auth=None, session=None):
+    def __init__(self, gateway=None, auth=None, session=None,
+                 country=DEFAULT_COUNTRY, language=DEFAULT_LANGUAGE):
         # The three steps required to get access to call the API.
         self._gateway = gateway
         self._auth = auth
@@ -462,10 +470,14 @@ class Client(object):
         # responses.
         self._model_info = {}
 
+        # Locale information used to discover a gateway, if necessary.
+        self._country = country
+        self._language = language
+
     @property
     def gateway(self):
         if not self._gateway:
-            self._gateway = Gateway.discover()
+            self._gateway = Gateway.discover(self._country, self._language)
         return self._gateway
 
     @property
@@ -510,7 +522,9 @@ class Client(object):
         if 'gateway' in state:
             data = state['gateway']
             client._gateway = Gateway(
-                data['auth_base'], data['api_root'], data['oauth_root']
+                data['auth_base'], data['api_root'], data['oauth_root'],
+                data.get('country', DEFAULT_COUNTRY),
+                data.get('language', DEFAULT_LANGUAGE),
             )
 
         if 'auth' in state:
@@ -524,6 +538,12 @@ class Client(object):
 
         if 'model_info' in state:
             client._model_info = state['model_info']
+
+        if 'country' in state:
+            client._country = state['country']
+
+        if 'language' in state:
+            client._language = state['language']
 
         return client
 
@@ -539,6 +559,8 @@ class Client(object):
                 'auth_base': self._gateway.auth_base,
                 'api_root': self._gateway.api_root,
                 'oauth_root': self._gateway.oauth_root,
+                'country': self._gateway.country,
+                'language': self._gateway.language,
             }
 
         if self._auth:
@@ -549,6 +571,9 @@ class Client(object):
 
         if self._session:
             out['session'] = self._session.session_id
+
+        out['country'] = self._country
+        out['language'] = self._language
 
         return out
 
