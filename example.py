@@ -139,7 +139,7 @@ def example_command(client, cmd, args):
     func(client, *args)
 
 
-def example(cmd, args):
+def example(country, language, cmd, args):
     # Load the current state for the example.
     try:
         with open(STATE_FILE) as f:
@@ -148,6 +148,10 @@ def example(cmd, args):
         state = {}
 
     client = wideq.Client.load(state)
+    if country:
+        client._country = country
+    if language:
+        client._language = language
 
     # Log in, if we don't already have an authentication.
     if not client._auth:
@@ -180,8 +184,19 @@ def main():
     parser.add_argument('args', metavar='ARGS', nargs='*',
                         help='subcommand arguments')
 
+    parser.add_argument(
+        '--country', '-c',
+        help='country code for account (default: {})'
+        .format(wideq.DEFAULT_COUNTRY)
+    )
+    parser.add_argument(
+        '--language', '-l',
+        help='language code for the API (default: {})'
+        .format(wideq.DEFAULT_LANGUAGE)
+    )
+
     args = parser.parse_args()
-    example(args.cmd, args.args)
+    example(args.country, args.language, args.cmd, args.args)
 
 
 if __name__ == '__main__':
