@@ -1,7 +1,7 @@
 import wideq
 import json
 import time
-import sys
+import argparse
 
 STATE_FILE = 'wideq_state.json'
 
@@ -134,15 +134,12 @@ EXAMPLE_COMMANDS = {
 }
 
 
-def example_command(client, args):
-    if not args:
-        ls(client)
-    else:
-        func = EXAMPLE_COMMANDS[args[0]]
-        func(client, *args[1:])
+def example_command(client, cmd, args):
+    func = EXAMPLE_COMMANDS[cmd]
+    func(client, *args)
 
 
-def example(args):
+def example(cmd, args):
     # Load the current state for the example.
     try:
         with open(STATE_FILE) as f:
@@ -159,7 +156,7 @@ def example(args):
     # Loop to retry if session has expired.
     while True:
         try:
-            example_command(client, args)
+            example_command(client, cmd, args)
             break
 
         except wideq.NotLoggedInError:
@@ -172,5 +169,20 @@ def example(args):
         json.dump(state, f)
 
 
+def main():
+    """The main command-line entry point.
+    """
+    parser = argparse.ArgumentParser(
+        description='Interact with the LG SmartThinQ API.'
+    )
+    parser.add_argument('cmd', metavar='CMD', nargs='?', default='ls',
+                        help='one of {}'.format(', '.join(EXAMPLE_COMMANDS)))
+    parser.add_argument('args', metavar='ARGS', nargs='*',
+                        help='subcommand arguments')
+
+    args = parser.parse_args()
+    example(args.cmd, args.args)
+
+
 if __name__ == '__main__':
-    example(sys.argv[1:])
+    main()
