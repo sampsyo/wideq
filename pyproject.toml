@@ -1,0 +1,14 @@
+[build-system]
+requires = ["flit"]
+build-backend = "flit.buildapi"
+
+[tool.flit.metadata]
+module = "wideq"
+author = "Adrian Sampson"
+author-email = "adrian@radbox.org"
+home-page = "https://github.com/sampsyo/wideq"
+requires = [
+    "requests"
+]
+description-file = "README.md"
+requires-python = ">=3.4"

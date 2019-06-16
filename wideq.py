@@ -1,3 +1,5 @@
+"""Reverse-engineered client for the LG SmartThinQ API.
+"""
 import requests
 from urllib.parse import urljoin, urlencode, urlparse, parse_qs
 import uuid
@@ -9,6 +11,7 @@ import datetime
 from collections import namedtuple
 import enum
 
+__version__ = '1.0.0'
 
 GATEWAY_URL = 'https://kic.lgthinq.com:46030/api/common/gatewayUriList'
 APP_KEY = 'wideq'
