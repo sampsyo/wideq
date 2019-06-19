@@ -2,8 +2,9 @@ import wideq
 import json
 import time
 import argparse
+import os
 
-STATE_FILE = 'wideq_state.json'
+STATE_FILE = os.path.join(os.path.dirname(__file__), 'wideq_state.json')
 
 
 def authenticate(gateway):
