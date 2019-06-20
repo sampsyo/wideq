@@ -115,6 +115,8 @@ STATE_DRYER_DRYING  = "Drying"
 STATE_DRYER_PAUSE = 'Pause'
 STATE_DRYER_END = 'End'
 STATE_DRYER_ERROR = 'Error'
+STATE_DRYER_SMART_DIAGNOSIS  = "Smart Diagnosis"
+STATE_DRYER_WRINKLE_CARE  = "Wrinkle Care"
 
 STATE_DRYER_PROCESS_DETECTING = 'Detecting'
 STATE_DRYER_PROCESS_STEAM = 'Steam'
@@ -171,6 +173,10 @@ STATE_ERROR_DRAINMOTOR  = "Error drainmotor"
 STATE_ERROR_LE1  = "Error le1"
 STATE_ERROR_TE1  = "Error te1"
 STATE_ERROR_TE2  = "Error te2"
+STATE_ERROR_TE5  = "Error te5"
+STATE_ERROR_TE6  = "Error te6"
+STATE_ERROR_PS = "High Power"
+STATE_ERROR_NP = "nP"
 STATE_ERROR_F1  = "Error f1"
 STATE_ERROR_LE2  = "Error le2"
 STATE_ERROR_AE  = "Error ae"
@@ -532,8 +538,8 @@ STATE_AIRPURIFIER_NOT_SUPPORTED = '지원안함'
 #STATE_DRYER_POWER_OFF  = "N/A"
 #STATE_DRYER_OFF  = "Power Off"
 #STATE_DRYER_DRYING  = "Drying"
-#STATE_DRYER_SMART_DIAGNOSIS  = "Smart Diagnosis"
-#STATE_DRYER_WRINKLE_CARE  = "Wrinkle Care"
+STATE_DRYER_SMART_DIAGNOSIS  = "Smart Diagnosis"
+STATE_DRYER_WRINKLE_CARE  = "Wrinkle Care"
 #STATE_DRYER_INITIAL  = "Initial"
 #STATE_DRYER_RUNNING  = "Running"
 #STATE_DRYER_PAUSE  = "Pause"
@@ -2741,6 +2747,26 @@ class RefStatus(object):
 
 """------------------for Dryer"""
 class DRYERSTATE(enum.Enum):
+    """
+    From my dryer:
+
+    "State": {
+          "type": "Enum",
+          "default": "0",
+          "option": {
+            "0": "@WM_STATE_POWER_OFF_W",
+            "1": "@WM_STATE_INITIAL_W",
+            "2": "@WM_STATE_RUNNING_W",
+            "3": "@WM_STATE_PAUSE_W",
+            "4": "@WM_STATE_END_W",
+            "5": "@WM_STATE_ERROR_W",
+            "8": "@WM_STATE_SMART_DIAGNOSIS_W",
+            "50": "@WM_STATE_DRYING_W",
+            "51": "@WM_STATE_COOLING_W",
+            "56": "@WM_STATE_WRINKLECARE_W"
+          }
+        }
+    """
 
     OFF = "@WM_STATE_POWER_OFF_W"
     INITIAL = "@WM_STATE_INITIAL_W"
@@ -2750,6 +2776,8 @@ class DRYERSTATE(enum.Enum):
     END = "@WM_STATE_END_W"
     ERROR = "@WM_STATE_ERROR_W"
     COOLING = "@WM_STATE_COOLING_W"
+    SMART_DIAGNOSIS = "@WM_STATE_SMART_DIAGNOSIS_W"
+    WRINKLE_CARE = "@WM_STATE_WRINKLECARE_W"
 
 class DRYERPROCESSSTATE(enum.Enum):
 
@@ -2762,12 +2790,34 @@ class DRYERPROCESSSTATE(enum.Enum):
     OFF = "-"
 
 class DRYLEVEL(enum.Enum):
+    """
+    From my dryer:
+
+    "DryLevel": {
+          "type": "Enum",
+          "default": "0",
+          "label": "@WM_DRY27_BUTTON_DRY_LEVEL_W",
+          "option": {
+            "0": "-",
+            "1": "@WM_DRY27_DRY_LEVEL_DAMP_W",
+            "2": "@WM_DRY27_DRY_LEVEL_LESS_W",
+            "3": "@WM_DRY27_DRY_LEVEL_NORMAL_W",
+            "4": "@WM_DRY27_DRY_LEVEL_MORE_W",
+            "5": "@WM_DRY27_DRY_LEVEL_VERY_W"
+          }
+        }
+    """
 
     IRON = "@WM_DRY27_DRY_LEVEL_IRON_W"
     CUPBOARD = "@WM_DRY27_DRY_LEVEL_CUPBOARD_W"
     EXTRA = "@WM_DRY27_DRY_LEVEL_EXTRA_W"
+    # My Dryer
+    OFF = "-"
+    DAMP = "@WM_DRY27_DRY_LEVEL_DAMP_W"
+    LESS = "@WM_DRY27_DRY_LEVEL_LESS_W"
     NORMAL = "@WM_DRY27_DRY_LEVEL_NORMAL_W"
     MORE = "@WM_DRY27_DRY_LEVEL_MORE_W"
+    VERY = "@WM_DRY27_DRY_LEVEL_VERY_W"
 
 class ECOHYBRID(enum.Enum):
 
@@ -2782,6 +2832,10 @@ class DRYERERROR(enum.Enum):
     ERROR_LE1 = "@WM_US_DRYER_ERROR_LE1_W"
     ERROR_TE1 = "@WM_US_DRYER_ERROR_TE1_W"
     ERROR_TE2 = "@WM_US_DRYER_ERROR_TE2_W"
+    ERROR_TE5 = "@WM_US_DRYER_ERROR_TE5_W"
+    ERROR_TE6 = "@WM_US_DRYER_ERROR_TE6_W"
+    ERROR_PS = "@WM_US_DRYER_ERROR_PS_W"
+    ERROR_NP = "@WM_US_DRYER_ERROR_NP_GAS_W"
     ERROR_F1 = "@WM_US_DRYER_ERROR_F1_W"
     ERROR_LE2 = "@WM_US_DRYER_ERROR_LE2_W"
     ERROR_AE = "@WM_US_DRYER_ERROR_AE_W"
