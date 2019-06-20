@@ -2962,6 +2962,23 @@ class DryerStatus(object):
 
 class WASHERCOURSE(enum.Enum):
 
+    """
+    From wideq_states.json:
+
+    >>> pprint.pprint([(c.get('_comment', 'No Comment'), c.get('name', 'No Name'), c.get('id')) for c in courses])
+    [('Normal', '@WM_MX_COURSE_NORMAL_W', 6),
+     ('Heavy Duty', '@WM_MX_COURSE_HEAVY_DUTY_W', 5),
+     ('Bedding', '@WM_MX_COURSE_BEDDING_W', 4),
+     ('Perm.Press', '@WM_MX_COURSE_PERMPRESS_W', 8),
+     ('Towels', '@WM_MX_COURSE_TOWELS_W', 10),
+     ('Sanitary', '@WM_MX_COURSE_SANITARY_W', 3),
+     ('Allergiene', '@WM_MX_COURSE_ALLERGIENE_W', 2),
+     ('Bright Whites', '@WM_MX_COURSE_BRIGHT_WHITES_W', 7),
+     ('Tub Clean', '@WM_MX_COURSE_TUB_CLEAN_W', 1),
+     ('Delicates', '@WM_MX_COURSE_DELICATES_W', 9),
+     ('Speed Wash', '@WM_MX_COURSE_SPEED_WASH_W', 11),
+     ('DownloadCourse', 'No Name', 12)]
+    """
     HEAVYDUTY = "@WM_MX_COURSE_HEAVY_DUTY_W"
     NORMAL = "@WM_MX_COURSE_NORMAL_W"
     PERM_PRESS = "@WM_MX_COURSE_PERMPRESS_W"
