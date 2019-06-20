@@ -2,6 +2,7 @@ import wideq
 import json
 import time
 import argparse
+import sys
 
 STATE_FILE = 'wideq_state.json'
 
@@ -100,22 +101,39 @@ def ac_mon(client, device_id):
         ac.monitor_stop()
 
 
+class UserError(Exception):
+    """A user-visible command-line error.
+    """
+    def __init__(self, msg):
+        self.msg = msg
+
+
+def _force_device(client, device_id):
+    """Look up a device in the client (using `get_device`), but raise
+    UserError if the device is not found.
+    """
+    device = client.get_device(device_id)
+    if not device:
+        raise UserError('device "{}" not found'.format(device_id))
+    return device
+
+
 def set_temp(client, device_id, temp):
     """Set the configured temperature for an AC device."""
 
-    ac = wideq.ACDevice(client, client.get_device(device_id))
+    ac = wideq.ACDevice(client, _force_device(client, device_id))
     ac.set_fahrenheit(int(temp))
 
 
 def turn(client, device_id, on_off):
     """Turn on/off an AC device."""
 
-    ac = wideq.ACDevice(client, client.get_device(device_id))
+    ac = wideq.ACDevice(client, _force_device(client, device_id))
     ac.set_on(on_off == 'on')
 
 
 def ac_config(client, device_id):
-    ac = wideq.ACDevice(client, client.get_device(device_id))
+    ac = wideq.ACDevice(client, _force_device(client, device_id))
     print(ac.get_filter_state())
     print(ac.get_mfilter_state())
     print(ac.get_energy_target())
@@ -166,6 +184,10 @@ def example(country, language, cmd, args):
         except wideq.NotLoggedInError:
             print('Session expired.')
             client.refresh()
+
+        except UserError as exc:
+            print(exc.msg, file=sys.stderr)
+            sys.exit(1)
 
     # Save the updated state.
     state = client.dump()
