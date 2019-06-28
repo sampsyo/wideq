@@ -1,10 +1,12 @@
 import wideq
 import json
 import time
+import argparse
 import sys
 
 STATE_FILE = 'wideq_state.json'
-   
+
+
 def authenticate(gateway):
     """Interactively authenticate the user via a browser to get an OAuth
     session.
@@ -20,32 +22,10 @@ def authenticate(gateway):
 
 def ls(client):
     """List the user's devices."""
-    list = {}
-    for device in client.devices:
-        res = {
-            'device_id':device.id,
-            'device_type':device.type.name,
-            'device_model':device.model_id,
-            'device_macaddress':device.macaddress,
-            }
-        list['Device Name :'+device.name] = res
-
-        print('device_name: ''{0.name}'.format(device),
-              'device_id: ' '{0.id}'.format(device),
-              'device_type: ''{0.type.name}'.format(device),
-              'device_model: ' '{0.model_id}'.format(device),
-              'device_macaddress: ' '{0.macaddress}'.format(device),
-              sep='\n', end='\n\n')
-                 
-    # Save my device list
-    with open('my_device_list.json', 'w',encoding="utf-8") as outfile:
-         json.dump(list, outfile, ensure_ascii = False)
-"""
-def ls(client):
 
     for device in client.devices:
-        print('{0.id}: {0.name} ({0.type.name} {0.model_id}) {0.macaddress}'.format(device))
-"""
+        print('{0.id}: {0.name} ({0.type.name} {0.model_id})'.format(device))
+
 
 def mon(client, device_id):
     """Monitor any device, displaying generic information about its
@@ -70,36 +50,21 @@ def mon(client, device_id):
                         for key, value in res.items():
                             try:
                                 desc = model.value(key)
-                                if isinstance(desc, wideq.EnumValue):
-                                    print('- {}: {}'.format(
-                                        key, desc.options.get(value, value)
-                                    ))
-                                elif isinstance(desc, wideq.RangeValue):
-                                    print('- {0}: {1} ({2.min}-{2.max})'.format(
-                                        key, value, desc,
-                                    ))
                             except KeyError:
                                 print('- {}: {}'.format(key, value))
+                            if isinstance(desc, wideq.EnumValue):
+                                print('- {}: {}'.format(
+                                    key, desc.options.get(value, value)
+                                ))
+                            elif isinstance(desc, wideq.RangeValue):
+                                print('- {0}: {1} ({2.min}-{2.max})'.format(
+                                    key, value, desc,
+                                ))
 
         except KeyboardInterrupt:
             pass
 
-def getDeviceInfo(client, device_id):
-    device = client.get_device(device_id)
-    deviceName = device.name
-    
-    with open(deviceName + '_info.json', 'w') as outfile:
-        json.dump(device.data, outfile, ensure_ascii = False)
-    
-    
-def getModelInfo(client, device_id):
-    device = client.get_device(device_id)
-    model = client.model_info(device)
-    modelName = model.data['Info']['modelName']
-    
-    with open(modelName + '_info.json', 'w') as outfile:
-        json.dump(model.data, outfile, ensure_ascii = False)
-        
+
 def ac_mon(client, device_id):
     """Monitor an AC/HVAC device, showing higher-level information about
     its status such as its temperature and operation mode.
@@ -121,9 +86,9 @@ def ac_mon(client, device_id):
                 print(
                     '{1}; '
                     '{0.mode.name}; '
-                    'cur {0.temp_cur_f} F; '
-                    'cfg {0.temp_cfg_f} F; '
-                    'air clean {0.airclean_state.name}'
+                    'cur {0.temp_cur_f}°F; '
+                    'cfg {0.temp_cfg_f}°F; '
+                    'fan speed {0.fan_speed.name}'
                     .format(
                         state,
                         'on' if state.is_on else 'off'
@@ -136,101 +101,63 @@ def ac_mon(client, device_id):
         ac.monitor_stop()
 
 
+class UserError(Exception):
+    """A user-visible command-line error.
+    """
+    def __init__(self, msg):
+        self.msg = msg
+
+
+def _force_device(client, device_id):
+    """Look up a device in the client (using `get_device`), but raise
+    UserError if the device is not found.
+    """
+    device = client.get_device(device_id)
+    if not device:
+        raise UserError('device "{}" not found'.format(device_id))
+    return device
+
+
 def set_temp(client, device_id, temp):
     """Set the configured temperature for an AC device."""
 
-    ac = wideq.ACDevice(client, client.get_device(device_id))
+    ac = wideq.ACDevice(client, _force_device(client, device_id))
     ac.set_fahrenheit(int(temp))
 
-def set_vstep(client, device_id, value):
-    """Set the configured temperature for an AC device."""
 
-    ac = wideq.ACDevice(client, client.get_device(device_id))
-    ac.set_wdirvstep(value)
-    
 def turn(client, device_id, on_off):
     """Turn on/off an AC device."""
 
-    ac = wideq.ACDevice(client, client.get_device(device_id))
+    ac = wideq.ACDevice(client, _force_device(client, device_id))
     ac.set_on(on_off == 'on')
-
-def set_reftemp(client, device_id, temp):
-    """Set the configured temperature for an AC device."""
-
-    ref = wideq.RefDevice(client, client.get_device(device_id))
-    ref.set_reftemp(temp)
-
-
 
 
 def ac_config(client, device_id):
-    ac = wideq.ACDevice(client, client.get_device(device_id))
-    
+    ac = wideq.ACDevice(client, _force_device(client, device_id))
     print(ac.get_filter_state())
     print(ac.get_mfilter_state())
     print(ac.get_energy_target())
-    print(ac.get_airclean_state())
-    print(ac.get_on_time())
     print(ac.get_volume())
     print(ac.get_light())
     print(ac.get_zones())
 
-def wp_config(client, device_id):
-    wp = wideq.WPDevice(client, client.get_device(device_id))
-    print('day')
-    print(wp.day_water_usage('C'))
-    print('week')
-    print(wp.week_water_usage('C'))
-    print('month')
-    print(wp.month_water_usage('N'))
-    print('year')
-    print(wp.year_water_usage('C'))
-    print(wp.year_water_usage('N'))    
-    print(wp.year_water_usage('H'))
-
-def ac_power(client, device_id):
-    ac = wideq.ACDevice(client, client.get_device(device_id))
-    print(ac.get_outtotalinstantpower())
-    print(ac.get_inoutinstantpower())
-    print(ac.get_energy_usage_day())
-    print(ac.get_energy_usage_week())
-    print(ac.get_energy_usage_month())
-
-def ac_outdoor_temp(client, device_id):
-    ac = wideq.ACDevice(client, client.get_device(device_id))
-    print(ac.get_outdoor_temp())
-    
-def ac_dust(client, device_id):
-    ac = wideq.Device(client, client.get_device(device_id))
-    return ac._get_dustsensor_data()
 
 EXAMPLE_COMMANDS = {
     'ls': ls,
     'mon': mon,
-    'dev': getDeviceInfo,
-    'model': getModelInfo,
     'ac-mon': ac_mon,
     'set-temp': set_temp,
-    'set-reftemp': set_reftemp,
     'turn': turn,
     'ac-config': ac_config,
-    'wp-config': wp_config,
-    'ac-power': ac_power,
-    'set-vstep': set_vstep,
-    'ac-outdoor-temp': ac_outdoor_temp,
-    'ac-dust': ac_dust
 }
 
 
-def example_command(client, args):
-    if not args:
-        ls(client)
-    else:
-        func = EXAMPLE_COMMANDS[args[0]]
-        func(client, *args[1:])
+def example_command(client, cmd, args):
+    func = EXAMPLE_COMMANDS[cmd]
+    func(client, *args)
 
 
-def example(args):
+def example(country, language, cmd, args):
     # Load the current state for the example.
     try:
         with open(STATE_FILE) as f:
@@ -239,6 +166,10 @@ def example(args):
         state = {}
 
     client = wideq.Client.load(state)
+    if country:
+        client._country = country
+    if language:
+        client._language = language
 
     # Log in, if we don't already have an authentication.
     if not client._auth:
@@ -247,18 +178,48 @@ def example(args):
     # Loop to retry if session has expired.
     while True:
         try:
-            example_command(client, args)
+            example_command(client, cmd, args)
             break
 
         except wideq.NotLoggedInError:
             print('Session expired.')
             client.refresh()
 
+        except UserError as exc:
+            print(exc.msg, file=sys.stderr)
+            sys.exit(1)
+
     # Save the updated state.
     state = client.dump()
     with open(STATE_FILE, 'w') as f:
-        json.dump(state, f, ensure_ascii = False)
+        json.dump(state, f)
+
+
+def main():
+    """The main command-line entry point.
+    """
+    parser = argparse.ArgumentParser(
+        description='Interact with the LG SmartThinQ API.'
+    )
+    parser.add_argument('cmd', metavar='CMD', nargs='?', default='ls',
+                        help='one of {}'.format(', '.join(EXAMPLE_COMMANDS)))
+    parser.add_argument('args', metavar='ARGS', nargs='*',
+                        help='subcommand arguments')
+
+    parser.add_argument(
+        '--country', '-c',
+        help='country code for account (default: {})'
+        .format(wideq.DEFAULT_COUNTRY)
+    )
+    parser.add_argument(
+        '--language', '-l',
+        help='language code for the API (default: {})'
+        .format(wideq.DEFAULT_LANGUAGE)
+    )
+
+    args = parser.parse_args()
+    example(args.country, args.language, args.cmd, args.args)
 
 
 if __name__ == '__main__':
-    example(sys.argv[1:])
+    main()
