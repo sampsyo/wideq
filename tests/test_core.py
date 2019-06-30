@@ -1,10 +1,11 @@
-import unittest
-import wideq
-import responses
 import json
+import responses
+import unittest
+
+from wideq.core import gateway_info
 
 
-class SimpleTest(unittest.TestCase):
+class CoreTest(unittest.TestCase):
     @responses.activate
     def test_gateway_info(self):
         responses.add(
@@ -13,7 +14,7 @@ class SimpleTest(unittest.TestCase):
             json={'lgedmRoot': 'foo'},
         )
 
-        data = wideq.gateway_info('COUNTRY', 'LANGUAGE')
+        data = gateway_info('COUNTRY', 'LANGUAGE')
         self.assertEqual(data, 'foo')
 
         self.assertEqual(len(responses.calls), 1)
