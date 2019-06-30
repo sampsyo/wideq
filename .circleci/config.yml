@@ -12,7 +12,7 @@ jobs:
             - restore_cache:
                 key: pip
             - run:
-                command: pip install tox
+                command: sudo pip install tox
             - save_cache:
                 key: pip
                 paths:
