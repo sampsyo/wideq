@@ -10,14 +10,13 @@ jobs:
 
             # Install Tox.
             - restore_cache:
-                key: dep
+                key: pip
             - run:
-                command: sudo pip install tox
+                command: pip install tox
             - save_cache:
-                key: dep
+                key: pip
                 paths:
-                    - "/usr/local/bin"
-                    - "/usr/local/lib/python3.7/site-packages"
+                    - "~/.cache/pip"
 
             # Run Tox.
             - restore_cache:
