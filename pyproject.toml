@@ -15,7 +15,5 @@ requires-python = ">=3.4"
 
 [tool.flit.metadata.requires-extra]
 test = [
-    "coverage",
-    "flake8",
-    "pytest"
+    "responses"
 ]
