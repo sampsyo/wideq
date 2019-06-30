@@ -1,6 +1,6 @@
 import enum
 
-from . import Device
+from .client import Device
 
 
 class ACMode(enum.Enum):
