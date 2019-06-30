@@ -8,6 +8,6 @@ jobs:
         steps:
             - checkout
             - run:
-                command: pip install --user tox
+                command: sudo pip install tox
             - run:
                 command: tox -e py37,flake8
