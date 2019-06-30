@@ -1,0 +1,13 @@
+version: 2.1
+
+jobs:
+    build:
+        working_directory: ~/wideq
+        docker:
+            - image: circleci/python:3.7
+        steps:
+            - checkout
+            - run:
+                command: pip install --user tox
+            - run:
+                command: tox -e py37,flake8
