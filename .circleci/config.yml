@@ -9,5 +9,11 @@ jobs:
             - checkout
             - run:
                 command: sudo pip install tox
+            - restore_cache:
+                key: tox-{{ checksum "tox.ini" }}
+                paths: [".tox"]
             - run:
                 command: tox -e py37,flake8
+            - save_cache:
+                key: tox-{{ checksum "tox.ini" }}
+                paths: [".tox"]
