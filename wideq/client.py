@@ -293,8 +293,10 @@ class DeviceInfo(object):
         return requests.get(self.model_info_url).json()
 
 
+BitValue = namedtuple('BitValue', ['options'])
 EnumValue = namedtuple('EnumValue', ['options'])
 RangeValue = namedtuple('RangeValue', ['min', 'max', 'step'])
+ReferenceValue = namedtuple('ReferenceValue', ['reference'])
 
 
 class ModelInfo(object):
@@ -304,31 +306,38 @@ class ModelInfo(object):
     def __init__(self, data):
         self.data = data
 
-    def value(self, name):
+    def value(self, name: str):
         """Look up information about a value.
 
-        Return either an `EnumValue` or a `RangeValue`.
+        :param name: The name to look up.
+        :returns: One of (`BitValue`, `EnumValue`, `RangeValue`,
+            `ReferenceValue`).
+        :raises ValueError: If an unsupported type is encountered.
         """
         d = self.data['Value'][name]
         if d['type'] in ('Enum', 'enum'):
             return EnumValue(d['option'])
         elif d['type'] == 'Range':
             return RangeValue(
-                d['option']['min'], d['option']['max'], d['option']['step']
+                d['option']['min'], d['option']['max'],
+                d['option'].get('step', 1)
             )
+        elif d['type'].lower() == 'bit':
+            bit_values = {opt['startbit']: opt['value'] for opt in d['option']}
+            return BitValue(bit_values)
+        elif d['type'].lower() == 'reference':
+            return ReferenceValue(d['option'][0])
         else:
-            assert False, "unsupported value type {}".format(d['type'])
+            raise ValueError("unsupported value type {}".format(d['type']))
 
     def default(self, name):
         """Get the default value, if it exists, for a given value.
         """
-
         return self.data['Value'][name]['default']
 
     def enum_value(self, key, name):
         """Look up the encoded value for a friendly enum name.
         """
-
         options = self.value(key).options
         options_inv = {v: k for k, v in options.items()}  # Invert the map.
         return options_inv[name]
@@ -336,7 +345,6 @@ class ModelInfo(object):
     def enum_name(self, key, value):
         """Look up the friendly enum name for an encoded value.
         """
-
         options = self.value(key).options
         return options[value]
 
@@ -344,13 +352,11 @@ class ModelInfo(object):
     def binary_monitor_data(self):
         """Check that type of monitoring is BINARY(BYTE).
         """
-
         return self.data['Monitoring']['type'] == 'BINARY(BYTE)'
 
     def decode_monitor_binary(self, data):
         """Decode binary encoded status data.
         """
-
         decoded = {}
         for item in self.data['Monitoring']['protocol']:
             key = item['value']
@@ -363,12 +369,10 @@ class ModelInfo(object):
 
     def decode_monitor_json(self, data):
         """Decode a bytestring that encodes JSON status data."""
-
         return json.loads(data.decode('utf8'))
 
     def decode_monitor(self, data):
         """Decode  status data."""
-
         if self.binary_monitor_data:
             return self.decode_monitor_binary(data)
         else:
