@@ -323,12 +323,7 @@ class ModelInfo(object):
                 d['option'].get('step', 1)
             )
         elif d['type'].lower() == 'bit':
-            bit_values = {
-                opt['startbit']: {
-                    'length': opt['length'],
-                    'value': opt['value'],
-                } for opt in d['option']
-            }
+            bit_values = {opt['startbit']: opt['value'] for opt in d['option']}
             return BitValue(bit_values)
         elif d['type'].lower() == 'reference':
             return ReferenceValue(d['option'][0])

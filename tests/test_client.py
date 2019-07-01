@@ -90,12 +90,12 @@ class ModelInfoTest(unittest.TestCase):
     def test_value_bit(self):
         actual = self.model_info.value('Option1')
         expected = BitValue({
-            0: {'length': 1, 'value': 'ChildLock'},
-            1: {'length': 1, 'value': 'ReduceStatic'},
-            2: {'length': 1, 'value': 'EasyIron'},
-            3: {'length': 1, 'value': 'DampDrySingal'},
-            4: {'length': 1, 'value': 'WrinkleCare'},
-            7: {'length': 1, 'value': 'AntiBacterial'},
+            0: 'ChildLock',
+            1: 'ReduceStatic',
+            2: 'EasyIron',
+            3: 'DampDrySingal',
+            4: 'WrinkleCare',
+            7: 'AntiBacterial',
         })
         self.assertEqual(expected, actual)
 
