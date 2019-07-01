@@ -2,7 +2,7 @@
 """
 import enum
 
-from .client import Device, Monitor
+from .client import Device
 
 
 class ACMode(enum.Enum):
@@ -172,18 +172,6 @@ class ACDevice(Device):
 
         value = self._get_control('SpkVolume')
         return int(value)
-
-    def monitor_start(self):
-        """Start monitoring the device's status."""
-
-        mon = Monitor(self.client.session, self.device.id)
-        mon.start()
-        self.mon = mon
-
-    def monitor_stop(self):
-        """Stop monitoring the device's status."""
-
-        self.mon.stop()
 
     def poll(self):
         """Poll the device's current state.

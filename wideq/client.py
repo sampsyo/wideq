@@ -391,15 +391,12 @@ class Device(object):
         """Create a wrapper for a `DeviceInfo` object associated with a
         `Client`.
         """
-
         self.client = client
         self.device = device
         self.model = client.model_info(device)
 
     def _set_control(self, key, value):
-        """Set a device's control for `key` to `value`.
-        """
-
+        """Set a device's control for `key` to `value`."""
         self.client.session.set_device_controls(
             self.device.id,
             {key: value},
@@ -410,7 +407,6 @@ class Device(object):
 
         The response is parsed as base64-encoded JSON.
         """
-
         data = self.client.session.get_device_config(
             self.device.id,
             key,
@@ -418,9 +414,7 @@ class Device(object):
         return json.loads(base64.b64decode(data).decode('utf8'))
 
     def _get_control(self, key):
-        """Look up a device's control value.
-        """
-
+        """Look up a device's control value."""
         data = self.client.session.get_device_config(
             self.device.id,
             key,
@@ -430,3 +424,13 @@ class Device(object):
         # The response comes in a funky key/value format: "(key:value)".
         _, value = data[1:-1].split(':')
         return value
+
+    def monitor_start(self):
+        """Start monitoring the device's status."""
+        mon = Monitor(self.client.session, self.device.id)
+        mon.start()
+        self.mon = mon
+
+    def monitor_stop(self):
+        """Stop monitoring the device's status."""
+        self.mon.stop()
