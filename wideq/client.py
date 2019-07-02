@@ -296,6 +296,8 @@ class DeviceInfo(object):
 BitValue = namedtuple('BitValue', ['options'])
 EnumValue = namedtuple('EnumValue', ['options'])
 RangeValue = namedtuple('RangeValue', ['min', 'max', 'step'])
+#: This is a value that is a reference to another key in the data that is at
+#: the same level as the `Value` key.
 ReferenceValue = namedtuple('ReferenceValue', ['reference'])
 
 
@@ -326,7 +328,8 @@ class ModelInfo(object):
             bit_values = {opt['startbit']: opt['value'] for opt in d['option']}
             return BitValue(bit_values)
         elif d['type'].lower() == 'reference':
-            return ReferenceValue(d['option'][0])
+            ref = d['option'][0]
+            return ReferenceValue(self.data[ref])
         else:
             raise ValueError("unsupported value type {}".format(d['type']))
 
