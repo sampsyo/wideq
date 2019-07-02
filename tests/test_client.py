@@ -68,6 +68,18 @@ DATA = {
         },
         'Unexpected': {'type': 'Unexpected'},
     },
+    'Course': {
+        "3": {
+          "_comment": "Normal",
+          "courseType": "Course",
+          "id": 3,
+          "name": "@WM_DRY27_COURSE_NORMAL_W",
+          "script": "",
+          "controlEnable": True,
+          "freshcareEnable": True,
+          "imgIndex": 61,
+        },
+    },
 }
 
 
@@ -101,7 +113,7 @@ class ModelInfoTest(unittest.TestCase):
 
     def test_value_reference(self):
         actual = self.model_info.value('Course')
-        expected = ReferenceValue('Course')
+        expected = ReferenceValue(DATA['Course'])
         self.assertEqual(expected, actual)
 
     def test_value_unsupported(self):
