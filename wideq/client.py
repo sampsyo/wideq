@@ -6,6 +6,7 @@ import enum
 import requests
 import base64
 from collections import namedtuple
+from typing import Any
 
 from . import core
 
@@ -296,6 +297,8 @@ class DeviceInfo(object):
 BitValue = namedtuple('BitValue', ['options'])
 EnumValue = namedtuple('EnumValue', ['options'])
 RangeValue = namedtuple('RangeValue', ['min', 'max', 'step'])
+#: This is a value that is a reference to another key in the data that is at
+#: the same level as the `Value` key.
 ReferenceValue = namedtuple('ReferenceValue', ['reference'])
 
 
@@ -326,7 +329,8 @@ class ModelInfo(object):
             bit_values = {opt['startbit']: opt['value'] for opt in d['option']}
             return BitValue(bit_values)
         elif d['type'].lower() == 'reference':
-            return ReferenceValue(d['option'][0])
+            ref = d['option'][0]
+            return ReferenceValue(self.data[ref])
         else:
             raise ValueError("unsupported value type {}".format(d['type']))
 
@@ -347,6 +351,19 @@ class ModelInfo(object):
         """
         options = self.value(key).options
         return options[value]
+
+    def reference_name(self, key: str, value: Any) -> str:
+        """Look up the friendly name for an encoded reference value.
+
+        :param key: The referenced key.
+        :param value: The value whose name we want to look up.
+        :returns: The friendly name for the referenced value.
+        """
+        value = str(value)
+        reference = self.value(key).reference
+        if value in reference:
+            return reference[value]['_comment']
+        return '-'
 
     @property
     def binary_monitor_data(self):
@@ -387,13 +404,13 @@ class Device(object):
     regarding the device.
     """
 
-    def __init__(self, client, device):
+    def __init__(self, client: Client, device: DeviceInfo):
         """Create a wrapper for a `DeviceInfo` object associated with a
         `Client`.
         """
         self.client = client
         self.device = device
-        self.model = client.model_info(device)
+        self.model: ModelInfo = client.model_info(device)
 
     def _set_control(self, key, value):
         """Set a device's control for `key` to `value`."""

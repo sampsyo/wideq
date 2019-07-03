@@ -1,4 +1,5 @@
 import enum
+from typing import Optional
 
 from .client import Device
 
@@ -61,8 +62,8 @@ class DryerDevice(Device):
 
         Monitoring must be started first with `monitor_start`.
 
-        :returns: Either a `DruerStatus` instance or `None` if the status is not
-            yet available.
+        :returns: Either a `DryerStatus` instance or `None` if the status is
+            not yet available.
         """
         # Abort if monitoring has not started yet.
         if not hasattr(self, 'mon'):
@@ -86,25 +87,29 @@ class DryerStatus(object):
         self.dryer = dryer
         self.data = data
 
+    def get_bit(self, key: str, index: int) -> str:
+        bit_value = int(self.data[key])
+        bit_index = 2 ** index
+        mode = bin(bit_value & bit_index)
+        if mode == bin(0):
+            return 'OFF'
+        else:
+            return 'ON'
+
     @property
-    def state(self):
+    def state(self) -> DryerState:
         """Get the state of the dryer."""
         attr = 'State'
         return DryerState(self.dryer.model.enum_name(attr, self.data[attr]))
 
     @property
-    def pre_state(self):
-        """Get the previous? state of the dryer.
-
-
-        @TODO: Run some tests to determine what this value means.  Is it the
-        previous state?  If not, what would a pre-state mean?
-        """
+    def previous_state(self) -> DryerState:
+        """Get the previous state of the dryer."""
         attr = 'PreState'
         return DryerState(self.dryer.model.enum_name(attr, self.data[attr]))
 
     @property
-    def dry_level(self):
+    def dry_level(self) -> DryLevel:
         """Get the dry level."""
         attr = 'DryLevel'
         return DryLevel(self.dryer.model.enum_name(attr, self.data[attr]))
@@ -134,17 +139,28 @@ class DryerStatus(object):
         """Get the initial number of minutes."""
         return self.data['Initial_Time_M']
 
+    def _lookup_reference(self, attr: str) -> str:
+        """Look up a reference value for the provided attribute.
+
+        :param attr: The attribute to find the value for.
+        :returns: The looked up value.
+        """
+        value = self.dryer.model.reference_name(attr, self.data[attr])
+        if value == '-':
+            return 'Off'
+        return value
+
     @property
-    def course(self):
+    def course(self) -> str:
         """Get the current course."""
-        raise NotImplementedError
+        return self._lookup_reference('Course')
 
     @property
-    def smart_course(self):
+    def smart_course(self) -> str:
         """Get the current smart course."""
-        raise NotImplementedError
+        return self._lookup_reference('SmartCourse')
 
     @property
-    def error(self):
+    def error(self) -> str:
         """Get the current error."""
-        raise NotImplementedError
+        return self._lookup_reference('Error')
