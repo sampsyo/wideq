@@ -335,8 +335,10 @@ class Session(object):
         work_list = [{'deviceId': device_id, 'workId': work_id}]
         res = self.post('rti/rtiResult', {'workList': work_list})['workList']
 
-        # Return None in case work hasn't started yet
-        if not 'returnCode' in res:
+        # When monitoring first starts, it usually takes a few
+        # iterations before data becomes available. In the initial
+        # "warmup" phase, `returnCode` is missing from the response.
+        if 'returnCode' not in res:
             return None
 
         # Check for errors.
