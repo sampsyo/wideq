@@ -335,6 +335,10 @@ class Session(object):
         work_list = [{'deviceId': device_id, 'workId': work_id}]
         res = self.post('rti/rtiResult', {'workList': work_list})['workList']
 
+        # Return None in case work hasn't started yet
+        if not 'returnCode' in res:
+            return None
+
         # Check for errors.
         code = res.get('returnCode')  # returnCode can be missing.
         if code != '0000':
