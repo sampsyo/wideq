@@ -54,6 +54,28 @@ class DryerError(enum.Enum):
     ERROR_TE6 = '@WM_US_DRYER_ERROR_TE6_W'
 
 
+class TempControl(enum.Enum):
+    """Represents temperature control setting."""
+
+    OFF = '-'
+    ULTRA_LOW = '@WM_DRY27_TEMP_ULTRA_LOW_W'
+    LOW = '@WM_DRY27_TEMP_LOW_W'
+    MEDIUM = '@WM_DRY27_TEMP_MEDIUM_W'
+    MID_HIGH = '@WM_DRY27_TEMP_MID_HIGH_W'
+    HIGH = '@WM_DRY27_TEMP_HIGH_W'
+
+
+class TimeDry(enum.Enum):
+    """Represents a timed dry setting."""
+
+    OFF = '-'
+    TWENTY = '20'
+    THIRTY = '30'
+    FOURTY = '40'
+    FIFTY = '50'
+    SIXTY = '60'
+
+
 class DryerDevice(Device):
     """A higher-level interface for a dryer."""
 
@@ -113,6 +135,18 @@ class DryerStatus(object):
         """Get the dry level."""
         attr = 'DryLevel'
         return DryLevel(self.dryer.model.enum_name(attr, self.data[attr]))
+
+    @property
+    def temperature_control(self) -> TempControl:
+        """Get the temperature control setting."""
+        attr = 'TempControl'
+        return TempControl(self.dryer.model.enum_name(attr, self.data[attr]))
+
+    @property
+    def time_dry(self) -> TimeDry:
+        """Get the time dry setting."""
+        attr = 'TimeDry'
+        return TimeDry(self.dryer.model.enum_name(attr, self.data[attr]))
 
     @property
     def is_on(self) -> bool:

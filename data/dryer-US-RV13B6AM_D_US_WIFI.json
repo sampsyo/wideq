@@ -1,0 +1,1830 @@
+{
+    "ControlWifi": {
+        "action": {
+            "OperationStart": {
+                "encode": true,
+                "cmd": "Control",
+                "value": "Start",
+                "cmdOpt": "Operation",
+                "data": "[{{Course}},0,0,{{TempControl}},0,0,{{TimeDry}},{{Option1}},{{Option2}},0,{{Course}},{{SmartCourse}},0,0,0,{{DryLevel}},{{LoadItem}},{{MoreLessTime}},0,0,0]"
+            },
+            "OperationStop": {
+                "cmd": "Control",
+                "value": "Stop",
+                "cmdOpt": "Operation"
+            },
+            "CourseDownload": {
+                "tag": [
+                    "COURSE",
+                    "ID",
+                    "DATA"
+                ],
+                "data": "[{{Course}},0,0,{{TempControl}},0,0,{{TimeDry}},{{Option1}},{{Option2}},0,{{Course}},{{SmartCourse}},0,0,0,{{DryLevel}},{{LoadItem}},{{MoreLessTime}},0,0,0]"
+            },
+            "PowerOff": {
+                "cmd": "Control",
+                "value": "Off",
+                "cmdOpt": "Power"
+            },
+            "MODE020Start": {
+                "encode": true,
+                "cmd": "Control",
+                "value": "Start",
+                "cmdOpt": "Operation",
+                "data": "[3,0,0,3,0,0,0,0,64,0,3,0,0,0,0,3,0,0,0,0,0]"
+            },
+            "WrinkleCareOn": {
+                "cmd": "Control",
+                "value": "On",
+                "cmdOpt": "WrinkleCare"
+            }
+        },
+        "type": "BINARY(BYTE)"
+    },
+    "Monitoring": {
+        "type": "BINARY(BYTE)",
+        "protocol": [
+            {
+                "value": "State",
+                "startByte": 0,
+                "_comment": "State",
+                "length": 1
+            },
+            {
+                "value": "Remain_Time_H",
+                "startByte": 1,
+                "_comment": "Remain Time H",
+                "length": 1
+            },
+            {
+                "value": "Remain_Time_M",
+                "startByte": 2,
+                "_comment": "Remain Time M",
+                "length": 1
+            },
+            {
+                "value": "Initial_Time_H",
+                "startByte": 3,
+                "_comment": "Initial Time H",
+                "length": 1
+            },
+            {
+                "value": "Initial_Time_M",
+                "startByte": 4,
+                "_comment": "Initial Time M",
+                "length": 1
+            },
+            {
+                "value": "Course",
+                "startByte": 5,
+                "_comment": "Course",
+                "length": 1
+            },
+            {
+                "value": "Error",
+                "startByte": 6,
+                "_comment": "Error",
+                "length": 1
+            },
+            {
+                "value": "DryLevel",
+                "startByte": 7,
+                "_comment": "DryLevel",
+                "length": 1
+            },
+            {
+                "value": "TempControl",
+                "startByte": 8,
+                "_comment": "TempControl",
+                "length": 1
+            },
+            {
+                "value": "TimeDry",
+                "startByte": 9,
+                "_comment": "TimeDry",
+                "length": 1
+            },
+            {
+                "value": "MoreLessTime",
+                "startByte": 11,
+                "_comment": "MoreLessTime",
+                "length": 1
+            },
+            {
+                "value": "Option1",
+                "startByte": 14,
+                "_comment": "Option1",
+                "length": 1
+            },
+            {
+                "value": "Option2",
+                "startByte": 15,
+                "_comment": "Option2",
+                "length": 1
+            },
+            {
+                "value": "PreState",
+                "startByte": 19,
+                "_comment": "PreState",
+                "length": 1
+            },
+            {
+                "value": "SmartCourse",
+                "startByte": 20,
+                "_comment": "SmartCourse",
+                "length": 1
+            },
+            {
+                "value": "LoadItem",
+                "startByte": 22,
+                "_comment": "LoadItem",
+                "length": 1
+            },
+            {
+                "value": "CurrentDownloadCourse",
+                "startByte": 23,
+                "_comment": "Current DownloadCourse",
+                "length": 1
+            }
+        ]
+    },
+    "Info": {
+        "modelType": "Dryer",
+        "modelName": "RV13B6AM_D_US_WIFI",
+        "productType": "WM",
+        "version": "2.6",
+        "model": "Victor 2 Pro(D) Wi-Fi",
+        "country": "US",
+        "networkType": "WIFI"
+    },
+    "Module": {
+        "Menu": [
+            "GWM_CRS01_Main",
+            "GWM_WCH02_Main",
+            "GWM_ENM01_Main",
+            "GCM_SDS01_SdsMain",
+            "GWM_SET01_Main"
+        ],
+        "WPM": {
+            "GWM_WCH02_Main": "001",
+            "GWM_SET03_NickName": "001",
+            "GWM_CRS02_CourseList": "001",
+            "GWM_WCH01_UserGuide2": "001",
+            "GWM_SET01_Main": "001",
+            "GWM_SET02_PushList": "001",
+            "GWM_CRS01_Main": "001",
+            "GWM_CEN01_Main": "001",
+            "GWM_FOT01_Main": "001",
+            "GCM_SDS01_SdsMain": "001",
+            "GWM_CRS03_CourseDetail": "001"
+        }
+    },
+    "EnergyMonitoring": {
+        "option": [
+            "DryLevel",
+            "TempControl"
+        ],
+        "powertable": {
+            "2": 5200,
+            "5": 13000,
+            "4": 10400,
+            "3": 7800,
+            "1": 2600
+        }
+    },
+    "SmartCourse": {
+        "102": {
+            "script": "@WM_US_DR_SMARTCOURSE_KIDS_CLOTHES_SCRIPT_S",
+            "controlEnable": true,
+            "freshcareEnable": true,
+            "name": "@WM_US_DR_SMARTCOURSE_KIDS_CLOTHES_W",
+            "function": [
+                {
+                    "default": "3",
+                    "value": "DryLevel"
+                },
+                {
+                    "default": "5",
+                    "value": "TempControl"
+                },
+                {
+                    "default": "0",
+                    "value": "TimeDry"
+                },
+                {
+                    "default": "0",
+                    "value": "TurboSteam"
+                },
+                {
+                    "default": "0",
+                    "value": "EnergySaver"
+                },
+                {
+                    "default": "0",
+                    "value": "DampDrySingal"
+                },
+                {
+                    "default": "0",
+                    "value": "LoadItem",
+                    "visibility": "gone"
+                },
+                {
+                    "default": "0",
+                    "value": "WrinkleCare"
+                },
+                {
+                    "default": 0,
+                    "value": "MoreLessTime",
+                    "visibility": "gone"
+                }
+            ],
+            "downloadEnable": true,
+            "imgIndex": 77,
+            "id": 102,
+            "_comment": "Kids' Clothes",
+            "Course": 12,
+            "courseType": "SmartCourse"
+        },
+        "105": {
+            "script": "@WM_US_DR_SMARTCOURSE_LOW_TEMP_DRY_SCRIPT_S",
+            "controlEnable": true,
+            "freshcareEnable": true,
+            "name": "@WM_US_DR_SMARTCOURSE_LOW_TEMP_DRY_W",
+            "function": [
+                {
+                    "default": "3",
+                    "value": "DryLevel"
+                },
+                {
+                    "default": "2",
+                    "value": "TempControl"
+                },
+                {
+                    "default": "0",
+                    "value": "TimeDry"
+                },
+                {
+                    "default": "0",
+                    "value": "TurboSteam"
+                },
+                {
+                    "default": "0",
+                    "value": "EnergySaver"
+                },
+                {
+                    "default": "0",
+                    "value": "DampDrySingal"
+                },
+                {
+                    "default": "0",
+                    "value": "LoadItem",
+                    "visibility": "gone"
+                },
+                {
+                    "default": "0",
+                    "value": "WrinkleCare"
+                },
+                {
+                    "default": 0,
+                    "value": "MoreLessTime",
+                    "visibility": "gone"
+                }
+            ],
+            "downloadEnable": true,
+            "imgIndex": 64,
+            "id": 105,
+            "_comment": "Low Temp Dry",
+            "Course": 13,
+            "courseType": "SmartCourse"
+        },
+        "110": {
+            "script": "@WM_US_DR_SMARTCOURSE_RAINY_DAY_SCRIPT_S",
+            "controlEnable": true,
+            "freshcareEnable": true,
+            "name": "@WM_US_DR_SMARTCOURSE_RAINY_DAY_W",
+            "function": [
+                {
+                    "default": "3",
+                    "value": "DryLevel"
+                },
+                {
+                    "default": "2",
+                    "value": "TempControl"
+                },
+                {
+                    "default": "0",
+                    "value": "TimeDry"
+                },
+                {
+                    "default": "0",
+                    "value": "TurboSteam"
+                },
+                {
+                    "default": "0",
+                    "value": "EnergySaver"
+                },
+                {
+                    "default": "0",
+                    "value": "DampDrySingal"
+                },
+                {
+                    "default": "0",
+                    "value": "LoadItem",
+                    "visibility": "gone"
+                },
+                {
+                    "default": "0",
+                    "value": "WrinkleCare"
+                },
+                {
+                    "default": 0,
+                    "value": "MoreLessTime",
+                    "visibility": "gone"
+                }
+            ],
+            "downloadEnable": true,
+            "imgIndex": 84,
+            "id": 110,
+            "_comment": "Rainy Day",
+            "Course": 13,
+            "courseType": "SmartCourse"
+        },
+        "107": {
+            "script": "@WM_US_DR_SMARTCOURSE_GYM_CLOTHES_SCRIPT_S",
+            "controlEnable": true,
+            "freshcareEnable": true,
+            "name": "@WM_US_DR_SMARTCOURSE_GYM_CLOTHES_W",
+            "function": [
+                {
+                    "default": "3",
+                    "value": "DryLevel",
+                    "showing": "-"
+                },
+                {
+                    "default": "5",
+                    "value": "TempControl",
+                    "showing": "-"
+                },
+                {
+                    "default": "0",
+                    "value": "TimeDry"
+                },
+                {
+                    "default": "0",
+                    "value": "TurboSteam"
+                },
+                {
+                    "default": "0",
+                    "value": "EnergySaver"
+                },
+                {
+                    "default": "0",
+                    "value": "DampDrySingal"
+                },
+                {
+                    "default": "0",
+                    "value": "LoadItem",
+                    "visibility": "gone"
+                },
+                {
+                    "default": "0",
+                    "value": "WrinkleCare"
+                },
+                {
+                    "default": 0,
+                    "value": "MoreLessTime",
+                    "visibility": "gone"
+                }
+            ],
+            "downloadEnable": true,
+            "imgIndex": 81,
+            "id": 107,
+            "_comment": "Gym Clothes",
+            "Course": 11,
+            "courseType": "SmartCourse"
+        },
+        "100": {
+            "script": "@WM_US_DR_SMARTCOURSE_SUPER_DRY_SCRIPT_S",
+            "controlEnable": true,
+            "freshcareEnable": true,
+            "name": "@WM_US_DR_SMARTCOURSE_SUPER_DRY_W",
+            "function": [
+                {
+                    "default": "5",
+                    "value": "DryLevel"
+                },
+                {
+                    "default": "5",
+                    "value": "TempControl"
+                },
+                {
+                    "default": "0",
+                    "value": "TimeDry"
+                },
+                {
+                    "default": "0",
+                    "value": "TurboSteam"
+                },
+                {
+                    "default": "0",
+                    "value": "EnergySaver"
+                },
+                {
+                    "default": "0",
+                    "value": "DampDrySingal"
+                },
+                {
+                    "default": "0",
+                    "value": "LoadItem",
+                    "visibility": "gone"
+                },
+                {
+                    "default": "0",
+                    "value": "WrinkleCare"
+                },
+                {
+                    "default": 0,
+                    "value": "MoreLessTime",
+                    "visibility": "gone"
+                }
+            ],
+            "downloadEnable": true,
+            "imgIndex": 75,
+            "id": 100,
+            "_comment": "Super Dry",
+            "Course": 26,
+            "courseType": "SmartCourse"
+        },
+        "108": {
+            "script": "@WM_US_DR_SMARTCOURSE_BLANKETS_SCRIPT_S",
+            "controlEnable": true,
+            "freshcareEnable": true,
+            "name": "@WM_US_DR_SMARTCOURSE_BLANKETS_W",
+            "function": [
+                {
+                    "default": "5",
+                    "value": "DryLevel"
+                },
+                {
+                    "default": "3",
+                    "value": "TempControl"
+                },
+                {
+                    "default": "0",
+                    "value": "TimeDry"
+                },
+                {
+                    "default": "0",
+                    "value": "TurboSteam"
+                },
+                {
+                    "default": "0",
+                    "value": "EnergySaver"
+                },
+                {
+                    "default": "0",
+                    "value": "DampDrySingal"
+                },
+                {
+                    "default": "0",
+                    "value": "LoadItem",
+                    "visibility": "gone"
+                },
+                {
+                    "default": "0",
+                    "value": "WrinkleCare"
+                },
+                {
+                    "default": 0,
+                    "value": "MoreLessTime",
+                    "visibility": "gone"
+                }
+            ],
+            "downloadEnable": true,
+            "imgIndex": 82,
+            "id": 108,
+            "_comment": "Blankets",
+            "Course": 14,
+            "courseType": "SmartCourse"
+        },
+        "101": {
+            "script": "@WM_US_DR_SMARTCOURSE_DENIM_SCRIPT_S",
+            "controlEnable": true,
+            "freshcareEnable": true,
+            "name": "@WM_US_DR_SMARTCOURSE_DENIM_W",
+            "function": [
+                {
+                    "default": "3",
+                    "value": "DryLevel",
+                    "showing": "-"
+                },
+                {
+                    "default": "3",
+                    "value": "TempControl"
+                },
+                {
+                    "default": "0",
+                    "value": "TimeDry"
+                },
+                {
+                    "default": "0",
+                    "value": "TurboSteam"
+                },
+                {
+                    "default": "0",
+                    "value": "EnergySaver"
+                },
+                {
+                    "default": "0",
+                    "value": "DampDrySingal"
+                },
+                {
+                    "default": "0",
+                    "value": "LoadItem",
+                    "visibility": "gone"
+                },
+                {
+                    "default": "0",
+                    "value": "WrinkleCare"
+                },
+                {
+                    "default": 0,
+                    "value": "MoreLessTime",
+                    "visibility": "gone"
+                }
+            ],
+            "downloadEnable": true,
+            "imgIndex": 76,
+            "id": 101,
+            "_comment": "Denim",
+            "Course": 10,
+            "courseType": "SmartCourse"
+        },
+        "113": {
+            "script": "@WM_US_DR_SMARTCOURSE_SOCKS_SCRIPT_S",
+            "controlEnable": true,
+            "freshcareEnable": true,
+            "name": "@WM_US_DR_SMARTCOURSE_SOCKS_W",
+            "function": [
+                {
+                    "default": "0",
+                    "value": "DryLevel"
+                },
+                {
+                    "default": "5",
+                    "value": "TempControl"
+                },
+                {
+                    "default": "2",
+                    "value": "TimeDry"
+                },
+                {
+                    "default": "0",
+                    "value": "TurboSteam"
+                },
+                {
+                    "default": "0",
+                    "value": "EnergySaver"
+                },
+                {
+                    "default": "0",
+                    "value": "DampDrySingal"
+                },
+                {
+                    "default": "0",
+                    "value": "LoadItem",
+                    "visibility": "gone"
+                },
+                {
+                    "default": "0",
+                    "value": "WrinkleCare"
+                },
+                {
+                    "default": 5,
+                    "display": "35",
+                    "value": "MoreLessTime"
+                }
+            ],
+            "downloadEnable": true,
+            "imgIndex": 87,
+            "id": 113,
+            "_comment": "Socks",
+            "Course": 18,
+            "courseType": "SmartCourse"
+        },
+        "114": {
+            "script": "@WM_US_DR_SMARTCOURSE_OVERNIGHT_DRY_SCRIPT_S",
+            "controlEnable": true,
+            "freshcareEnable": true,
+            "name": "@WM_US_DR_SMARTCOURSE_OVERNIGHT_DRY_W",
+            "function": [
+                {
+                    "default": "3",
+                    "value": "DryLevel"
+                },
+                {
+                    "default": "2",
+                    "value": "TempControl"
+                },
+                {
+                    "default": "0",
+                    "value": "TimeDry"
+                },
+                {
+                    "default": "0",
+                    "value": "TurboSteam"
+                },
+                {
+                    "default": "0",
+                    "value": "EnergySaver"
+                },
+                {
+                    "default": "0",
+                    "value": "DampDrySingal"
+                },
+                {
+                    "default": "0",
+                    "value": "LoadItem",
+                    "visibility": "gone"
+                },
+                {
+                    "default": "1",
+                    "value": "WrinkleCare"
+                },
+                {
+                    "default": 0,
+                    "value": "MoreLessTime",
+                    "visibility": "gone"
+                }
+            ],
+            "downloadEnable": true,
+            "imgIndex": 88,
+            "id": 114,
+            "_comment": "Overnight Dry",
+            "Course": 13,
+            "courseType": "SmartCourse"
+        },
+        "202": {
+            "script": "@WM_US_DR_SMARTCOURSE_WRINKLE_PREVENTION_SCRIPT_S",
+            "controlEnable": true,
+            "freshcareEnable": true,
+            "name": "@WM_US_DR_SMARTCOURSE_WRINKLE_PREVENTION_W",
+            "function": [
+                {
+                    "default": "3",
+                    "value": "DryLevel"
+                },
+                {
+                    "default": "3",
+                    "value": "TempControl"
+                },
+                {
+                    "default": "0",
+                    "value": "TimeDry"
+                },
+                {
+                    "default": "0",
+                    "value": "TurboSteam"
+                },
+                {
+                    "default": "0",
+                    "value": "EnergySaver"
+                },
+                {
+                    "default": "0",
+                    "value": "DampDrySingal"
+                },
+                {
+                    "default": "0",
+                    "value": "LoadItem",
+                    "visibility": "gone"
+                },
+                {
+                    "default": "1",
+                    "value": "WrinkleCare"
+                },
+                {
+                    "default": 0,
+                    "value": "MoreLessTime",
+                    "visibility": "gone"
+                }
+            ],
+            "downloadEnable": true,
+            "imgIndex": 80,
+            "id": 202,
+            "_comment": "Wrinkle Prevention",
+            "Course": 3,
+            "courseType": "SmartCourse"
+        },
+        "206": {
+            "script": "@WM_US_DR_SMARTCOURSE_FULL_LOAD_DRY_SCRIPT_S",
+            "controlEnable": true,
+            "freshcareEnable": true,
+            "name": "@WM_US_DR_SMARTCOURSE_FULL_LOAD_DRY_W",
+            "function": [
+                {
+                    "default": "5",
+                    "value": "DryLevel"
+                },
+                {
+                    "default": "5",
+                    "value": "TempControl"
+                },
+                {
+                    "default": "0",
+                    "value": "TimeDry"
+                },
+                {
+                    "default": "0",
+                    "value": "TurboSteam"
+                },
+                {
+                    "default": "0",
+                    "value": "EnergySaver"
+                },
+                {
+                    "default": "0",
+                    "value": "DampDrySingal"
+                },
+                {
+                    "default": "0",
+                    "value": "LoadItem",
+                    "visibility": "gone"
+                },
+                {
+                    "default": "0",
+                    "value": "WrinkleCare"
+                },
+                {
+                    "default": 0,
+                    "value": "MoreLessTime",
+                    "visibility": "gone"
+                }
+            ],
+            "downloadEnable": true,
+            "imgIndex": 177,
+            "id": 206,
+            "_comment": "Full Load Dry",
+            "Course": 1,
+            "courseType": "SmartCourse"
+        },
+        "115": {
+            "script": "@WM_US_DR_SMARTCOURSE_BEDDING_CURTAINS_SCRIPT_S",
+            "controlEnable": true,
+            "freshcareEnable": false,
+            "name": "@WM_US_DR_SMARTCOURSE_BEDDING_CURTAINS_W",
+            "function": [
+                {
+                    "default": "5",
+                    "value": "DryLevel"
+                },
+                {
+                    "default": "3",
+                    "value": "TempControl"
+                },
+                {
+                    "default": "0",
+                    "value": "TimeDry"
+                },
+                {
+                    "default": "0",
+                    "value": "TurboSteam"
+                },
+                {
+                    "default": "0",
+                    "value": "EnergySaver"
+                },
+                {
+                    "default": "0",
+                    "value": "DampDrySingal"
+                },
+                {
+                    "default": "0",
+                    "value": "LoadItem",
+                    "visibility": "gone"
+                },
+                {
+                    "default": "0",
+                    "value": "WrinkleCare"
+                },
+                {
+                    "default": 0,
+                    "value": "MoreLessTime",
+                    "visibility": "gone"
+                }
+            ],
+            "downloadEnable": true,
+            "imgIndex": 89,
+            "id": 115,
+            "_comment": "Bedding \/ Curtains",
+            "Course": 7,
+            "courseType": "SmartCourse"
+        }
+    },
+    "Value": {
+        "DampDrySingal": {
+            "default": "0",
+            "label": "@WM_DRY27_BUTTON_DAMP_DRY_SIGNAL_W",
+            "type": "Enum",
+            "option": [
+                "@CP_OFF_EN_W",
+                "@CP_ON_EN_W"
+            ]
+        },
+        "CurrentDownloadCourse": {
+            "option": [
+                "SmartCourse"
+            ],
+            "type": "Reference"
+        },
+        "Error": {
+            "option": [
+                "Error"
+            ],
+            "type": "Reference"
+        },
+        "EasyIron": {
+            "default": "0",
+            "label": "@WM_OPTION_EASY_IRON_W",
+            "type": "Enum",
+            "option": [
+                "@CP_OFF_EN_W",
+                "@CP_ON_EN_W"
+            ]
+        },
+        "InitialBit": {
+            "default": false,
+            "type": "Boolean"
+        },
+        "TimeDry": {
+            "default": "0",
+            "label": "@WM_DRY27_BUTTON_TIME_DRY_W",
+            "type": "Enum",
+            "option": {
+                "0": "-",
+                "2": "30",
+                "3": "40",
+                "5": "60",
+                "4": "50",
+                "1": "20"
+            }
+        },
+        "Remain_Time_M": {
+            "default": 0,
+            "option": {
+                "min": 0,
+                "max": 60
+            },
+            "type": "Range"
+        },
+        "WrinkleCare": {
+            "default": "0",
+            "label": "@WM_DRY27_BUTTON_WRINKLE_CARE_W",
+            "type": "Enum",
+            "option": [
+                "@CP_OFF_EN_W",
+                "@CP_ON_EN_W"
+            ]
+        },
+        "Remain_Time_H": {
+            "default": 0,
+            "option": {
+                "min": 0,
+                "max": 24
+            },
+            "type": "Range"
+        },
+        "MoreLessTime": {
+            "default": 0,
+            "label": "@WM_OPTION_MORE_LESS_W",
+            "type": "Range",
+            "option": {
+                "min": 10,
+                "max": 100
+            }
+        },
+        "LoadItem": {
+            "default": "0",
+            "label": "@WM_DRY27_BUTTON_LOAD_ITEM_W",
+            "changeTable": [
+                {
+                    "option": {
+                        "0": "0",
+                        "2": "@WM_OPTION_LOAD_ITEM_3_W",
+                        "4": "@WM_OPTION_LOAD_ITEM_BIG_W",
+                        "3": "@WM_OPTION_LOAD_ITEM_5_W",
+                        "1": "1"
+                    },
+                    "condition": {
+                        "default": 1
+                    }
+                },
+                {
+                    "option": {
+                        "0": "0",
+                        "2": "2",
+                        "3": "3",
+                        "5": "5",
+                        "4": "4",
+                        "1": "1"
+                    },
+                    "condition": {
+                        "EasyIron": 1
+                    }
+                },
+                {
+                    "option": {
+                        "0": "0",
+                        "2": "@WM_OPTION_LOAD_ITEM_3_W",
+                        "4": "@WM_OPTION_LOAD_ITEM_BIG_W",
+                        "3": "@WM_OPTION_LOAD_ITEM_5_W",
+                        "1": "1"
+                    },
+                    "condition": {
+                        "TurboSteam": 1
+                    }
+                },
+                {
+                    "option": {
+                        "0": "0",
+                        "2": "9",
+                        "3": "11",
+                        "6": "18",
+                        "5": "16",
+                        "D": "16",
+                        "4": "14",
+                        "1": "7"
+                    },
+                    "condition": {
+                        "ReduceStatic": 1
+                    }
+                }
+            ],
+            "type": "Enum",
+            "option": {
+                "0": "0",
+                "2": "@WM_OPTION_LOAD_ITEM_3_W",
+                "3": "@WM_OPTION_LOAD_ITEM_5_W",
+                "6": "18",
+                "5": "16",
+                "D": "16",
+                "4": "@WM_OPTION_LOAD_ITEM_BIG_W",
+                "1": "1"
+            }
+        },
+        "EnergySaver": {
+            "default": "0",
+            "label": "@WM_DRY27_BUTTON_ENERGY_SAVER_W",
+            "type": "Enum",
+            "option": [
+                "@CP_OFF_EN_W",
+                "@CP_ON_EN_W"
+            ]
+        },
+        "ReduceStatic": {
+            "default": "0",
+            "label": "@WM_OPTION_REDUCE_STATIC_W",
+            "type": "Enum",
+            "option": [
+                "@CP_OFF_EN_W",
+                "@CP_ON_EN_W"
+            ]
+        },
+        "TempControl": {
+            "default": "0",
+            "label": "@WM_DRY27_BUTTON_TEMP_W",
+            "type": "Enum",
+            "option": {
+                "0": "-",
+                "2": "@WM_DRY27_TEMP_LOW_W",
+                "3": "@WM_DRY27_TEMP_MEDIUM_W",
+                "5": "@WM_DRY27_TEMP_HIGH_W",
+                "4": "@WM_DRY27_TEMP_MID_HIGH_W",
+                "1": "@WM_DRY27_TEMP_ULTRA_LOW_W"
+            }
+        },
+        "TurboSteam": {
+            "default": "0",
+            "label": "@WM_DRY27_BUTTON_TURBO_STEAM_W",
+            "type": "Enum",
+            "option": [
+                "@CP_OFF_EN_W",
+                "@CP_ON_EN_W"
+            ]
+        },
+        "AntiBacterial": {
+            "default": "0",
+            "label": "@WM_DRY27_BUTTON_ANTI_BACTERIAL_W",
+            "type": "Enum",
+            "option": [
+                "@CP_OFF_EN_W",
+                "@CP_ON_EN_W"
+            ]
+        },
+        "PreState": {
+            "default": "0",
+            "option": {
+                "0": "@WM_STATE_POWER_OFF_W",
+                "2": "@WM_STATE_RUNNING_W",
+                "3": "@WM_STATE_PAUSE_W",
+                "50": "@WM_STATE_DRYING_W",
+                "56": "@WM_STATE_WRINKLECARE_W",
+                "5": "@WM_STATE_ERROR_W",
+                "4": "@WM_STATE_END_W",
+                "8": "@WM_STATE_SMART_DIAGNOSIS_W",
+                "51": "@WM_STATE_COOLING_W",
+                "1": "@WM_STATE_INITIAL_W"
+            },
+            "type": "Enum"
+        },
+        "Option1": {
+            "default": "0",
+            "option": [
+                {
+                    "default": "0",
+                    "value": "ChildLock",
+                    "startbit": 0,
+                    "length": 1
+                },
+                {
+                    "default": "0",
+                    "value": "ReduceStatic",
+                    "startbit": 1,
+                    "length": 1
+                },
+                {
+                    "default": "0",
+                    "value": "EasyIron",
+                    "startbit": 2,
+                    "length": 1
+                },
+                {
+                    "default": "0",
+                    "value": "DampDrySingal",
+                    "startbit": 3,
+                    "length": 1
+                },
+                {
+                    "default": "0",
+                    "value": "WrinkleCare",
+                    "startbit": 4,
+                    "length": 1
+                },
+                {
+                    "default": "0",
+                    "value": "AntiBacterial",
+                    "startbit": 7,
+                    "length": 1
+                }
+            ],
+            "type": "Bit"
+        },
+        "State": {
+            "default": "0",
+            "option": {
+                "0": "@WM_STATE_POWER_OFF_W",
+                "2": "@WM_STATE_RUNNING_W",
+                "3": "@WM_STATE_PAUSE_W",
+                "50": "@WM_STATE_DRYING_W",
+                "56": "@WM_STATE_WRINKLECARE_W",
+                "5": "@WM_STATE_ERROR_W",
+                "4": "@WM_STATE_END_W",
+                "8": "@WM_STATE_SMART_DIAGNOSIS_W",
+                "51": "@WM_STATE_COOLING_W",
+                "1": "@WM_STATE_INITIAL_W"
+            },
+            "type": "Enum"
+        },
+        "RemoteStart": {
+            "default": "0",
+            "label": "@WM_OPTION_REMORT_START_W",
+            "type": "Enum",
+            "option": [
+                "@CP_OFF_EN_W",
+                "@CP_ON_EN_W"
+            ]
+        },
+        "Initial_Time_M": {
+            "default": 0,
+            "option": {
+                "min": 0,
+                "max": 60
+            },
+            "type": "Range"
+        },
+        "SmartCourse": {
+            "option": [
+                "SmartCourse"
+            ],
+            "type": "Reference"
+        },
+        "DryLevel": {
+            "default": "0",
+            "label": "@WM_DRY27_BUTTON_DRY_LEVEL_W",
+            "type": "Enum",
+            "option": {
+                "0": "-",
+                "2": "@WM_DRY27_DRY_LEVEL_LESS_W",
+                "3": "@WM_DRY27_DRY_LEVEL_NORMAL_W",
+                "5": "@WM_DRY27_DRY_LEVEL_VERY_W",
+                "4": "@WM_DRY27_DRY_LEVEL_MORE_W",
+                "1": "@WM_DRY27_DRY_LEVEL_DAMP_W"
+            }
+        },
+        "ChildLock": {
+            "default": "0",
+            "label": "@WM_DRY27_BUTTON_CHILD_LOCK_W",
+            "type": "Enum",
+            "option": [
+                "@CP_OFF_EN_W",
+                "@CP_ON_EN_W"
+            ]
+        },
+        "Option2": {
+            "default": "0",
+            "option": [
+                {
+                    "default": "0",
+                    "value": "RemoteStart",
+                    "startbit": 0,
+                    "length": 1
+                },
+                {
+                    "default": "0",
+                    "value": "EnergySaver",
+                    "startbit": 1,
+                    "length": 1
+                },
+                {
+                    "default": "0",
+                    "value": "TurboSteam",
+                    "startbit": 2,
+                    "length": 1
+                },
+                {
+                    "default": "0",
+                    "value": "InitialBit",
+                    "startbit": 6,
+                    "length": 1
+                }
+            ],
+            "type": "Bit"
+        },
+        "Initial_Time_H": {
+            "default": 0,
+            "option": {
+                "min": 0,
+                "max": 24
+            },
+            "type": "Range"
+        },
+        "Course": {
+            "option": [
+                "Course"
+            ],
+            "type": "Reference"
+        }
+    },
+    "Error": {
+        "0": {
+            "content": "ERROR_NOERROR_CONTENT",
+            "label": "ERROR_NOERROR",
+            "title": "ERROR_NOERROR_TITLE",
+            "_comment": "No Error"
+        },
+        "2": {
+            "content": "@WM_US_DRYER_ERROR_CONTENT_TE2_S",
+            "label": "@WM_US_DRYER_ERROR_TE2_W",
+            "title": "@WM_US_DRYER_ERROR_TITLE_TE2_W",
+            "_comment": "TE2"
+        },
+        "6": {
+            "content": "@WM_US_DRYER_ERROR_CONTENT_TE6_S",
+            "label": "@WM_US_DRYER_ERROR_TE6_W",
+            "title": "@WM_US_DRYER_ERROR_TITLE_TE6_W",
+            "_comment": "TE6"
+        },
+        "5": {
+            "content": "@WM_US_DRYER_ERROR_CONTENT_TE5_S",
+            "label": "@WM_US_DRYER_ERROR_TE5_W",
+            "title": "@WM_US_DRYER_ERROR_TITLE_TE5_W",
+            "_comment": "TE5"
+        },
+        "19": {
+            "content": "@WM_US_DRYER_ERROR_CONTENT_NP_GAS_W",
+            "label": "@WM_US_DRYER_ERROR_NP_GAS_W",
+            "title": "@WM_US_DRYER_ERROR_TITLE_NP_GAS_W",
+            "_comment": "nP"
+        },
+        "1": {
+            "content": "@WM_US_DRYER_ERROR_CONTENT_TE1_S",
+            "label": "@WM_US_DRYER_ERROR_TE1_W",
+            "title": "@WM_US_DRYER_ERROR_TITLE_TE1_W",
+            "_comment": "TE1"
+        },
+        "13": {
+            "content": "@WM_US_DRYER_ERROR_CONTENT_PS_S",
+            "label": "@WM_US_DRYER_ERROR_PS_W",
+            "title": "@WM_US_DRYER_ERROR_TITLE_PS_W",
+            "_comment": "HIGHPOWER"
+        }
+    },
+    "Push": [
+        {
+            "label": "@CP_ALARM_PRODUCT_STATE_W",
+            "pushList": [
+                {
+                    "0000": "PUSH_WM_COMPLETE"
+                },
+                {
+                    "0001": "PUSH_WM_REMOTE_ANOTHER_ID"
+                },
+                {
+                    "0100": "PUSH_WM_ERROR"
+                },
+                {
+                    "0200": "PUSH_WM_REMOTE_START_OFF"
+                },
+                {
+                    "0201": "PUSH_WM_REMOTE_START_ON"
+                }
+            ],
+            "groupCode": "20201",
+            "category": "PUSH_WM_STATE"
+        }
+    ],
+    "Course": {
+        "2": {
+            "script": "",
+            "controlEnable": true,
+            "freshcareEnable": true,
+            "name": "@WM_DRY27_COURSE_TOWELS_W",
+            "function": [
+                {
+                    "default": "3",
+                    "value": "DryLevel",
+                    "selectable": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5
+                    ]
+                },
+                {
+                    "default": "3",
+                    "value": "TempControl"
+                },
+                {
+                    "default": "0",
+                    "value": "TimeDry"
+                },
+                {
+                    "default": "0",
+                    "value": "TurboSteam"
+                },
+                {
+                    "default": "0",
+                    "value": "EnergySaver"
+                },
+                {
+                    "default": "0",
+                    "value": "DampDrySingal"
+                },
+                {
+                    "default": "0",
+                    "value": "LoadItem",
+                    "visibility": "gone"
+                },
+                {
+                    "default": "0",
+                    "value": "WrinkleCare",
+                    "selectable": [
+                        0,
+                        1
+                    ]
+                },
+                {
+                    "default": 0,
+                    "value": "MoreLessTime",
+                    "visibility": "gone"
+                }
+            ],
+            "id": 2,
+            "_comment": "Towels",
+            "imgIndex": 42,
+            "courseType": "Course"
+        },
+        "5": {
+            "script": "",
+            "controlEnable": true,
+            "freshcareEnable": true,
+            "name": "@WM_DRY27_COURSE_DELICATES_W",
+            "function": [
+                {
+                    "default": "3",
+                    "value": "DryLevel",
+                    "selectable": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5
+                    ]
+                },
+                {
+                    "default": "2",
+                    "value": "TempControl"
+                },
+                {
+                    "default": "0",
+                    "value": "TimeDry"
+                },
+                {
+                    "default": "0",
+                    "value": "TurboSteam"
+                },
+                {
+                    "default": "0",
+                    "value": "EnergySaver"
+                },
+                {
+                    "default": "0",
+                    "value": "DampDrySingal"
+                },
+                {
+                    "default": "0",
+                    "value": "LoadItem",
+                    "visibility": "gone"
+                },
+                {
+                    "default": "0",
+                    "value": "WrinkleCare",
+                    "selectable": [
+                        0,
+                        1
+                    ]
+                },
+                {
+                    "default": 0,
+                    "value": "MoreLessTime",
+                    "visibility": "gone"
+                }
+            ],
+            "id": 5,
+            "_comment": "Delicates",
+            "imgIndex": 41,
+            "courseType": "Course"
+        },
+        "3": {
+            "script": "",
+            "controlEnable": true,
+            "freshcareEnable": true,
+            "name": "@WM_DRY27_COURSE_NORMAL_W",
+            "function": [
+                {
+                    "default": "3",
+                    "value": "DryLevel",
+                    "selectable": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5
+                    ]
+                },
+                {
+                    "default": "3",
+                    "value": "TempControl"
+                },
+                {
+                    "default": "0",
+                    "value": "TimeDry"
+                },
+                {
+                    "default": "0",
+                    "value": "TurboSteam"
+                },
+                {
+                    "default": "1",
+                    "value": "EnergySaver"
+                },
+                {
+                    "default": "0",
+                    "value": "DampDrySingal"
+                },
+                {
+                    "default": "0",
+                    "value": "LoadItem",
+                    "visibility": "gone"
+                },
+                {
+                    "default": "0",
+                    "value": "WrinkleCare",
+                    "selectable": [
+                        0,
+                        1
+                    ]
+                },
+                {
+                    "default": 0,
+                    "value": "MoreLessTime",
+                    "visibility": "gone"
+                }
+            ],
+            "id": 3,
+            "_comment": "Normal",
+            "imgIndex": 61,
+            "courseType": "Course"
+        },
+        "9": {
+            "script": "",
+            "controlEnable": true,
+            "freshcareEnable": true,
+            "name": "@WM_DRY27_COURSE_SMALL_LOAD_W",
+            "function": [
+                {
+                    "default": "3",
+                    "value": "DryLevel",
+                    "selectable": [
+                        3,
+                        4,
+                        5
+                    ]
+                },
+                {
+                    "default": "5",
+                    "value": "TempControl"
+                },
+                {
+                    "default": "0",
+                    "value": "TimeDry"
+                },
+                {
+                    "default": "0",
+                    "value": "TurboSteam"
+                },
+                {
+                    "default": "0",
+                    "value": "EnergySaver"
+                },
+                {
+                    "default": "0",
+                    "value": "DampDrySingal"
+                },
+                {
+                    "default": "0",
+                    "value": "LoadItem",
+                    "visibility": "gone"
+                },
+                {
+                    "default": "0",
+                    "value": "WrinkleCare"
+                },
+                {
+                    "default": 0,
+                    "value": "MoreLessTime",
+                    "visibility": "gone"
+                }
+            ],
+            "id": 9,
+            "_comment": "Small Load",
+            "imgIndex": 46,
+            "courseType": "Course"
+        },
+        "16": {
+            "script": "",
+            "controlEnable": true,
+            "freshcareEnable": true,
+            "name": "@WM_DRY27_COURSE_SPEED_DRY_W",
+            "function": [
+                {
+                    "default": "0",
+                    "value": "DryLevel"
+                },
+                {
+                    "default": "5",
+                    "value": "TempControl",
+                    "selectable": [
+                        2,
+                        3,
+                        5
+                    ]
+                },
+                {
+                    "default": "0",
+                    "value": "TimeDry"
+                },
+                {
+                    "default": "0",
+                    "value": "TurboSteam"
+                },
+                {
+                    "default": "0",
+                    "value": "EnergySaver"
+                },
+                {
+                    "default": "0",
+                    "value": "DampDrySingal"
+                },
+                {
+                    "default": "0",
+                    "value": "LoadItem",
+                    "visibility": "gone"
+                },
+                {
+                    "default": "0",
+                    "value": "WrinkleCare",
+                    "selectable": [
+                        0,
+                        1
+                    ]
+                },
+                {
+                    "default": 0,
+                    "display": "25",
+                    "value": "MoreLessTime"
+                }
+            ],
+            "id": 16,
+            "_comment": "Speed Dry",
+            "imgIndex": 72,
+            "courseType": "Course"
+        },
+        "4": {
+            "script": "",
+            "controlEnable": true,
+            "freshcareEnable": true,
+            "name": "@WM_DRY27_COURSE_PERM_PRESS_W",
+            "function": [
+                {
+                    "default": "3",
+                    "value": "DryLevel",
+                    "selectable": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5
+                    ]
+                },
+                {
+                    "default": "3",
+                    "value": "TempControl"
+                },
+                {
+                    "default": "0",
+                    "value": "TimeDry"
+                },
+                {
+                    "default": "0",
+                    "value": "TurboSteam"
+                },
+                {
+                    "default": "0",
+                    "value": "EnergySaver"
+                },
+                {
+                    "default": "0",
+                    "value": "DampDrySingal"
+                },
+                {
+                    "default": "0",
+                    "value": "LoadItem",
+                    "visibility": "gone"
+                },
+                {
+                    "default": 0,
+                    "value": "WrinkleCare",
+                    "selectable": [
+                        0,
+                        1
+                    ]
+                },
+                {
+                    "default": "0",
+                    "value": "MoreLessTime",
+                    "visibility": "gone"
+                }
+            ],
+            "id": 4,
+            "_comment": "PermPress",
+            "imgIndex": 40,
+            "courseType": "Course"
+        },
+        "7": {
+            "script": "",
+            "controlEnable": true,
+            "freshcareEnable": false,
+            "name": "@WM_DRY27_COURSE_BEDDING_W",
+            "function": [
+                {
+                    "default": "3",
+                    "value": "DryLevel",
+                    "selectable": [
+                        3,
+                        4,
+                        5
+                    ]
+                },
+                {
+                    "default": "3",
+                    "value": "TempControl"
+                },
+                {
+                    "default": "0",
+                    "value": "TimeDry"
+                },
+                {
+                    "default": "0",
+                    "value": "TurboSteam"
+                },
+                {
+                    "default": "0",
+                    "value": "EnergySaver"
+                },
+                {
+                    "default": "0",
+                    "value": "DampDrySingal"
+                },
+                {
+                    "default": "0",
+                    "value": "LoadItem",
+                    "visibility": "gone"
+                },
+                {
+                    "default": "0",
+                    "value": "WrinkleCare"
+                },
+                {
+                    "default": 0,
+                    "value": "MoreLessTime",
+                    "visibility": "gone"
+                }
+            ],
+            "id": 7,
+            "_comment": "Bedding \/ Bulky Large",
+            "imgIndex": 12,
+            "courseType": "Course"
+        },
+        "1": {
+            "script": "",
+            "controlEnable": true,
+            "freshcareEnable": true,
+            "name": "@WM_DRY27_COURSE_HEAVY_DUTY_W",
+            "function": [
+                {
+                    "default": "3",
+                    "value": "DryLevel",
+                    "selectable": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5
+                    ]
+                },
+                {
+                    "default": "5",
+                    "value": "TempControl"
+                },
+                {
+                    "default": "0",
+                    "value": "TimeDry"
+                },
+                {
+                    "default": "0",
+                    "value": "TurboSteam"
+                },
+                {
+                    "default": "0",
+                    "value": "EnergySaver"
+                },
+                {
+                    "default": "0",
+                    "value": "DampDrySingal"
+                },
+                {
+                    "default": "0",
+                    "value": "LoadItem",
+                    "visibility": "gone"
+                },
+                {
+                    "default": "0",
+                    "value": "WrinkleCare",
+                    "selectable": [
+                        0,
+                        1
+                    ]
+                },
+                {
+                    "default": 0,
+                    "value": "MoreLessTime",
+                    "visibility": "gone"
+                }
+            ],
+            "id": 1,
+            "_comment": "Heavy Duty",
+            "imgIndex": 33,
+            "courseType": "Course"
+        },
+        "17": {
+            "script": "",
+            "controlEnable": true,
+            "freshcareEnable": true,
+            "name": "@WM_DRY27_COURSE_AIR_DRY_W",
+            "function": [
+                {
+                    "default": "0",
+                    "value": "DryLevel"
+                },
+                {
+                    "default": "0",
+                    "value": "TempControl"
+                },
+                {
+                    "default": "0",
+                    "value": "TimeDry"
+                },
+                {
+                    "default": "0",
+                    "value": "TurboSteam"
+                },
+                {
+                    "default": "0",
+                    "value": "EnergySaver"
+                },
+                {
+                    "default": "0",
+                    "value": "DampDrySingal"
+                },
+                {
+                    "default": "0",
+                    "value": "LoadItem",
+                    "visibility": "gone"
+                },
+                {
+                    "default": "0",
+                    "value": "WrinkleCare",
+                    "selectable": [
+                        0,
+                        1
+                    ]
+                },
+                {
+                    "default": 0,
+                    "display": "30",
+                    "value": "MoreLessTime"
+                }
+            ],
+            "id": 17,
+            "_comment": "Air Dry",
+            "imgIndex": 73,
+            "courseType": "Course"
+        }
+    },
+    "Config": {
+        "defaultCourseId": 3,
+        "defaultSmartCourseId": 100,
+        "fota": true,
+        "maxDownloadCourseNum": 1,
+        "freshCareLabel": "@WM_DRY27_BUTTON_WRINKLE_CARE_W",
+        "powerOffDownload": true,
+        "SmartCourseCategory": [
+            {
+                "label": "@WM_COURSE_CATEGORY_DRYNESS_W",
+                "courseIdList": [
+                    100,
+                    202
+                ]
+            },
+            {
+                "label": "@WM_COURSE_CATEGORY_FABRIC_CARE_W",
+                "courseIdList": [
+                    101,
+                    102,
+                    107,
+                    108,
+                    113,
+                    115
+                ]
+            },
+            {
+                "label": "@WM_COURSE_CATEGORY_ENVIRONMENT_W",
+                "courseIdList": [
+                    105,
+                    110,
+                    114
+                ]
+            },
+            {
+                "label": "@WM_COURSE_CATEGORY_SIZE_W",
+                "courseIdList": [
+                    206
+                ]
+            }
+        ],
+        "remoteStartLabel": "@WM_OPTION_REMOTE_START_W",
+        "downloadPanelLabel": "@WM_STATE_DOWNLOAD_COMPLETE_W"
+    }
+}

@@ -2,26 +2,27 @@ import json
 import unittest
 
 from wideq.client import Client, DeviceInfo
-from wideq.dryer import DryerDevice, DryLevel, DryerState, DryerStatus
+from wideq.dryer import (
+    DryerDevice, DryLevel, DryerState, DryerStatus, TempControl, TimeDry)
 
 
 POLL_DATA = {
-    'Course': '5',
+    'Course': '2',
     'CurrentDownloadCourse': '100',
-    'DryLevel': '0',
+    'DryLevel': '3',
     'Error': '0',
     'Initial_Time_H': '0',
-    'Initial_Time_M': '1',
+    'Initial_Time_M': '55',
     'LoadItem': '0',
     'MoreLessTime': '0',
-    'Option1': '64',
+    'Option1': '0',
     'Option2': '168',
-    'PreState': '4',
+    'PreState': '1',
     'Remain_Time_H': '0',
-    'Remain_Time_M': '1',
+    'Remain_Time_M': '54',
     'SmartCourse': '0',
-    'State': '0',
-    'TempControl': '0',
+    'State': '50',
+    'TempControl': '4',
     'TimeDry': '0',
 }
 
@@ -47,14 +48,16 @@ class DryerStatusTest(unittest.TestCase):
 
     def test_properties(self):
         status = DryerStatus(self.dryer, POLL_DATA)
-        self.assertEqual(DryerState.OFF, status.state)
-        self.assertEqual(DryerState.END, status.previous_state)
-        self.assertEqual(DryLevel.OFF, status.dry_level)
-        self.assertFalse(status.is_on)
+        self.assertEqual(DryerState.DRYING, status.state)
+        self.assertEqual(DryerState.INITIAL, status.previous_state)
+        self.assertEqual(DryLevel.NORMAL, status.dry_level)
+        self.assertTrue(status.is_on)
         self.assertEqual('0', status.remain_time_hours)
-        self.assertEqual('1', status.remain_time_minutes)
+        self.assertEqual('54', status.remain_time_minutes)
         self.assertEqual('0', status.initial_time_hours)
-        self.assertEqual('1', status.initial_time_minutes)
-        self.assertEqual('Delicates', status.course)
+        self.assertEqual('55', status.initial_time_minutes)
+        self.assertEqual('Towels', status.course)
         self.assertEqual('Off', status.smart_course)
         self.assertEqual('No Error', status.error)
+        self.assertEqual(TempControl.MID_HIGH, status.temperature_control)
+        self.assertEqual(TimeDry.OFF, status.time_dry)
