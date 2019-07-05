@@ -1,5 +1,6 @@
 import json
 import unittest
+from unittest import mock
 
 from wideq.client import Client, DeviceInfo
 from wideq.dryer import (
@@ -48,6 +49,8 @@ class DryerStatusTest(unittest.TestCase):
 
     def test_properties(self):
         status = DryerStatus(self.dryer, POLL_DATA)
+        self.assertEqual(self.dryer, status.dryer)
+        self.assertEqual(POLL_DATA, status.data)
         self.assertEqual(DryerState.DRYING, status.state)
         self.assertEqual(DryerState.INITIAL, status.previous_state)
         self.assertEqual(DryLevel.NORMAL, status.dry_level)
@@ -61,3 +64,17 @@ class DryerStatusTest(unittest.TestCase):
         self.assertEqual('No Error', status.error)
         self.assertEqual(TempControl.MID_HIGH, status.temperature_control)
         self.assertEqual(TimeDry.OFF, status.time_dry)
+
+    @mock.patch('wideq.client.logging')
+    def test_properties_unknown_enum_value(self, mock_logging):
+        """
+        This should not raise an error for an invalid enum value and instead
+        use the `UNKNOWN` enum value.
+        """
+        data = dict(POLL_DATA, State='5000')
+        status = DryerStatus(self.dryer, data)
+        self.assertEqual(DryerState.UNKNOWN, status.state)
+        expected_call = mock.call(
+            'Value `%s` for key `%s` not in options: %s. Values from API: %s',
+            '5000', 'State', mock.ANY, mock.ANY)
+        self.assertEqual(expected_call, mock_logging.warning.call_args)

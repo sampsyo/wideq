@@ -1,7 +1,7 @@
 import enum
 from typing import Optional
 
-from .client import Device
+from .client import Device, _UNKNOWN
 
 
 class DryerState(enum.Enum):
@@ -17,6 +17,7 @@ class DryerState(enum.Enum):
     RUNNING = '@WM_STATE_RUNNING_W'
     SMART_DIAGNOSIS = '@WM_STATE_SMART_DIAGNOSIS_W'
     WRINKLE_CARE = '@WM_STATE_WRINKLECARE_W'
+    UNKNOWN = _UNKNOWN
 
 
 class DryLevel(enum.Enum):
@@ -31,6 +32,7 @@ class DryLevel(enum.Enum):
     NORMAL = '@WM_DRY27_DRY_LEVEL_NORMAL_W'
     OFF = '-'
     VERY = '@WM_DRY27_DRY_LEVEL_VERY_W'
+    UNKNOWN = _UNKNOWN
 
 
 class DryerError(enum.Enum):
@@ -52,6 +54,7 @@ class DryerError(enum.Enum):
     ERROR_TE2 = '@WM_US_DRYER_ERROR_TE2_W'
     ERROR_TE5 = '@WM_US_DRYER_ERROR_TE5_W'
     ERROR_TE6 = '@WM_US_DRYER_ERROR_TE6_W'
+    UNKNOWN = _UNKNOWN
 
 
 class TempControl(enum.Enum):
@@ -63,6 +66,7 @@ class TempControl(enum.Enum):
     MEDIUM = '@WM_DRY27_TEMP_MEDIUM_W'
     MID_HIGH = '@WM_DRY27_TEMP_MID_HIGH_W'
     HIGH = '@WM_DRY27_TEMP_HIGH_W'
+    UNKNOWN = _UNKNOWN
 
 
 class TimeDry(enum.Enum):
@@ -74,6 +78,7 @@ class TimeDry(enum.Enum):
     FOURTY = '40'
     FIFTY = '50'
     SIXTY = '60'
+    UNKNOWN = _UNKNOWN
 
 
 class DryerDevice(Device):

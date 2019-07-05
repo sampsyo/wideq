@@ -3,6 +3,7 @@ SmartThinQ API for most use cases.
 """
 import json
 import enum
+import logging
 import requests
 import base64
 from collections import namedtuple
@@ -12,6 +13,8 @@ from . import core
 
 DEFAULT_COUNTRY = 'US'
 DEFAULT_LANGUAGE = 'en-US'
+#: Represents an unknown enum value.
+_UNKNOWN = 'Unknown'
 
 
 class Monitor(object):
@@ -350,6 +353,11 @@ class ModelInfo(object):
         """Look up the friendly enum name for an encoded value.
         """
         options = self.value(key).options
+        if value not in options:
+            logging.warning(
+                'Value `%s` for key `%s` not in options: %s. Values from API: '
+                '%s', value, key, options, self.data['Value'][key]['option'])
+            return _UNKNOWN
         return options[value]
 
     def reference_name(self, key: str, value: Any) -> str:
