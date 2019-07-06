@@ -162,13 +162,13 @@ class DryerStatus(object):
         return self.state != DryerState.OFF
 
     @property
-    def remaining_time(self):
+    def remaining_time(self) -> int:
         """Get the remaining time in minutes."""
         return (int(self.data['Remain_Time_H']) * 60 +
                 int(self.data['Remain_Time_M']))
 
     @property
-    def initial_time(self):
+    def initial_time(self) -> int:
         """Get the initial time in minutes."""
         return (
             int(self.data['Initial_Time_H']) * 60 +
