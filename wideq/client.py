@@ -365,7 +365,8 @@ class ModelInfo(object):
 
         :param key: The referenced key.
         :param value: The value whose name we want to look up.
-        :returns: The friendly name for the referenced value.
+        :returns: The friendly name for the referenced value.  If no name
+            can be found `-` will be returned.
         """
         value = str(value)
         reference = self.value(key).reference

@@ -12,8 +12,8 @@ POLL_DATA = {
     'CurrentDownloadCourse': '100',
     'DryLevel': '3',
     'Error': '0',
-    'Initial_Time_H': '0',
-    'Initial_Time_M': '55',
+    'Initial_Time_H': '1',
+    'Initial_Time_M': '11',
     'LoadItem': '0',
     'MoreLessTime': '0',
     'Option1': '0',
@@ -55,10 +55,8 @@ class DryerStatusTest(unittest.TestCase):
         self.assertEqual(DryerState.INITIAL, status.previous_state)
         self.assertEqual(DryLevel.NORMAL, status.dry_level)
         self.assertTrue(status.is_on)
-        self.assertEqual('0', status.remain_time_hours)
-        self.assertEqual('54', status.remain_time_minutes)
-        self.assertEqual('0', status.initial_time_hours)
-        self.assertEqual('55', status.initial_time_minutes)
+        self.assertEqual(54, status.remaining_time)
+        self.assertEqual(71, status.initial_time)
         self.assertEqual('Towels', status.course)
         self.assertEqual('Off', status.smart_course)
         self.assertEqual('No Error', status.error)

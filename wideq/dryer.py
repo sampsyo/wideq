@@ -84,7 +84,7 @@ class TimeDry(enum.Enum):
 class DryerDevice(Device):
     """A higher-level interface for a dryer."""
 
-    def poll(self) -> Optional['DryerDevice']:
+    def poll(self) -> Optional['DryerStatus']:
         """Poll the device's current state.
 
         Monitoring must be started first with `monitor_start`.
@@ -123,35 +123,38 @@ class DryerStatus(object):
         else:
             return 'ON'
 
+    def _lookup_enum(self, attr: str) -> str:
+        """Looks up an enum value for the provided attr.
+
+        :param attr: The attribute to lookup in the enum.
+        :returns: The enum value.
+        """
+        return self.dryer.model.enum_name(attr, self.data[attr])
+
     @property
     def state(self) -> DryerState:
         """Get the state of the dryer."""
-        attr = 'State'
-        return DryerState(self.dryer.model.enum_name(attr, self.data[attr]))
+        return DryerState(self._lookup_enum('State'))
 
     @property
     def previous_state(self) -> DryerState:
         """Get the previous state of the dryer."""
-        attr = 'PreState'
-        return DryerState(self.dryer.model.enum_name(attr, self.data[attr]))
+        return DryerState(self._lookup_enum('PreState'))
 
     @property
     def dry_level(self) -> DryLevel:
         """Get the dry level."""
-        attr = 'DryLevel'
-        return DryLevel(self.dryer.model.enum_name(attr, self.data[attr]))
+        return DryLevel(self._lookup_enum('DryLevel'))
 
     @property
     def temperature_control(self) -> TempControl:
         """Get the temperature control setting."""
-        attr = 'TempControl'
-        return TempControl(self.dryer.model.enum_name(attr, self.data[attr]))
+        return TempControl(self._lookup_enum('TempControl'))
 
     @property
     def time_dry(self) -> TimeDry:
         """Get the time dry setting."""
-        attr = 'TimeDry'
-        return TimeDry(self.dryer.model.enum_name(attr, self.data[attr]))
+        return TimeDry(self._lookup_enum('TimeDry'))
 
     @property
     def is_on(self) -> bool:
@@ -159,24 +162,17 @@ class DryerStatus(object):
         return self.state != DryerState.OFF
 
     @property
-    def remain_time_hours(self):
-        """Get the remaining number of hours."""
-        return self.data['Remain_Time_H']
+    def remaining_time(self):
+        """Get the remaining time in minutes."""
+        return (int(self.data['Remain_Time_H']) * 60 +
+                int(self.data['Remain_Time_M']))
 
     @property
-    def remain_time_minutes(self):
-        """Get the remaining number of minutes."""
-        return self.data['Remain_Time_M']
-
-    @property
-    def initial_time_hours(self):
-        """Get the initial number of hours."""
-        return self.data['Initial_Time_H']
-
-    @property
-    def initial_time_minutes(self):
-        """Get the initial number of minutes."""
-        return self.data['Initial_Time_M']
+    def initial_time(self):
+        """Get the initial time in minutes."""
+        return (
+            int(self.data['Initial_Time_H']) * 60 +
+            int(self.data['Initial_Time_M']))
 
     def _lookup_reference(self, attr: str) -> str:
         """Look up a reference value for the provided attribute.
