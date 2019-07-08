@@ -181,7 +181,7 @@ class DryerStatus(object):
         :returns: The looked up value.
         """
         value = self.dryer.model.reference_name(attr, self.data[attr])
-        if value == '-':
+        if value is None:
             return 'Off'
         return value
 

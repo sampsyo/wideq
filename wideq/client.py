@@ -7,7 +7,7 @@ import logging
 import requests
 import base64
 from collections import namedtuple
-from typing import Any
+from typing import Any, Optional
 
 from . import core
 
@@ -360,19 +360,18 @@ class ModelInfo(object):
             return _UNKNOWN
         return options[value]
 
-    def reference_name(self, key: str, value: Any) -> str:
+    def reference_name(self, key: str, value: Any) -> Optional[str]:
         """Look up the friendly name for an encoded reference value.
 
         :param key: The referenced key.
         :param value: The value whose name we want to look up.
         :returns: The friendly name for the referenced value.  If no name
-            can be found `-` will be returned.
+            can be found None will be returned.
         """
         value = str(value)
         reference = self.value(key).reference
         if value in reference:
             return reference[value]['_comment']
-        return '-'
 
     @property
     def binary_monitor_data(self):
