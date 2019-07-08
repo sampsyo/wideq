@@ -3,14 +3,18 @@ SmartThinQ API for most use cases.
 """
 import json
 import enum
+import logging
 import requests
 import base64
 from collections import namedtuple
+from typing import Any, Optional
 
 from . import core
 
 DEFAULT_COUNTRY = 'US'
 DEFAULT_LANGUAGE = 'en-US'
+#: Represents an unknown enum value.
+_UNKNOWN = 'Unknown'
 
 
 class Monitor(object):
@@ -349,7 +353,25 @@ class ModelInfo(object):
         """Look up the friendly enum name for an encoded value.
         """
         options = self.value(key).options
+        if value not in options:
+            logging.warning(
+                'Value `%s` for key `%s` not in options: %s. Values from API: '
+                '%s', value, key, options, self.data['Value'][key]['option'])
+            return _UNKNOWN
         return options[value]
+
+    def reference_name(self, key: str, value: Any) -> Optional[str]:
+        """Look up the friendly name for an encoded reference value.
+
+        :param key: The referenced key.
+        :param value: The value whose name we want to look up.
+        :returns: The friendly name for the referenced value.  If no name
+            can be found None will be returned.
+        """
+        value = str(value)
+        reference = self.value(key).reference
+        if value in reference:
+            return reference[value]['_comment']
 
     @property
     def binary_monitor_data(self):
@@ -390,19 +412,16 @@ class Device(object):
     regarding the device.
     """
 
-    def __init__(self, client, device):
+    def __init__(self, client: Client, device: DeviceInfo):
         """Create a wrapper for a `DeviceInfo` object associated with a
         `Client`.
         """
-
         self.client = client
         self.device = device
-        self.model = client.model_info(device)
+        self.model: ModelInfo = client.model_info(device)
 
     def _set_control(self, key, value):
-        """Set a device's control for `key` to `value`.
-        """
-
+        """Set a device's control for `key` to `value`."""
         self.client.session.set_device_controls(
             self.device.id,
             {key: value},
@@ -413,7 +432,6 @@ class Device(object):
 
         The response is parsed as base64-encoded JSON.
         """
-
         data = self.client.session.get_device_config(
             self.device.id,
             key,
@@ -421,9 +439,7 @@ class Device(object):
         return json.loads(base64.b64decode(data).decode('utf8'))
 
     def _get_control(self, key):
-        """Look up a device's control value.
-        """
-
+        """Look up a device's control value."""
         data = self.client.session.get_device_config(
             self.device.id,
             key,
@@ -433,3 +449,13 @@ class Device(object):
         # The response comes in a funky key/value format: "(key:value)".
         _, value = data[1:-1].split(':')
         return value
+
+    def monitor_start(self):
+        """Start monitoring the device's status."""
+        mon = Monitor(self.client.session, self.device.id)
+        mon.start()
+        self.mon = mon
+
+    def monitor_stop(self):
+        """Stop monitoring the device's status."""
+        self.mon.stop()

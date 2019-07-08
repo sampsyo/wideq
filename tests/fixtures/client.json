@@ -1,0 +1,5089 @@
+{
+  "model_info": {
+    "https://aic.lgthinq.com:46030/api/webContents/modelJSON?modelName=RV13B6ES_D_US_WIFI&countryCode=WW&contentsId=JS11260025236447318&authKey=thinq": {
+      "Info": {
+        "productType": "WM",
+        "country": "US",
+        "modelType": "Dryer",
+        "model": "Victor 2 Better(D) Wi-Fi",
+        "modelName": "RV13B6ES_D_US_WIFI",
+        "networkType": "WIFI",
+        "version": "3.5"
+      },
+      "Module": {
+        "WPM": {
+          "GWM_CEN01_Main": "001",
+          "GWM_CRS01_Main": "001",
+          "GWM_CRS02_CourseList": "001",
+          "GWM_CRS03_CourseDetail": "001",
+          "GWM_WCH02_Main": "001",
+          "GWM_WCH01_UserGuide2": "001",
+          "GCM_SDS01_SdsMain": "001",
+          "GWM_SET01_Main": "001",
+          "GWM_SET02_PushList": "001",
+          "GWM_SET03_NickName": "001",
+          "GWM_FOT01_Main": "001"
+        },
+        "Menu": [
+          "GWM_CRS01_Main",
+          "GWM_WCH02_Main",
+          "GWM_ENM01_Main",
+          "GCM_SDS01_SdsMain",
+          "GWM_SET01_Main"
+        ]
+      },
+      "Config": {
+        "remoteStartLabel": "@WM_OPTION_REMOTE_START_W",
+        "freshCareLabel": "@WM_DRY27_BUTTON_WRINKLE_CARE_W",
+        "downloadPanelLabel": "@WM_STATE_DOWNLOAD_COMPLETE_W",
+        "maxDownloadCourseNum": 1,
+        "defaultCourseId": 3,
+        "defaultSmartCourseId": 100,
+        "fota": true,
+        "powerOffDownload": true,
+        "SmartCourseCategory": [
+          {
+            "label": "@WM_COURSE_CATEGORY_DRYNESS_W",
+            "courseIdList": [
+              100,
+              202,
+              204
+            ]
+          },
+          {
+            "label": "@WM_COURSE_CATEGORY_FABRIC_CARE_W",
+            "courseIdList": [
+              101,
+              102,
+              104,
+              107,
+              108,
+              109,
+              113,
+              115
+            ]
+          },
+          {
+            "label": "@WM_COURSE_CATEGORY_ENVIRONMENT_W",
+            "courseIdList": [
+              105,
+              110,
+              114
+            ]
+          },
+          {
+            "label": "@WM_COURSE_CATEGORY_SIZE_W",
+            "courseIdList": [
+              103,
+              205,
+              206
+            ]
+          }
+        ]
+      },
+      "Value": {
+        "State": {
+          "type": "Enum",
+          "default": "0",
+          "option": {
+            "0": "@WM_STATE_POWER_OFF_W",
+            "1": "@WM_STATE_INITIAL_W",
+            "2": "@WM_STATE_RUNNING_W",
+            "3": "@WM_STATE_PAUSE_W",
+            "4": "@WM_STATE_END_W",
+            "5": "@WM_STATE_ERROR_W",
+            "8": "@WM_STATE_SMART_DIAGNOSIS_W",
+            "50": "@WM_STATE_DRYING_W",
+            "51": "@WM_STATE_COOLING_W",
+            "56": "@WM_STATE_WRINKLECARE_W"
+          }
+        },
+        "PreState": {
+          "type": "Enum",
+          "default": "0",
+          "option": {
+            "0": "@WM_STATE_POWER_OFF_W",
+            "1": "@WM_STATE_INITIAL_W",
+            "2": "@WM_STATE_RUNNING_W",
+            "3": "@WM_STATE_PAUSE_W",
+            "4": "@WM_STATE_END_W",
+            "5": "@WM_STATE_ERROR_W",
+            "8": "@WM_STATE_SMART_DIAGNOSIS_W",
+            "50": "@WM_STATE_DRYING_W",
+            "51": "@WM_STATE_COOLING_W",
+            "56": "@WM_STATE_WRINKLECARE_W"
+          }
+        },
+        "DryLevel": {
+          "type": "Enum",
+          "default": "0",
+          "label": "@WM_DRY27_BUTTON_DRY_LEVEL_W",
+          "option": {
+            "0": "-",
+            "1": "@WM_DRY27_DRY_LEVEL_DAMP_W",
+            "2": "@WM_DRY27_DRY_LEVEL_LESS_W",
+            "3": "@WM_DRY27_DRY_LEVEL_NORMAL_W",
+            "4": "@WM_DRY27_DRY_LEVEL_MORE_W",
+            "5": "@WM_DRY27_DRY_LEVEL_VERY_W"
+          }
+        },
+        "TempControl": {
+          "type": "Enum",
+          "default": "0",
+          "label": "@WM_DRY27_BUTTON_TEMP_W",
+          "option": {
+            "0": "-",
+            "1": "@WM_DRY27_TEMP_ULTRA_LOW_W",
+            "2": "@WM_DRY27_TEMP_LOW_W",
+            "3": "@WM_DRY27_TEMP_MEDIUM_W",
+            "4": "@WM_DRY27_TEMP_MID_HIGH_W",
+            "5": "@WM_DRY27_TEMP_HIGH_W"
+          }
+        },
+        "TimeDry": {
+          "type": "Enum",
+          "default": "0",
+          "label": "@WM_DRY27_BUTTON_TIME_DRY_W",
+          "option": {
+            "0": "-",
+            "1": "20",
+            "2": "30",
+            "3": "40",
+            "4": "50",
+            "5": "60"
+          }
+        },
+        "LoadItem": {
+          "type": "Enum",
+          "default": "0",
+          "label": "@WM_DRY27_BUTTON_LOAD_ITEM_W",
+          "option": {
+            "0": "0",
+            "1": "1",
+            "2": "@WM_OPTION_LOAD_ITEM_3_W",
+            "3": "@WM_OPTION_LOAD_ITEM_5_W",
+            "4": "@WM_OPTION_LOAD_ITEM_BIG_W",
+            "5": "16",
+            "6": "18",
+            "D": "16"
+          },
+          "changeTable": [
+            {
+              "condition": {
+                "default": 1
+              },
+              "option": {
+                "0": "0",
+                "1": "1",
+                "2": "@WM_OPTION_LOAD_ITEM_3_W",
+                "3": "@WM_OPTION_LOAD_ITEM_5_W",
+                "4": "@WM_OPTION_LOAD_ITEM_BIG_W"
+              }
+            },
+            {
+              "condition": {
+                "EasyIron": 1
+              },
+              "option": {
+                "0": "0",
+                "1": "1",
+                "2": "2",
+                "3": "3",
+                "4": "4",
+                "5": "5"
+              }
+            },
+            {
+              "condition": {
+                "TurboSteam": 1
+              },
+              "option": {
+                "0": "0",
+                "1": "1",
+                "2": "@WM_OPTION_LOAD_ITEM_3_W",
+                "3": "@WM_OPTION_LOAD_ITEM_5_W",
+                "4": "@WM_OPTION_LOAD_ITEM_BIG_W"
+              }
+            },
+            {
+              "condition": {
+                "ReduceStatic": 1
+              },
+              "option": {
+                "0": "0",
+                "1": "7",
+                "2": "9",
+                "3": "11",
+                "4": "14",
+                "5": "16",
+                "6": "18",
+                "D": "16"
+              }
+            }
+          ]
+        },
+        "ChildLock": {
+          "type": "Enum",
+          "default": "0",
+          "label": "@WM_DRY27_BUTTON_CHILD_LOCK_W",
+          "option": {
+            "0": "@CP_OFF_EN_W",
+            "1": "@CP_ON_EN_W"
+          }
+        },
+        "RemoteStart": {
+          "type": "Enum",
+          "default": "0",
+          "label": "@WM_OPTION_REMORT_START_W",
+          "option": {
+            "0": "@CP_OFF_EN_W",
+            "1": "@CP_ON_EN_W"
+          }
+        },
+        "WrinkleCare": {
+          "type": "Enum",
+          "default": "0",
+          "label": "@WM_DRY27_BUTTON_WRINKLE_CARE_W",
+          "option": {
+            "0": "@CP_OFF_EN_W",
+            "1": "@CP_ON_EN_W"
+          }
+        },
+        "AntiBacterial": {
+          "type": "Enum",
+          "default": "0",
+          "label": "@WM_DRY27_BUTTON_ANTI_BACTERIAL_W",
+          "option": {
+            "0": "@CP_OFF_EN_W",
+            "1": "@CP_ON_EN_W"
+          }
+        },
+        "DampDrySingal": {
+          "type": "Enum",
+          "default": "0",
+          "label": "@WM_DRY27_BUTTON_DAMP_DRY_SIGNAL_W",
+          "option": {
+            "0": "@CP_OFF_EN_W",
+            "1": "@CP_ON_EN_W"
+          }
+        },
+        "TurboSteam": {
+          "type": "Enum",
+          "default": "0",
+          "label": "@WM_DRY27_BUTTON_TURBO_STEAM_W",
+          "option": {
+            "0": "@CP_OFF_EN_W",
+            "1": "@CP_ON_EN_W"
+          }
+        },
+        "EnergySaver": {
+          "type": "Enum",
+          "default": "0",
+          "label": "@WM_DRY27_BUTTON_ENERGY_SAVER_W",
+          "option": {
+            "0": "@CP_OFF_EN_W",
+            "1": "@CP_ON_EN_W"
+          }
+        },
+        "EasyIron": {
+          "type": "Enum",
+          "default": "0",
+          "label": "@WM_OPTION_EASY_IRON_W",
+          "option": {
+            "0": "@CP_OFF_EN_W",
+            "1": "@CP_ON_EN_W"
+          }
+        },
+        "ReduceStatic": {
+          "type": "Enum",
+          "default": "0",
+          "label": "@WM_OPTION_REDUCE_STATIC_W",
+          "option": {
+            "0": "@CP_OFF_EN_W",
+            "1": "@CP_ON_EN_W"
+          }
+        },
+        "InitialBit": {
+          "type": "Boolean",
+          "default": false
+        },
+        "MoreLessTime": {
+          "type": "Range",
+          "default": 0,
+          "label": "@WM_OPTION_MORE_LESS_W",
+          "option": {
+            "min": 10,
+            "max": 100
+          }
+        },
+        "Remain_Time_H": {
+          "type": "Range",
+          "default": 0,
+          "option": {
+            "min": 0,
+            "max": 24
+          }
+        },
+        "Remain_Time_M": {
+          "type": "Range",
+          "default": 0,
+          "option": {
+            "min": 0,
+            "max": 60
+          }
+        },
+        "Initial_Time_H": {
+          "type": "Range",
+          "default": 0,
+          "option": {
+            "min": 0,
+            "max": 24
+          }
+        },
+        "Initial_Time_M": {
+          "type": "Range",
+          "default": 0,
+          "option": {
+            "min": 0,
+            "max": 60
+          }
+        },
+        "Option1": {
+          "type": "Bit",
+          "default": "0",
+          "option": [
+            {
+              "startbit": 0,
+              "length": 1,
+              "default": "0",
+              "value": "ChildLock"
+            },
+            {
+              "startbit": 1,
+              "length": 1,
+              "default": "0",
+              "value": "ReduceStatic"
+            },
+            {
+              "startbit": 2,
+              "length": 1,
+              "default": "0",
+              "value": "EasyIron"
+            },
+            {
+              "startbit": 3,
+              "length": 1,
+              "default": "0",
+              "value": "DampDrySingal"
+            },
+            {
+              "startbit": 4,
+              "length": 1,
+              "default": "0",
+              "value": "WrinkleCare"
+            },
+            {
+              "startbit": 7,
+              "length": 1,
+              "default": "0",
+              "value": "AntiBacterial"
+            }
+          ]
+        },
+        "Option2": {
+          "type": "Bit",
+          "default": "0",
+          "option": [
+            {
+              "startbit": 0,
+              "length": 1,
+              "default": "0",
+              "value": "RemoteStart"
+            },
+            {
+              "startbit": 1,
+              "length": 1,
+              "default": "0",
+              "value": "EnergySaver"
+            },
+            {
+              "startbit": 2,
+              "length": 1,
+              "default": "0",
+              "value": "TurboSteam"
+            },
+            {
+              "startbit": 6,
+              "length": 1,
+              "default": "0",
+              "value": "InitialBit"
+            }
+          ]
+        },
+        "Course": {
+          "type": "Reference",
+          "option": [
+            "Course"
+          ]
+        },
+        "SmartCourse": {
+          "type": "Reference",
+          "option": [
+            "SmartCourse"
+          ]
+        },
+        "CurrentDownloadCourse": {
+          "type": "Reference",
+          "option": [
+            "SmartCourse"
+          ]
+        },
+        "Error": {
+          "type": "Reference",
+          "option": [
+            "Error"
+          ]
+        }
+      },
+      "Error": {
+        "0": {
+          "_comment": "No Error",
+          "label": "ERROR_NOERROR",
+          "title": "ERROR_NOERROR_TITLE",
+          "content": "ERROR_NOERROR_CONTENT"
+        },
+        "1": {
+          "_comment": "TE1",
+          "label": "@WM_US_DRYER_ERROR_TE1_W",
+          "title": "@WM_US_DRYER_ERROR_TITLE_TE1_W",
+          "content": "@WM_US_DRYER_ERROR_CONTENT_TE1_S"
+        },
+        "2": {
+          "_comment": "TE2",
+          "label": "@WM_US_DRYER_ERROR_TE2_W",
+          "title": "@WM_US_DRYER_ERROR_TITLE_TE2_W",
+          "content": "@WM_US_DRYER_ERROR_CONTENT_TE2_S"
+        },
+        "5": {
+          "_comment": "TE5",
+          "label": "@WM_US_DRYER_ERROR_TE5_W",
+          "title": "@WM_US_DRYER_ERROR_TITLE_TE5_W",
+          "content": "@WM_US_DRYER_ERROR_CONTENT_TE5_S"
+        },
+        "6": {
+          "_comment": "TE6",
+          "label": "@WM_US_DRYER_ERROR_TE6_W",
+          "title": "@WM_US_DRYER_ERROR_TITLE_TE6_W",
+          "content": "@WM_US_DRYER_ERROR_CONTENT_TE6_S"
+        },
+        "13": {
+          "_comment": "HIGHPOWER",
+          "label": "@WM_US_DRYER_ERROR_PS_W",
+          "title": "@WM_US_DRYER_ERROR_TITLE_PS_W",
+          "content": "@WM_US_DRYER_ERROR_CONTENT_PS_S"
+        },
+        "19": {
+          "_comment": "nP",
+          "label": "@WM_US_DRYER_ERROR_NP_GAS_W",
+          "title": "@WM_US_DRYER_ERROR_TITLE_NP_GAS_W",
+          "content": "@WM_US_DRYER_ERROR_CONTENT_NP_GAS_W"
+        }
+      },
+      "Monitoring": {
+        "type": "BINARY(BYTE)",
+        "protocol": [
+          {
+            "_comment": "State",
+            "startByte": 0,
+            "length": 1,
+            "value": "State"
+          },
+          {
+            "_comment": "Remain Time H",
+            "startByte": 1,
+            "length": 1,
+            "value": "Remain_Time_H"
+          },
+          {
+            "_comment": "Remain Time M",
+            "startByte": 2,
+            "length": 1,
+            "value": "Remain_Time_M"
+          },
+          {
+            "_comment": "Initial Time H",
+            "startByte": 3,
+            "length": 1,
+            "value": "Initial_Time_H"
+          },
+          {
+            "_comment": "Initial Time M",
+            "startByte": 4,
+            "length": 1,
+            "value": "Initial_Time_M"
+          },
+          {
+            "_comment": "Course",
+            "startByte": 5,
+            "length": 1,
+            "value": "Course"
+          },
+          {
+            "_comment": "Error",
+            "startByte": 6,
+            "length": 1,
+            "value": "Error"
+          },
+          {
+            "_comment": "DryLevel",
+            "startByte": 7,
+            "length": 1,
+            "value": "DryLevel"
+          },
+          {
+            "_comment": "TempControl",
+            "startByte": 8,
+            "length": 1,
+            "value": "TempControl"
+          },
+          {
+            "_comment": "TimeDry",
+            "startByte": 9,
+            "length": 1,
+            "value": "TimeDry"
+          },
+          {
+            "_comment": "MoreLessTime",
+            "startByte": 11,
+            "length": 1,
+            "value": "MoreLessTime"
+          },
+          {
+            "_comment": "Option1",
+            "startByte": 14,
+            "length": 1,
+            "value": "Option1"
+          },
+          {
+            "_comment": "Option2",
+            "startByte": 15,
+            "length": 1,
+            "value": "Option2"
+          },
+          {
+            "_comment": "PreState",
+            "startByte": 19,
+            "length": 1,
+            "value": "PreState"
+          },
+          {
+            "_comment": "SmartCourse",
+            "startByte": 20,
+            "length": 1,
+            "value": "SmartCourse"
+          },
+          {
+            "_comment": "LoadItem",
+            "startByte": 22,
+            "length": 1,
+            "value": "LoadItem"
+          },
+          {
+            "_comment": "Current DownloadCourse",
+            "startByte": 23,
+            "length": 1,
+            "value": "CurrentDownloadCourse"
+          }
+        ]
+      },
+      "Push": [
+        {
+          "category": "PUSH_WM_STATE",
+          "label": "@CP_ALARM_PRODUCT_STATE_W",
+          "groupCode": "20201",
+          "pushList": [
+            {
+              "0000": "PUSH_WM_COMPLETE"
+            },
+            {
+              "0001": "PUSH_WM_REMOTE_ANOTHER_ID"
+            },
+            {
+              "0100": "PUSH_WM_ERROR"
+            },
+            {
+              "0200": "PUSH_WM_REMOTE_START_OFF"
+            },
+            {
+              "0201": "PUSH_WM_REMOTE_START_ON"
+            }
+          ]
+        }
+      ],
+      "ControlWifi": {
+        "type": "BINARY(BYTE)",
+        "action": {
+          "CourseDownload": {
+            "tag": [
+              "COURSE",
+              "ID",
+              "DATA"
+            ],
+            "data": "[{{Course}},0,0,{{TempControl}},0,0,{{TimeDry}},{{Option1}},{{Option2}},0,{{Course}},{{SmartCourse}},0,0,0,{{DryLevel}},{{LoadItem}},{{MoreLessTime}},0,0,0]"
+          },
+          "OperationStart": {
+            "cmd": "Control",
+            "cmdOpt": "Operation",
+            "value": "Start",
+            "encode": true,
+            "data": "[{{Course}},0,0,{{TempControl}},0,0,{{TimeDry}},{{Option1}},{{Option2}},0,{{Course}},{{SmartCourse}},0,0,0,{{DryLevel}},{{LoadItem}},{{MoreLessTime}},0,0,0]"
+          },
+          "OperationStop": {
+            "cmd": "Control",
+            "cmdOpt": "Operation",
+            "value": "Stop"
+          },
+          "PowerOff": {
+            "cmd": "Control",
+            "cmdOpt": "Power",
+            "value": "Off"
+          },
+          "MODE020Start": {
+            "cmd": "Control",
+            "cmdOpt": "Operation",
+            "value": "Start",
+            "encode": true,
+            "data": "[3,0,0,3,0,0,0,0,64,0,3,0,0,0,0,3,0,0,0,0,0]"
+          },
+          "WrinkleCareOn": {
+            "cmd": "Control",
+            "cmdOpt": "WrinkleCare",
+            "value": "On"
+          }
+        }
+      },
+      "Course": {
+        "1": {
+          "_comment": "Heavy Duty",
+          "courseType": "Course",
+          "id": 1,
+          "name": "@WM_DRY27_COURSE_HEAVY_DUTY_W",
+          "script": "",
+          "controlEnable": true,
+          "freshcareEnable": true,
+          "imgIndex": 33,
+          "function": [
+            {
+              "value": "DryLevel",
+              "default": "3",
+              "selectable": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            {
+              "value": "TempControl",
+              "default": "5"
+            },
+            {
+              "value": "TimeDry",
+              "default": "0"
+            },
+            {
+              "value": "TurboSteam",
+              "default": "0"
+            },
+            {
+              "value": "EnergySaver",
+              "default": "0"
+            },
+            {
+              "value": "DampDrySingal",
+              "default": "0"
+            },
+            {
+              "value": "LoadItem",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "WrinkleCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "MoreLessTime",
+              "default": 0,
+              "visibility": "gone"
+            }
+          ]
+        },
+        "2": {
+          "_comment": "Towels",
+          "courseType": "Course",
+          "id": 2,
+          "name": "@WM_DRY27_COURSE_TOWELS_W",
+          "script": "",
+          "controlEnable": true,
+          "freshcareEnable": true,
+          "imgIndex": 42,
+          "function": [
+            {
+              "value": "DryLevel",
+              "default": "3",
+              "selectable": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            {
+              "value": "TempControl",
+              "default": "4"
+            },
+            {
+              "value": "TimeDry",
+              "default": "0"
+            },
+            {
+              "value": "TurboSteam",
+              "default": "0"
+            },
+            {
+              "value": "EnergySaver",
+              "default": "0"
+            },
+            {
+              "value": "DampDrySingal",
+              "default": "0"
+            },
+            {
+              "value": "LoadItem",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "WrinkleCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "MoreLessTime",
+              "default": 0,
+              "visibility": "gone"
+            }
+          ]
+        },
+        "3": {
+          "_comment": "Normal",
+          "courseType": "Course",
+          "id": 3,
+          "name": "@WM_DRY27_COURSE_NORMAL_W",
+          "script": "",
+          "controlEnable": true,
+          "freshcareEnable": true,
+          "imgIndex": 61,
+          "function": [
+            {
+              "value": "DryLevel",
+              "default": "3",
+              "selectable": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            {
+              "value": "TempControl",
+              "default": "4"
+            },
+            {
+              "value": "TimeDry",
+              "default": "0"
+            },
+            {
+              "value": "TurboSteam",
+              "default": "0"
+            },
+            {
+              "value": "EnergySaver",
+              "default": "1"
+            },
+            {
+              "value": "DampDrySingal",
+              "default": "0"
+            },
+            {
+              "value": "LoadItem",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "WrinkleCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "MoreLessTime",
+              "default": 0,
+              "visibility": "gone"
+            }
+          ]
+        },
+        "4": {
+          "_comment": "PermPress",
+          "courseType": "Course",
+          "id": 4,
+          "name": "@WM_DRY27_COURSE_PERM_PRESS_W",
+          "script": "",
+          "controlEnable": true,
+          "freshcareEnable": true,
+          "imgIndex": 40,
+          "function": [
+            {
+              "value": "DryLevel",
+              "default": "3",
+              "selectable": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            {
+              "value": "TempControl",
+              "default": "3"
+            },
+            {
+              "value": "TimeDry",
+              "default": "0"
+            },
+            {
+              "value": "TurboSteam",
+              "default": "0"
+            },
+            {
+              "value": "EnergySaver",
+              "default": "0"
+            },
+            {
+              "value": "DampDrySingal",
+              "default": "0"
+            },
+            {
+              "value": "LoadItem",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "WrinkleCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "MoreLessTime",
+              "default": 0,
+              "visibility": "gone"
+            }
+          ]
+        },
+        "5": {
+          "_comment": "Delicates",
+          "courseType": "Course",
+          "id": 5,
+          "name": "@WM_DRY27_COURSE_DELICATES_W",
+          "script": "",
+          "controlEnable": true,
+          "freshcareEnable": true,
+          "imgIndex": 41,
+          "function": [
+            {
+              "value": "DryLevel",
+              "default": "3",
+              "selectable": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            {
+              "value": "TempControl",
+              "default": "2"
+            },
+            {
+              "value": "TimeDry",
+              "default": "0"
+            },
+            {
+              "value": "TurboSteam",
+              "default": "0"
+            },
+            {
+              "value": "EnergySaver",
+              "default": "0"
+            },
+            {
+              "value": "DampDrySingal",
+              "default": "0"
+            },
+            {
+              "value": "LoadItem",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "WrinkleCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "MoreLessTime",
+              "default": 0,
+              "visibility": "gone"
+            }
+          ]
+        },
+        "7": {
+          "_comment": "Bedding / Bulky Large",
+          "courseType": "Course",
+          "id": 7,
+          "name": "@WM_DRY27_COURSE_BEDDING_W",
+          "script": "",
+          "controlEnable": true,
+          "imgIndex": 12,
+          "freshcareEnable": false,
+          "function": [
+            {
+              "value": "DryLevel",
+              "default": "3",
+              "selectable": [
+                3,
+                4,
+                5
+              ]
+            },
+            {
+              "value": "TempControl",
+              "default": "3"
+            },
+            {
+              "value": "TimeDry",
+              "default": "0"
+            },
+            {
+              "value": "TurboSteam",
+              "default": "0"
+            },
+            {
+              "value": "EnergySaver",
+              "default": "0"
+            },
+            {
+              "value": "DampDrySingal",
+              "default": "0"
+            },
+            {
+              "value": "LoadItem",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "WrinkleCare",
+              "default": "0"
+            },
+            {
+              "value": "MoreLessTime",
+              "default": 0,
+              "visibility": "gone"
+            }
+          ]
+        },
+        "8": {
+          "_comment": "Anti Bacterial",
+          "courseType": "Course",
+          "id": 8,
+          "name": "@WM_DRY27_COURSE_ANTI_BACTERIAL_W",
+          "script": "",
+          "controlEnable": true,
+          "imgIndex": 65,
+          "freshcareEnable": true,
+          "function": [
+            {
+              "value": "DryLevel",
+              "default": "5"
+            },
+            {
+              "value": "TempControl",
+              "default": "5"
+            },
+            {
+              "value": "TimeDry",
+              "default": "0"
+            },
+            {
+              "value": "TurboSteam",
+              "default": "0"
+            },
+            {
+              "value": "EnergySaver",
+              "default": "0"
+            },
+            {
+              "value": "DampDrySingal",
+              "default": "0"
+            },
+            {
+              "value": "LoadItem",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "WrinkleCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "MoreLessTime",
+              "default": 0,
+              "visibility": "gone"
+            }
+          ]
+        },
+        "16": {
+          "_comment": "Speed Dry",
+          "courseType": "Course",
+          "id": 16,
+          "name": "@WM_DRY27_COURSE_SPEED_DRY_W",
+          "script": "",
+          "controlEnable": true,
+          "freshcareEnable": true,
+          "imgIndex": 72,
+          "function": [
+            {
+              "value": "DryLevel",
+              "default": "0"
+            },
+            {
+              "value": "TempControl",
+              "default": "5",
+              "selectable": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            {
+              "value": "TimeDry",
+              "default": "0"
+            },
+            {
+              "value": "TurboSteam",
+              "default": "0"
+            },
+            {
+              "value": "EnergySaver",
+              "default": "0"
+            },
+            {
+              "value": "DampDrySingal",
+              "default": "0"
+            },
+            {
+              "value": "LoadItem",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "WrinkleCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "MoreLessTime",
+              "default": 0,
+              "display": "25"
+            }
+          ]
+        },
+        "17": {
+          "_comment": "Air Dry",
+          "courseType": "Course",
+          "id": 17,
+          "name": "@WM_DRY27_COURSE_AIR_DRY_W",
+          "script": "",
+          "controlEnable": true,
+          "freshcareEnable": true,
+          "imgIndex": 73,
+          "function": [
+            {
+              "value": "DryLevel",
+              "default": "0"
+            },
+            {
+              "value": "TempControl",
+              "default": "0"
+            },
+            {
+              "value": "TimeDry",
+              "default": "0"
+            },
+            {
+              "value": "TurboSteam",
+              "default": "0"
+            },
+            {
+              "value": "EnergySaver",
+              "default": "0"
+            },
+            {
+              "value": "DampDrySingal",
+              "default": "0"
+            },
+            {
+              "value": "LoadItem",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "WrinkleCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "MoreLessTime",
+              "default": 0,
+              "display": "30"
+            }
+          ]
+        },
+        "21": {
+          "_comment": "Steam Fresh",
+          "courseType": "Course",
+          "id": 21,
+          "name": "@WM_DRY27_COURSE_STEAM_FRESH_W",
+          "script": "",
+          "controlEnable": true,
+          "freshcareEnable": true,
+          "imgIndex": 67,
+          "function": [
+            {
+              "value": "DryLevel",
+              "default": "0"
+            },
+            {
+              "value": "TempControl",
+              "default": "4",
+              "selectable": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            {
+              "value": "TimeDry",
+              "default": "0"
+            },
+            {
+              "value": "TurboSteam",
+              "default": "1",
+              "showing": "@CP_ON_EN_W"
+            },
+            {
+              "value": "EnergySaver",
+              "default": "0"
+            },
+            {
+              "value": "DampDrySingal",
+              "default": "0"
+            },
+            {
+              "value": "LoadItem",
+              "default": "2",
+              "selectable": [
+                1,
+                2,
+                3,
+                4
+              ]
+            },
+            {
+              "value": "WrinkleCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "MoreLessTime",
+              "default": 0,
+              "visibility": "gone"
+            }
+          ]
+        },
+        "22": {
+          "_comment": "Steam Sanitary",
+          "courseType": "Course",
+          "id": 22,
+          "name": "@WM_DRY27_COURSE_STEAM_SANITARY_W",
+          "script": "",
+          "controlEnable": true,
+          "freshcareEnable": true,
+          "imgIndex": 66,
+          "function": [
+            {
+              "value": "DryLevel",
+              "default": "0"
+            },
+            {
+              "value": "TempControl",
+              "default": "5"
+            },
+            {
+              "value": "TimeDry",
+              "default": "0"
+            },
+            {
+              "value": "TurboSteam",
+              "default": "1",
+              "showing": "@CP_ON_EN_W"
+            },
+            {
+              "value": "EnergySaver",
+              "default": "0"
+            },
+            {
+              "value": "DampDrySingal",
+              "default": "0"
+            },
+            {
+              "value": "LoadItem",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "WrinkleCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "MoreLessTime",
+              "default": 0,
+              "visibility": "gone"
+            }
+          ]
+        },
+        "18": {
+          "_comment": "Time Dry",
+          "courseType": "Course",
+          "id": 18,
+          "name": "@WM_DRY27_BUTTON_TIME_DRY_W",
+          "script": "",
+          "controlEnable": true,
+          "freshcareEnable": true,
+          "visibility": "gone",
+          "imgIndex": 15,
+          "function": [
+            {
+              "value": "DryLevel",
+              "default": "0"
+            },
+            {
+              "value": "TempControl",
+              "default": "5"
+            },
+            {
+              "value": "TimeDry",
+              "default": "4",
+              "selectable": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            {
+              "value": "TurboSteam",
+              "default": "0"
+            },
+            {
+              "value": "EnergySaver",
+              "default": "0"
+            },
+            {
+              "value": "DampDrySingal",
+              "default": "0"
+            },
+            {
+              "value": "LoadItem",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "WrinkleCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "MoreLessTime",
+              "default": 0,
+              "visibility": "gone"
+            }
+          ]
+        }
+      },
+      "SmartCourse": {
+        "100": {
+          "_comment": "Super Dry",
+          "courseType": "SmartCourse",
+          "id": 100,
+          "Course": 26,
+          "name": "@WM_US_DR_SMARTCOURSE_SUPER_DRY_W",
+          "script": "@WM_US_DR_SMARTCOURSE_SUPER_DRY_SCRIPT_S",
+          "downloadEnable": true,
+          "controlEnable": true,
+          "freshcareEnable": true,
+          "imgIndex": 75,
+          "function": [
+            {
+              "value": "DryLevel",
+              "default": "5"
+            },
+            {
+              "value": "TempControl",
+              "default": "5"
+            },
+            {
+              "value": "TimeDry",
+              "default": "0"
+            },
+            {
+              "value": "TurboSteam",
+              "default": "0"
+            },
+            {
+              "value": "EnergySaver",
+              "default": "0"
+            },
+            {
+              "value": "DampDrySingal",
+              "default": "0"
+            },
+            {
+              "value": "LoadItem",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "WrinkleCare",
+              "default": "0"
+            },
+            {
+              "value": "MoreLessTime",
+              "default": 0,
+              "visibility": "gone"
+            }
+          ]
+        },
+        "101": {
+          "_comment": "Denim",
+          "courseType": "SmartCourse",
+          "id": 101,
+          "Course": 10,
+          "name": "@WM_US_DR_SMARTCOURSE_DENIM_W",
+          "script": "@WM_US_DR_SMARTCOURSE_DENIM_SCRIPT_S",
+          "downloadEnable": true,
+          "controlEnable": true,
+          "freshcareEnable": true,
+          "imgIndex": 76,
+          "function": [
+            {
+              "value": "DryLevel",
+              "default": "3",
+              "showing": "-"
+            },
+            {
+              "value": "TempControl",
+              "default": "3"
+            },
+            {
+              "value": "TimeDry",
+              "default": "0"
+            },
+            {
+              "value": "TurboSteam",
+              "default": "0"
+            },
+            {
+              "value": "EnergySaver",
+              "default": "0"
+            },
+            {
+              "value": "DampDrySingal",
+              "default": "0"
+            },
+            {
+              "value": "LoadItem",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "WrinkleCare",
+              "default": "0"
+            },
+            {
+              "value": "MoreLessTime",
+              "default": 0,
+              "visibility": "gone"
+            }
+          ]
+        },
+        "102": {
+          "_comment": "Kids' Clothes",
+          "courseType": "SmartCourse",
+          "id": 102,
+          "Course": 12,
+          "name": "@WM_US_DR_SMARTCOURSE_KIDS_CLOTHES_W",
+          "script": "@WM_US_DR_SMARTCOURSE_KIDS_CLOTHES_SCRIPT_S",
+          "downloadEnable": true,
+          "controlEnable": true,
+          "freshcareEnable": true,
+          "imgIndex": 77,
+          "function": [
+            {
+              "value": "DryLevel",
+              "default": "3"
+            },
+            {
+              "value": "TempControl",
+              "default": "5"
+            },
+            {
+              "value": "TimeDry",
+              "default": "0"
+            },
+            {
+              "value": "TurboSteam",
+              "default": "0"
+            },
+            {
+              "value": "EnergySaver",
+              "default": "0"
+            },
+            {
+              "value": "DampDrySingal",
+              "default": "0"
+            },
+            {
+              "value": "LoadItem",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "WrinkleCare",
+              "default": "0"
+            },
+            {
+              "value": "MoreLessTime",
+              "default": 0,
+              "visibility": "gone"
+            }
+          ]
+        },
+        "103": {
+          "_comment": "Small Load",
+          "courseType": "SmartCourse",
+          "id": 103,
+          "Course": 9,
+          "name": "@WM_US_DR_SMARTCOURSE_SMALL_LOAD_W",
+          "script": "@WM_US_DR_SMARTCOURSE_SMALL_LOAD_SCRIPT_S",
+          "downloadEnable": true,
+          "controlEnable": true,
+          "freshcareEnable": true,
+          "imgIndex": 46,
+          "function": [
+            {
+              "value": "DryLevel",
+              "default": "3"
+            },
+            {
+              "value": "TempControl",
+              "default": "5"
+            },
+            {
+              "value": "TimeDry",
+              "default": "0"
+            },
+            {
+              "value": "TurboSteam",
+              "default": "0"
+            },
+            {
+              "value": "EnergySaver",
+              "default": "0"
+            },
+            {
+              "value": "DampDrySingal",
+              "default": "0"
+            },
+            {
+              "value": "LoadItem",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "WrinkleCare",
+              "default": "0"
+            },
+            {
+              "value": "MoreLessTime",
+              "default": 0,
+              "visibility": "gone"
+            }
+          ]
+        },
+        "104": {
+          "_comment": "Ultra Delicates",
+          "courseType": "SmartCourse",
+          "id": 104,
+          "Course": 6,
+          "name": "@WM_US_DR_SMARTCOURSE_ULTRA_DELICATES_W",
+          "script": "@WM_US_DR_SMARTCOURSE_ULTRA_DELICATES_SCRIPT_S",
+          "downloadEnable": true,
+          "controlEnable": true,
+          "freshcareEnable": true,
+          "imgIndex": 78,
+          "function": [
+            {
+              "value": "DryLevel",
+              "default": "3"
+            },
+            {
+              "value": "TempControl",
+              "default": "1"
+            },
+            {
+              "value": "TimeDry",
+              "default": "0"
+            },
+            {
+              "value": "TurboSteam",
+              "default": "0"
+            },
+            {
+              "value": "EnergySaver",
+              "default": "0"
+            },
+            {
+              "value": "DampDrySingal",
+              "default": "0"
+            },
+            {
+              "value": "LoadItem",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "WrinkleCare",
+              "default": "0"
+            },
+            {
+              "value": "MoreLessTime",
+              "default": 0,
+              "visibility": "gone"
+            }
+          ]
+        },
+        "105": {
+          "_comment": "Low Temp Dry",
+          "courseType": "SmartCourse",
+          "id": 105,
+          "Course": 13,
+          "name": "@WM_US_DR_SMARTCOURSE_LOW_TEMP_DRY_W",
+          "script": "@WM_US_DR_SMARTCOURSE_LOW_TEMP_DRY_SCRIPT_S",
+          "downloadEnable": true,
+          "controlEnable": true,
+          "freshcareEnable": true,
+          "imgIndex": 64,
+          "function": [
+            {
+              "value": "DryLevel",
+              "default": "3"
+            },
+            {
+              "value": "TempControl",
+              "default": "2"
+            },
+            {
+              "value": "TimeDry",
+              "default": "0"
+            },
+            {
+              "value": "TurboSteam",
+              "default": "0"
+            },
+            {
+              "value": "EnergySaver",
+              "default": "0"
+            },
+            {
+              "value": "DampDrySingal",
+              "default": "0"
+            },
+            {
+              "value": "LoadItem",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "WrinkleCare",
+              "default": "0"
+            },
+            {
+              "value": "MoreLessTime",
+              "default": 0,
+              "visibility": "gone"
+            }
+          ]
+        },
+        "107": {
+          "_comment": "Gym Clothes",
+          "courseType": "SmartCourse",
+          "id": 107,
+          "Course": 11,
+          "name": "@WM_US_DR_SMARTCOURSE_GYM_CLOTHES_W",
+          "script": "@WM_US_DR_SMARTCOURSE_GYM_CLOTHES_SCRIPT_S",
+          "downloadEnable": true,
+          "controlEnable": true,
+          "freshcareEnable": true,
+          "imgIndex": 81,
+          "function": [
+            {
+              "value": "DryLevel",
+              "default": "3",
+              "showing": "-"
+            },
+            {
+              "value": "TempControl",
+              "default": "5",
+              "showing": "-"
+            },
+            {
+              "value": "TimeDry",
+              "default": "0"
+            },
+            {
+              "value": "TurboSteam",
+              "default": "0"
+            },
+            {
+              "value": "EnergySaver",
+              "default": "0"
+            },
+            {
+              "value": "DampDrySingal",
+              "default": "0"
+            },
+            {
+              "value": "LoadItem",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "WrinkleCare",
+              "default": "0"
+            },
+            {
+              "value": "MoreLessTime",
+              "default": 0,
+              "visibility": "gone"
+            }
+          ]
+        },
+        "108": {
+          "_comment": "Blankets",
+          "courseType": "SmartCourse",
+          "id": 108,
+          "Course": 14,
+          "name": "@WM_US_DR_SMARTCOURSE_BLANKETS_W",
+          "script": "@WM_US_DR_SMARTCOURSE_BLANKETS_SCRIPT_S",
+          "downloadEnable": true,
+          "controlEnable": true,
+          "freshcareEnable": true,
+          "imgIndex": 82,
+          "function": [
+            {
+              "value": "DryLevel",
+              "default": "5"
+            },
+            {
+              "value": "TempControl",
+              "default": "3"
+            },
+            {
+              "value": "TimeDry",
+              "default": "0"
+            },
+            {
+              "value": "TurboSteam",
+              "default": "0"
+            },
+            {
+              "value": "EnergySaver",
+              "default": "0"
+            },
+            {
+              "value": "DampDrySingal",
+              "default": "0"
+            },
+            {
+              "value": "LoadItem",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "WrinkleCare",
+              "default": "0"
+            },
+            {
+              "value": "MoreLessTime",
+              "default": 0,
+              "visibility": "gone"
+            }
+          ]
+        },
+        "109": {
+          "_comment": "Blanket Refresh",
+          "courseType": "SmartCourse",
+          "id": 109,
+          "Course": 18,
+          "name": "@WM_US_DR_SMARTCOURSE_BLANKET_REFRESH_W",
+          "script": "@WM_US_DR_SMARTCOURSE_BLANKET_REFRESH_SCRIPT_S",
+          "downloadEnable": true,
+          "controlEnable": true,
+          "freshcareEnable": true,
+          "imgIndex": 83,
+          "function": [
+            {
+              "value": "DryLevel",
+              "default": "0"
+            },
+            {
+              "value": "TempControl",
+              "default": "1"
+            },
+            {
+              "value": "TimeDry",
+              "default": "1"
+            },
+            {
+              "value": "TurboSteam",
+              "default": "0"
+            },
+            {
+              "value": "EnergySaver",
+              "default": "0"
+            },
+            {
+              "value": "DampDrySingal",
+              "default": "0"
+            },
+            {
+              "value": "LoadItem",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "WrinkleCare",
+              "default": "0"
+            },
+            {
+              "value": "MoreLessTime",
+              "default": 0,
+              "display": "20"
+            }
+          ]
+        },
+        "110": {
+          "_comment": "Rainy Day",
+          "courseType": "SmartCourse",
+          "id": 110,
+          "Course": 13,
+          "name": "@WM_US_DR_SMARTCOURSE_RAINY_DAY_W",
+          "script": "@WM_US_DR_SMARTCOURSE_RAINY_DAY_SCRIPT_S",
+          "downloadEnable": true,
+          "controlEnable": true,
+          "freshcareEnable": true,
+          "imgIndex": 84,
+          "function": [
+            {
+              "value": "DryLevel",
+              "default": "3"
+            },
+            {
+              "value": "TempControl",
+              "default": "2"
+            },
+            {
+              "value": "TimeDry",
+              "default": "0"
+            },
+            {
+              "value": "TurboSteam",
+              "default": "0"
+            },
+            {
+              "value": "EnergySaver",
+              "default": "0"
+            },
+            {
+              "value": "DampDrySingal",
+              "default": "0"
+            },
+            {
+              "value": "LoadItem",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "WrinkleCare",
+              "default": "0"
+            },
+            {
+              "value": "MoreLessTime",
+              "default": 0,
+              "visibility": "gone"
+            }
+          ]
+        },
+        "113": {
+          "_comment": "Socks",
+          "courseType": "SmartCourse",
+          "id": 113,
+          "Course": 18,
+          "name": "@WM_US_DR_SMARTCOURSE_SOCKS_W",
+          "script": "@WM_US_DR_SMARTCOURSE_SOCKS_SCRIPT_S",
+          "downloadEnable": true,
+          "controlEnable": true,
+          "freshcareEnable": true,
+          "imgIndex": 87,
+          "function": [
+            {
+              "value": "DryLevel",
+              "default": "0"
+            },
+            {
+              "value": "TempControl",
+              "default": "5"
+            },
+            {
+              "value": "TimeDry",
+              "default": "2",
+              "showing": "35"
+            },
+            {
+              "value": "TurboSteam",
+              "default": "0"
+            },
+            {
+              "value": "EnergySaver",
+              "default": "0"
+            },
+            {
+              "value": "DampDrySingal",
+              "default": "0"
+            },
+            {
+              "value": "LoadItem",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "WrinkleCare",
+              "default": "0"
+            },
+            {
+              "value": "MoreLessTime",
+              "default": 5,
+              "display": "35"
+            }
+          ]
+        },
+        "114": {
+          "_comment": "Overnight Dry",
+          "courseType": "SmartCourse",
+          "id": 114,
+          "Course": 13,
+          "name": "@WM_US_DR_SMARTCOURSE_OVERNIGHT_DRY_W",
+          "script": "@WM_US_DR_SMARTCOURSE_OVERNIGHT_DRY_SCRIPT_S",
+          "downloadEnable": true,
+          "controlEnable": true,
+          "freshcareEnable": true,
+          "imgIndex": 88,
+          "function": [
+            {
+              "value": "DryLevel",
+              "default": "3"
+            },
+            {
+              "value": "TempControl",
+              "default": "2"
+            },
+            {
+              "value": "TimeDry",
+              "default": "0"
+            },
+            {
+              "value": "TurboSteam",
+              "default": "0"
+            },
+            {
+              "value": "EnergySaver",
+              "default": "0"
+            },
+            {
+              "value": "DampDrySingal",
+              "default": "0"
+            },
+            {
+              "value": "LoadItem",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "WrinkleCare",
+              "default": "1"
+            },
+            {
+              "value": "MoreLessTime",
+              "default": 0,
+              "visibility": "gone"
+            }
+          ]
+        },
+        "115": {
+          "_comment": "Bedding / Curtains",
+          "courseType": "SmartCourse",
+          "id": 115,
+          "Course": 7,
+          "name": "@WM_US_DR_SMARTCOURSE_BEDDING_CURTAINS_W",
+          "script": "@WM_US_DR_SMARTCOURSE_BEDDING_CURTAINS_SCRIPT_S",
+          "downloadEnable": true,
+          "controlEnable": true,
+          "freshcareEnable": false,
+          "imgIndex": 89,
+          "function": [
+            {
+              "value": "DryLevel",
+              "default": "5"
+            },
+            {
+              "value": "TempControl",
+              "default": "3"
+            },
+            {
+              "value": "TimeDry",
+              "default": "0"
+            },
+            {
+              "value": "TurboSteam",
+              "default": "0"
+            },
+            {
+              "value": "EnergySaver",
+              "default": "0"
+            },
+            {
+              "value": "DampDrySingal",
+              "default": "0"
+            },
+            {
+              "value": "LoadItem",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "WrinkleCare",
+              "default": "0"
+            },
+            {
+              "value": "MoreLessTime",
+              "default": 0,
+              "visibility": "gone"
+            }
+          ]
+        },
+        "202": {
+          "_comment": "Wrinkle Prevention",
+          "courseType": "SmartCourse",
+          "id": 202,
+          "Course": 3,
+          "name": "@WM_US_DR_SMARTCOURSE_WRINKLE_PREVENTION_W",
+          "script": "@WM_US_DR_SMARTCOURSE_WRINKLE_PREVENTION_SCRIPT_S",
+          "downloadEnable": true,
+          "controlEnable": true,
+          "freshcareEnable": true,
+          "imgIndex": 80,
+          "function": [
+            {
+              "value": "DryLevel",
+              "default": "3"
+            },
+            {
+              "value": "TempControl",
+              "default": "3"
+            },
+            {
+              "value": "TimeDry",
+              "default": "0"
+            },
+            {
+              "value": "TurboSteam",
+              "default": "0"
+            },
+            {
+              "value": "EnergySaver",
+              "default": "0"
+            },
+            {
+              "value": "DampDrySingal",
+              "default": "0"
+            },
+            {
+              "value": "LoadItem",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "WrinkleCare",
+              "default": "1"
+            },
+            {
+              "value": "MoreLessTime",
+              "default": 0,
+              "visibility": "gone"
+            }
+          ]
+        },
+        "204": {
+          "_comment": "Static Reduce",
+          "courseType": "SmartCourse",
+          "id": 204,
+          "Course": 3,
+          "name": "@WM_US_DR_SMARTCOURSE_STATIC_REDUCE_W",
+          "script": "@WM_US_DR_SMARTCOURSE_STATIC_REDUCE_SCRIPT_S",
+          "downloadEnable": true,
+          "controlEnable": true,
+          "freshcareEnable": true,
+          "imgIndex": 23,
+          "function": [
+            {
+              "value": "DryLevel",
+              "default": "3"
+            },
+            {
+              "value": "TempControl",
+              "default": "3"
+            },
+            {
+              "value": "TimeDry",
+              "default": "0"
+            },
+            {
+              "value": "TurboSteam",
+              "default": "0"
+            },
+            {
+              "value": "EnergySaver",
+              "default": "0"
+            },
+            {
+              "value": "DampDrySingal",
+              "default": "0"
+            },
+            {
+              "value": "ReduceStatic",
+              "default": "1",
+              "visibility": "gone"
+            },
+            {
+              "value": "LoadItem",
+              "default": "5",
+              "showing": "16"
+            },
+            {
+              "value": "WrinkleCare",
+              "default": "0"
+            },
+            {
+              "value": "MoreLessTime",
+              "default": 0,
+              "visibility": "gone"
+            }
+          ]
+        },
+        "205": {
+          "_comment": "Half Load Dry",
+          "courseType": "SmartCourse",
+          "id": 205,
+          "Course": 3,
+          "name": "@WM_US_DR_SMARTCOURSE_HALF_LOAD_DRY_W",
+          "script": "@WM_US_DR_SMARTCOURSE_HALF_LOAD_DRY_SCRIPT_S",
+          "downloadEnable": true,
+          "controlEnable": true,
+          "freshcareEnable": true,
+          "imgIndex": 176,
+          "function": [
+            {
+              "value": "DryLevel",
+              "default": "4"
+            },
+            {
+              "value": "TempControl",
+              "default": "3"
+            },
+            {
+              "value": "TimeDry",
+              "default": "0"
+            },
+            {
+              "value": "TurboSteam",
+              "default": "0"
+            },
+            {
+              "value": "EnergySaver",
+              "default": "0"
+            },
+            {
+              "value": "DampDrySingal",
+              "default": "0"
+            },
+            {
+              "value": "LoadItem",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "WrinkleCare",
+              "default": "0"
+            },
+            {
+              "value": "MoreLessTime",
+              "default": 0,
+              "visibility": "gone"
+            }
+          ]
+        },
+        "206": {
+          "_comment": "Full Load Dry",
+          "courseType": "SmartCourse",
+          "id": 206,
+          "Course": 1,
+          "name": "@WM_US_DR_SMARTCOURSE_FULL_LOAD_DRY_W",
+          "script": "@WM_US_DR_SMARTCOURSE_FULL_LOAD_DRY_SCRIPT_S",
+          "downloadEnable": true,
+          "controlEnable": true,
+          "freshcareEnable": true,
+          "imgIndex": 177,
+          "function": [
+            {
+              "value": "DryLevel",
+              "default": "5"
+            },
+            {
+              "value": "TempControl",
+              "default": "5"
+            },
+            {
+              "value": "TimeDry",
+              "default": "0"
+            },
+            {
+              "value": "TurboSteam",
+              "default": "0"
+            },
+            {
+              "value": "EnergySaver",
+              "default": "0"
+            },
+            {
+              "value": "DampDrySingal",
+              "default": "0"
+            },
+            {
+              "value": "LoadItem",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "WrinkleCare",
+              "default": "0"
+            },
+            {
+              "value": "MoreLessTime",
+              "default": 0,
+              "visibility": "gone"
+            }
+          ]
+        }
+      },
+      "EnergyMonitoring": {
+        "option": [
+          "DryLevel",
+          "TempControl"
+        ],
+        "powertable": {
+          "1": 2600,
+          "2": 5200,
+          "3": 7800,
+          "4": 10400,
+          "5": 13000
+        }
+      }
+    },
+    "https://aic.lgthinq.com:46030/api/webContents/modelJSON?modelName=F3L2CYV5W_WIFI&countryCode=WW&contentsId=JS1217232703654216&authKey=thinq": {
+      "Info": {
+        "productType": "WM",
+        "country": "US",
+        "modelType": "FL",
+        "model": "Victor 899",
+        "modelName": "F3L2CYV5W_WIFI",
+        "networkType": "WIFI",
+        "version": "3.3"
+      },
+      "Module": {
+        "WPM": {
+          "GWM_CEN01_Main": "001",
+          "GWM_CRS01_Main": "001",
+          "GWM_CRS02_CourseList": "001",
+          "GWM_CRS03_CourseDetail": "001",
+          "GWM_WCH01_Main": "001",
+          "GWM_WCH01_UserGuide2": "001",
+          "GWM_ENM01_Main": "001",
+          "GCM_SDS01_SdsMain": "001",
+          "GWM_SET01_Main": "001",
+          "GWM_SET02_PushList": "001",
+          "GWM_SET03_NickName": "001"
+        },
+        "Menu": [
+          "GWM_CRS01_Main",
+          "GWM_WCH01_Main",
+          "GWM_ENM01_Main",
+          "GCM_SDS01_SdsMain",
+          "GWM_SET01_Main"
+        ]
+      },
+      "Config": {
+        "powerOffDownload": true,
+        "expectedStartTime": true,
+        "fota": true,
+        "freshCareCancelable": true,
+        "freshCareLabel": "@WM_MX_OPTION_FRESH_CARE_W",
+        "downloadPanelLabel": "@WM_MX_TERM_DOWNLOADED_W",
+        "remoteStartLabel": "@WM_MX_OPTION_REMOTE_START_W",
+        "maxDownloadCourseNum": 1,
+        "defaultCourseId": 6,
+        "downloadCourseAPId": 12,
+        "defaultSmartCourseId": 51,
+        "tubCleanCourseId": 1,
+        "SmartCourseCategory": [
+          {
+            "label": "@WM_COURSE_CATEGORY_SIZE_W",
+            "courseIdList": [
+              51,
+              64,
+              108,
+              109
+            ]
+          },
+          {
+            "label": "@WM_COURSE_CATEGORY_STAIN_W",
+            "courseIdList": [
+              61,
+              63,
+              100
+            ]
+          },
+          {
+            "label": "@WM_COURSE_CATEGORY_FABRIC_CARE_W",
+            "courseIdList": [
+              52,
+              53,
+              54,
+              55,
+              59,
+              107
+            ]
+          },
+          {
+            "label": "@WM_COURSE_CATEGORY_ENVIRONMENT_W",
+            "courseIdList": [
+              60,
+              105,
+              106
+            ]
+          }
+        ]
+      },
+      "Value": {
+        "State": {
+          "type": "Enum",
+          "default": "0",
+          "option": {
+            "0": "@WM_STATE_POWER_OFF_W",
+            "5": "@WM_STATE_INITIAL_W",
+            "6": "@WM_STATE_PAUSE_W",
+            "10": "@WM_STATE_RESERVE_W",
+            "20": "@WM_STATE_DETECTING_W",
+            "23": "@WM_STATE_RUNNING_W",
+            "24": "@WM_STATE_PREWASH_W",
+            "30": "@WM_STATE_RINSING_W",
+            "31": "@WM_STATE_RINSE_HOLD_W",
+            "40": "@WM_STATE_SPINNING_W",
+            "50": "@WM_STATE_DRYING_W",
+            "60": "@WM_STATE_END_W",
+            "61": "@WM_STATE_FRESHCARE_W"
+          }
+        },
+        "PreState": {
+          "type": "Enum",
+          "default": "0",
+          "option": {
+            "0": "@WM_STATE_POWER_OFF_W",
+            "5": "@WM_STATE_INITIAL_W",
+            "6": "@WM_STATE_PAUSE_W",
+            "10": "@WM_STATE_RESERVE_W",
+            "20": "@WM_STATE_DETECTING_W",
+            "23": "@WM_STATE_RUNNING_W",
+            "24": "@WM_STATE_PREWASH_W",
+            "30": "@WM_STATE_RINSING_W",
+            "31": "@WM_STATE_RINSE_HOLD_W",
+            "40": "@WM_STATE_SPINNING_W",
+            "50": "@WM_STATE_DRYING_W",
+            "60": "@WM_STATE_END_W",
+            "61": "@WM_STATE_FRESHCARE_W"
+          }
+        },
+        "RemoteStart": {
+          "type": "Enum",
+          "default": "0",
+          "label": "@WM_OPTION_REMOTE_START_W",
+          "option": {
+            "0": "@CP_OFF_EN_W",
+            "1": "@CP_ON_EN_W"
+          }
+        },
+        "InitialBit": {
+          "type": "Boolean",
+          "default": false
+        },
+        "ChildLock": {
+          "type": "Enum",
+          "default": "0",
+          "label": "@WM_OPTION_CHILDLOCK_W",
+          "option": {
+            "0": "@CP_OFF_EN_W",
+            "1": "@CP_ON_EN_W"
+          }
+        },
+        "TCLCount": {
+          "type": "Range",
+          "default": 0,
+          "option": {
+            "min": 0,
+            "max": 60
+          }
+        },
+        "Reserve_Time_H": {
+          "type": "Range",
+          "default": 0,
+          "label": "@WM_MX_OPTION_DELAY_WASH_W",
+          "option": {
+            "min": 1,
+            "max": 19
+          }
+        },
+        "Reserve_Time_M": {
+          "type": "Range",
+          "default": 0,
+          "option": {
+            "min": 0,
+            "max": 59
+          }
+        },
+        "Remain_Time_H": {
+          "type": "Range",
+          "default": 0,
+          "option": {
+            "min": 0,
+            "max": 30
+          }
+        },
+        "Remain_Time_M": {
+          "type": "Range",
+          "default": 0,
+          "option": {
+            "min": 0,
+            "max": 59
+          }
+        },
+        "Initial_Time_H": {
+          "type": "Range",
+          "default": 0,
+          "option": {
+            "min": 0,
+            "max": 30
+          }
+        },
+        "Initial_Time_M": {
+          "type": "Range",
+          "default": 0,
+          "option": {
+            "min": 0,
+            "max": 59
+          }
+        },
+        "Soil": {
+          "type": "Enum",
+          "default": "0",
+          "label": "@WM_MX_OPTION_SOIL_W",
+          "option": {
+            "0": "-",
+            "1": "@WM_MX_OPTION_SOIL_LIGHT_W",
+            "2": "@WM_MX_OPTION_SOIL_LIGHT_NORMAL_W",
+            "3": "@WM_MX_OPTION_SOIL_NORMAL_W",
+            "4": "@WM_MX_OPTION_SOIL_NORMAL_HEAVY_W",
+            "5": "@WM_MX_OPTION_SOIL_HEAVY_W"
+          }
+        },
+        "SpinSpeed": {
+          "type": "Enum",
+          "default": "0",
+          "label": "@WM_MX_OPTION_SPIN_SPEED_W",
+          "option": {
+            "0": "-",
+            "1": "@WM_MX_OPTION_SPIN_NO_SPIN_W",
+            "2": "@WM_MX_OPTION_SPIN_LOW_W",
+            "3": "@WM_MX_OPTION_SPIN_MEDIUM_W",
+            "4": "@WM_MX_OPTION_SPIN_HIGH_W",
+            "5": "@WM_MX_OPTION_SPIN_EXTRA_HIGH_W"
+          }
+        },
+        "WaterTemp": {
+          "type": "Enum",
+          "default": "0",
+          "label": "@WM_MX_OPTION_WASH_TEMP_W",
+          "option": {
+            "0": "-",
+            "1": "@WM_MX_OPTION_TEMP_TAP_COLD_W",
+            "2": "@WM_MX_OPTION_TEMP_COLD_W",
+            "3": "@WM_MX_OPTION_TEMP_ECO_WARM_W",
+            "4": "@WM_MX_OPTION_TEMP_WARM_W",
+            "5": "@WM_MX_OPTION_TEMP_WARM_W",
+            "6": "@WM_MX_OPTION_TEMP_HOT_W",
+            "7": "@WM_MX_OPTION_TEMP_EXTRA_HOT_W"
+          }
+        },
+        "RinseOption": {
+          "type": "Bit",
+          "default": "0",
+          "option": [
+            {
+              "startbit": 0,
+              "length": 4,
+              "default": "0",
+              "value": "RinseCount"
+            },
+            {
+              "startbit": 4,
+              "length": 4,
+              "default": "0",
+              "value": "ExtraRinseCount"
+            }
+          ]
+        },
+        "RinseCount": {
+          "type": "Enum",
+          "default": "0",
+          "label": "@WM_OPTION_RINSE_COUNT_W",
+          "option": {
+            "0": "@WM_OPTION_RINSE_COUNT_0_TIME_W",
+            "1": "@WM_OPTION_RINSE_COUNT_1_TIME_W",
+            "2": "@WM_OPTION_RINSE_COUNT_2_TIME_W",
+            "3": "@WM_OPTION_RINSE_COUNT_3_TIME_W"
+          }
+        },
+        "ExtraRinseCount": {
+          "type": "Enum",
+          "default": "0",
+          "label": "@WM_MX_OPTION_EXTRA_RINSE_W",
+          "option": {
+            "0": "-",
+            "1": "@WM_OPTION_EXTRA_RINSE_1_W",
+            "2": "@WM_OPTION_EXTRA_RINSE_2_W",
+            "3": "@WM_OPTION_EXTRA_RINSE_3_W"
+          }
+        },
+        "ExtraRinse": {
+          "type": "Enum",
+          "default": "0",
+          "label": "@WM_MX_OPTION_EXTRA_RINSE_W",
+          "option": {
+            "0": "@WM_OPTION_EXTRA_RINSE_0_W",
+            "1": "@WM_OPTION_EXTRA_RINSE_1_W",
+            "2": "@WM_OPTION_EXTRA_RINSE_2_W",
+            "3": "@WM_OPTION_EXTRA_RINSE_3_W"
+          }
+        },
+        "ColdWash": {
+          "type": "Enum",
+          "default": "0",
+          "label": "@WM_MX_OPTION_COLD_WASH_W",
+          "option": {
+            "0": "@CP_OFF_EN_W",
+            "1": "@CP_ON_EN_W"
+          }
+        },
+        "DryLevel": {
+          "type": "Enum",
+          "default": "0",
+          "label": "@WM_MX_OPTION_DRY_LEVEL_W",
+          "option": {
+            "0": "-",
+            "5": "@WM_MX_OPTION_DRY_TURBO_W",
+            "6": "@WM_MX_OPTION_DRY_WIND_W",
+            "7": "@WM_OPTION_DRY_TIME_30_W",
+            "8": "@WM_OPTION_DRY_TIME_60_W",
+            "9": "@WM_OPTION_DRY_TIME_90_W",
+            "10": "@WM_OPTION_DRY_TIME_120_W",
+            "11": "@WM_OPTION_DRY_TIME_150_W"
+          }
+        },
+        "TurboWash": {
+          "type": "Enum",
+          "default": "0",
+          "label": "@WM_MX_OPTION_TURBO_WASH_W",
+          "option": {
+            "0": "@CP_OFF_EN_W",
+            "1": "@CP_ON_EN_W"
+          }
+        },
+        "Steam": {
+          "type": "Enum",
+          "default": "0",
+          "label": "@WM_MX_OPTION_STEAM_W",
+          "option": {
+            "0": "@CP_OFF_EN_W",
+            "1": "@CP_ON_EN_W"
+          }
+        },
+        "PreWash": {
+          "type": "Enum",
+          "default": "0",
+          "label": "@WM_MX_OPTION_PRE_WASH_W",
+          "option": {
+            "0": "@CP_OFF_EN_W",
+            "1": "@CP_ON_EN_W"
+          }
+        },
+        "FreshCare": {
+          "type": "Enum",
+          "default": "0",
+          "label": "@WM_MX_OPTION_FRESH_CARE_W",
+          "option": {
+            "0": "@CP_OFF_EN_W",
+            "1": "@CP_ON_EN_W"
+          }
+        },
+        "Rinse_Spin": {
+          "type": "Enum",
+          "default": "0",
+          "label": "@WM_MX_OPTION_RINSE_SPIN_W",
+          "option": {
+            "0": "@CP_OFF_EN_W",
+            "1": "@CP_ON_EN_W"
+          }
+        },
+        "Option1": {
+          "type": "Bit",
+          "default": "0",
+          "option": [
+            {
+              "startbit": 0,
+              "length": 1,
+              "default": "0",
+              "value": "ChildLock"
+            },
+            {
+              "startbit": 2,
+              "length": 1,
+              "default": "0",
+              "value": "Steam"
+            },
+            {
+              "startbit": 3,
+              "length": 1,
+              "default": "0",
+              "value": "PreWash"
+            },
+            {
+              "startbit": 6,
+              "length": 1,
+              "default": "0",
+              "value": "ExtraRinse"
+            },
+            {
+              "startbit": 7,
+              "length": 1,
+              "default": "0",
+              "value": "TurboWash"
+            }
+          ]
+        },
+        "Option2": {
+          "type": "Bit",
+          "default": "0",
+          "option": [
+            {
+              "startbit": 0,
+              "length": 1,
+              "default": "0",
+              "value": "FreshCare"
+            },
+            {
+              "startbit": 4,
+              "length": 1,
+              "default": "0",
+              "value": "ColdWash"
+            },
+            {
+              "startbit": 7,
+              "length": 1,
+              "default": "0",
+              "value": "RemoteStart"
+            }
+          ]
+        },
+        "Option3": {
+          "type": "Bit",
+          "default": "0",
+          "option": [
+            {
+              "startbit": 5,
+              "length": 1,
+              "default": "0",
+              "value": "InitialBit"
+            }
+          ]
+        },
+        "Error": {
+          "type": "Reference",
+          "option": [
+            "Error"
+          ]
+        },
+        "OPCourse": {
+          "type": "Reference",
+          "option": [
+            "OPCourse"
+          ]
+        },
+        "APCourse": {
+          "type": "Reference",
+          "option": [
+            "APCourse"
+          ]
+        },
+        "SmartCourse": {
+          "type": "Reference",
+          "option": [
+            "SmartCourse"
+          ]
+        }
+      },
+      "Error": {
+        "0": {
+          "_comment": "No Error",
+          "label": "ERROR_NOERROR",
+          "title": "ERROR_NOERROR_TITLE",
+          "content": "ERROR_NOERROR_CONTENT"
+        },
+        "1": {
+          "_comment": "DE2 Error - Door Lock Error",
+          "label": "@WM_US_FL_ERROR_DE2_W",
+          "title": "@WM_US_FL_ERROR_DE2_TITLE_W",
+          "content": "@WM_US_FL_ERROR_DE2_CONTENT_S"
+        },
+        "2": {
+          "_comment": "IE Error - No Fill Error",
+          "label": "@WM_US_FL_ERROR_IE_W",
+          "title": "@WM_US_FL_ERROR_IE_TITLE_W",
+          "content": "@WM_US_FL_ERROR_IE_CONTENT_S"
+        },
+        "3": {
+          "_comment": "OE Error - Not Draining Error",
+          "label": "@WM_US_FL_ERROR_OE_W",
+          "title": "@WM_US_FL_ERROR_OE_TITLE_W",
+          "content": "@WM_US_FL_ERROR_OE_CONTENT_S"
+        },
+        "4": {
+          "_comment": "UE Error - Out of Balance Load",
+          "label": "@WM_US_FL_ERROR_UE_W",
+          "title": "@WM_US_FL_ERROR_UE_TITLE_W",
+          "content": "@WM_US_FL_ERROR_UE_CONTENT_S"
+        },
+        "5": {
+          "_comment": "FE Error - Overfill Error",
+          "label": "@WM_US_FL_ERROR_FE_W",
+          "title": "@WM_US_FL_ERROR_FE_TITLE_W",
+          "content": "@WM_US_FL_ERROR_FE_CONTENT_S"
+        },
+        "6": {
+          "_comment": "PE Error - Water Sensor Error",
+          "label": "@WM_US_FL_ERROR_PE_W",
+          "title": "@WM_US_FL_ERROR_PE_TITLE_W",
+          "content": "@WM_US_FL_ERROR_PE_CONTENT_S"
+        },
+        "7": {
+          "_comment": "tE Error - Thermistor Error",
+          "label": "@WM_US_FL_ERROR_TE_W",
+          "title": "@WM_US_FL_ERROR_TE_TITLE_W",
+          "content": "@WM_US_FL_ERROR_TE_CONTENT_S"
+        },
+        "8": {
+          "_comment": "LE Error - Locked Motor Error",
+          "label": "@WM_US_FL_ERROR_LE_W",
+          "title": "@WM_US_FL_ERROR_LE_TITLE_W",
+          "content": "@WM_US_FL_ERROR_LE_CONTENT_S"
+        },
+        "9": {
+          "_comment": "CE Error",
+          "label": "@WM_US_FL_ERROR_CE_W",
+          "title": "@WM_US_FL_ERROR_CE_TITLE_W",
+          "content": "@WM_US_FL_ERROR_CE_CONTENT_S"
+        },
+        "10": {
+          "_comment": "dHE Error",
+          "label": "@WM_US_FL_ERROR_DHE_W",
+          "title": "@WM_US_FL_ERROR_DHE_TITLE_W",
+          "content": "@WM_US_FL_ERROR_DHE_CONTENT_S"
+        },
+        "11": {
+          "_comment": "PF Error - Power Failure Error",
+          "label": "@WM_US_FL_ERROR_PF_W",
+          "title": "@WM_US_FL_ERROR_PF_TITLE_W",
+          "content": "@WM_US_FL_ERROR_PF_CONTENT_S"
+        },
+        "12": {
+          "_comment": "FF Error - Freeze Error",
+          "label": "@WM_US_FL_ERROR_FF_W",
+          "title": "@WM_US_FL_ERROR_FF_TITLE_W",
+          "content": "@WM_US_FL_ERROR_FF_CONTENT_S"
+        },
+        "13": {
+          "_comment": "dCE Error",
+          "label": "@WM_US_FL_ERROR_DCE_W",
+          "title": "@WM_US_FL_ERROR_DCE_TITLE_W",
+          "content": "@WM_US_FL_ERROR_DCE_CONTENT_S"
+        },
+        "14": {
+          "_comment": "AE Error",
+          "label": "@WM_US_FL_ERROR_AE_W",
+          "title": "@WM_US_FL_ERROR_AE_TITLE_W",
+          "content": "@WM_US_FL_ERROR_AE_CONTENT_S"
+        },
+        "15": {
+          "_comment": "EE Error - EEPROM Error",
+          "label": "@WM_US_FL_ERROR_EE_W",
+          "title": "@WM_US_FL_ERROR_EE_TITLE_W",
+          "content": "@WM_US_FL_ERROR_EE_CONTENT_S"
+        },
+        "16": {
+          "_comment": "Sud Error - Suds Error",
+          "label": "@WM_US_FL_ERROR_SUD_W",
+          "title": "@WM_US_FL_ERROR_SUD_TITLE_W",
+          "content": "@WM_US_FL_ERROR_SUD_CONTENT_S"
+        },
+        "17": {
+          "_comment": "DE1 Error - Door Open Error",
+          "label": "@WM_US_FL_ERROR_DE1_W",
+          "title": "@WM_US_FL_ERROR_DE1_TITLE_W",
+          "content": "@WM_US_FL_ERROR_DE1_CONTENT_S"
+        },
+        "18": {
+          "_comment": "LOE Error - Sliding Lid Open Error",
+          "label": "@WM_US_FL_WD_WIFI_ERROR_LOE",
+          "title": "@WM_US_FL_WD_WIFI_ERROR_LOE_TITLE",
+          "content": "@WM_US_FL_WD_WIFI_ERROR_LOE_CONTENT"
+        },
+        "19": {
+          "_comment": "PS Error ",
+          "label": "@WM_WW_FL_ERROR_PS_W",
+          "title": "@WM_WW_FL_ERROR_PS_TITLE_W",
+          "content": "@WM_WW_FL_ERROR_PS_CONTENT_S"
+        }
+      },
+      "Monitoring": {
+        "type": "BINARY(BYTE)",
+        "protocol": [
+          {
+            "_comment": "Status",
+            "startByte": 0,
+            "length": 1,
+            "value": "State"
+          },
+          {
+            "_comment": "RemainTime - Hour",
+            "startByte": 1,
+            "length": 1,
+            "value": "Remain_Time_H"
+          },
+          {
+            "_comment": "RemainTime - Min",
+            "startByte": 2,
+            "length": 1,
+            "value": "Remain_Time_M"
+          },
+          {
+            "_comment": "InitialTime - Hour",
+            "startByte": 3,
+            "length": 1,
+            "value": "Initial_Time_H"
+          },
+          {
+            "_comment": "InitialTime - Min",
+            "startByte": 4,
+            "length": 1,
+            "value": "Initial_Time_M"
+          },
+          {
+            "_comment": "AP Course",
+            "startByte": 5,
+            "length": 1,
+            "value": "APCourse"
+          },
+          {
+            "_comment": "Error",
+            "startByte": 6,
+            "length": 1,
+            "value": "Error"
+          },
+          {
+            "_comment": "Wash Option",
+            "startByte": 7,
+            "length": 1,
+            "value": "Soil"
+          },
+          {
+            "_comment": "Spin Option",
+            "startByte": 8,
+            "length": 1,
+            "value": "SpinSpeed"
+          },
+          {
+            "_comment": "Water Temp Option",
+            "startByte": 9,
+            "length": 1,
+            "value": "WaterTemp"
+          },
+          {
+            "_comment": "Rinse Option",
+            "startByte": 10,
+            "length": 1,
+            "value": "RinseOption"
+          },
+          {
+            "_comment": "Dry Level Option",
+            "startByte": 11,
+            "length": 1,
+            "value": "DryLevel"
+          },
+          {
+            "_comment": "ReserveTime - Hour",
+            "startByte": 12,
+            "length": 1,
+            "value": "Reserve_Time_H"
+          },
+          {
+            "_comment": "ReserveTime - Min",
+            "startByte": 13,
+            "length": 1,
+            "value": "Reserve_Time_M"
+          },
+          {
+            "_comment": "Option 1",
+            "startByte": 14,
+            "length": 1,
+            "value": "Option1"
+          },
+          {
+            "_comment": "Option 2",
+            "startByte": 15,
+            "length": 1,
+            "value": "Option2"
+          },
+          {
+            "_comment": "Option 3",
+            "startByte": 16,
+            "length": 1,
+            "value": "Option3"
+          },
+          {
+            "_comment": "PreState",
+            "startByte": 19,
+            "length": 1,
+            "value": "PreState"
+          },
+          {
+            "_comment": "Download Course Index",
+            "startByte": 20,
+            "length": 1,
+            "value": "SmartCourse"
+          },
+          {
+            "_comment": "Tub Clean Count",
+            "startByte": 21,
+            "length": 1,
+            "value": "TCLCount"
+          },
+          {
+            "_comment": "OP Course",
+            "startByte": 22,
+            "length": 1,
+            "value": "OPCourse"
+          },
+          {
+            "_comment": "Load Level",
+            "startByte": 23,
+            "length": 1,
+            "value": "LoadLevel"
+          }
+        ]
+      },
+      "Push": [
+        {
+          "category": "PUSH_WM_STATE",
+          "label": "@CP_ALARM_PRODUCT_STATE_W",
+          "groupCode": "20101",
+          "pushList": [
+            {
+              "0001": "PUSH_WM_COMPLETE"
+            },
+            {
+              "0002": "PUSH_WM_ERROR"
+            },
+            {
+              "0003": "PUSH_WM_REMOTE_START_ON"
+            },
+            {
+              "0004": "PUSH_WM_REMOTE_START_OFF"
+            },
+            {
+              "0005": "PUSH_WM_REMOTE_ANOTHER_ID"
+            }
+          ]
+        }
+      ],
+      "EnergyMonitoring": {
+        "option": [
+          "WaterTemp",
+          "SpinSpeed",
+          "ExtraRinseCount"
+        ],
+        "powertable": {
+          "1": 798,
+          "2": 1008,
+          "3": 1218,
+          "4": 1428,
+          "5": 1638
+        }
+      },
+      "SmartMode": {
+        "MODE010": {
+          "_comment": "MODE_HOME_OUT",
+          "modeCase": 0,
+          "actionName": "@WM_MODE_FRESHCARE_ON_W",
+          "control": [
+            {
+              "command": "OperationStart"
+            }
+          ]
+        },
+        "MODE020": {
+          "_comment": "MODE_HOME_IN",
+          "modeCase": 0,
+          "actionName": "@WM_MODE_COURSE_START_W",
+          "control": [
+            {
+              "command": "MODE020Start"
+            }
+          ]
+        }
+      },
+      "ControlWifi": {
+        "type": "BINARY(BYTE)",
+        "action": {
+          "CourseDownload": {
+            "tag": [
+              "COURSE",
+              "ID",
+              "DATA"
+            ],
+            "data": "[{{APCourse}},{{Soil}},{{SpinSpeed}},{{WaterTemp}},{{RinseOption}},{{Reserve_Time_H}},{{Reserve_Time_M}},{{Option1}},{{Option2}},{{Option3}},{{OPCourse}},{{SmartCourse}},0,0,0,0,0,0,0,0,0]"
+          },
+          "PowerOff": {
+            "cmd": "Control",
+            "cmdOpt": "Power",
+            "value": "Off"
+          },
+          "OperationStart": {
+            "cmd": "Control",
+            "cmdOpt": "Operation",
+            "value": "Start",
+            "data": "[{{APCourse}},{{Soil}},{{SpinSpeed}},{{WaterTemp}},{{RinseOption}},{{Reserve_Time_H}},{{Reserve_Time_M}},{{Option1}},{{Option2}},{{Option3}},{{OPCourse}},{{SmartCourse}},0,0,0,0,0,0,0,0,0]",
+            "encode": true
+          },
+          "OperationStop": {
+            "cmd": "Control",
+            "cmdOpt": "Operation",
+            "value": "Stop"
+          },
+          "MODE020Start": {
+            "cmd": "Control",
+            "cmdOpt": "Operation",
+            "value": "Start",
+            "data": "[6,3,4,4,0,0,0,0,0,32,6,0,0,0,0,0,0,0,0,0,0]",
+            "encode": true
+          }
+        }
+      },
+      "APCourse": {
+        "6": {
+          "_comment": "Normal",
+          "courseType": "APCourse",
+          "id": 6,
+          "OPCourse": 6,
+          "name": "@WM_MX_COURSE_NORMAL_W",
+          "script": "",
+          "freshcareEnable": true,
+          "controlEnable": true,
+          "imgIndex": 32,
+          "function": [
+            {
+              "value": "Soil",
+              "default": "3"
+            },
+            {
+              "value": "WaterTemp",
+              "default": "4"
+            },
+            {
+              "value": "SpinSpeed",
+              "default": "4"
+            },
+            {
+              "value": "RinseCount",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "Rinse_Spin",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "ExtraRinseCount",
+              "default": "0"
+            },
+            {
+              "value": "PreWash",
+              "default": "0"
+            },
+            {
+              "value": "Steam",
+              "default": "0"
+            },
+            {
+              "value": "ColdWash",
+              "default": "0"
+            },
+            {
+              "value": "ExtraRinse",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "FreshCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "Reserve_Time_H",
+              "default": "0"
+            }
+          ]
+        },
+        "5": {
+          "_comment": "Heavy Duty",
+          "courseType": "APCourse",
+          "id": 5,
+          "OPCourse": 7,
+          "name": "@WM_MX_COURSE_HEAVY_DUTY_W",
+          "script": "",
+          "freshcareEnable": true,
+          "controlEnable": true,
+          "imgIndex": 33,
+          "function": [
+            {
+              "value": "Soil",
+              "default": "5"
+            },
+            {
+              "value": "WaterTemp",
+              "default": "4"
+            },
+            {
+              "value": "SpinSpeed",
+              "default": "5"
+            },
+            {
+              "value": "RinseCount",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "Rinse_Spin",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "ExtraRinseCount",
+              "default": "0"
+            },
+            {
+              "value": "PreWash",
+              "default": "0"
+            },
+            {
+              "value": "Steam",
+              "default": "0"
+            },
+            {
+              "value": "ColdWash",
+              "default": "0"
+            },
+            {
+              "value": "ExtraRinse",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "FreshCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "Reserve_Time_H",
+              "default": "0"
+            }
+          ]
+        },
+        "4": {
+          "_comment": "Bedding",
+          "courseType": "APCourse",
+          "id": 4,
+          "OPCourse": 4,
+          "name": "@WM_MX_COURSE_BEDDING_W",
+          "script": "",
+          "freshcareEnable": true,
+          "controlEnable": true,
+          "imgIndex": 34,
+          "function": [
+            {
+              "value": "Soil",
+              "default": "3"
+            },
+            {
+              "value": "WaterTemp",
+              "default": "4"
+            },
+            {
+              "value": "SpinSpeed",
+              "default": "3"
+            },
+            {
+              "value": "RinseCount",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "Rinse_Spin",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "ExtraRinseCount",
+              "default": "0"
+            },
+            {
+              "value": "PreWash",
+              "default": "0"
+            },
+            {
+              "value": "Steam",
+              "default": "0"
+            },
+            {
+              "value": "ColdWash",
+              "default": "0"
+            },
+            {
+              "value": "ExtraRinse",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "FreshCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "Reserve_Time_H",
+              "default": "0"
+            }
+          ]
+        },
+        "8": {
+          "_comment": "Perm.Press",
+          "courseType": "APCourse",
+          "id": 8,
+          "OPCourse": 5,
+          "name": "@WM_MX_COURSE_PERMPRESS_W",
+          "script": "",
+          "freshcareEnable": true,
+          "controlEnable": true,
+          "imgIndex": 40,
+          "function": [
+            {
+              "value": "Soil",
+              "default": "3"
+            },
+            {
+              "value": "WaterTemp",
+              "default": "4"
+            },
+            {
+              "value": "SpinSpeed",
+              "default": "3"
+            },
+            {
+              "value": "RinseCount",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "Rinse_Spin",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "ExtraRinseCount",
+              "default": "0"
+            },
+            {
+              "value": "PreWash",
+              "default": "0"
+            },
+            {
+              "value": "Steam",
+              "default": "0"
+            },
+            {
+              "value": "ColdWash",
+              "default": "0"
+            },
+            {
+              "value": "ExtraRinse",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "FreshCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "Reserve_Time_H",
+              "default": "0"
+            }
+          ]
+        },
+        "10": {
+          "_comment": "Towels",
+          "courseType": "APCourse",
+          "id": 10,
+          "OPCourse": 14,
+          "name": "@WM_MX_COURSE_TOWELS_W",
+          "script": "",
+          "freshcareEnable": true,
+          "controlEnable": true,
+          "imgIndex": 42,
+          "function": [
+            {
+              "value": "Soil",
+              "default": "3"
+            },
+            {
+              "value": "WaterTemp",
+              "default": "4"
+            },
+            {
+              "value": "SpinSpeed",
+              "default": "5"
+            },
+            {
+              "value": "RinseCount",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "Rinse_Spin",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "ExtraRinseCount",
+              "default": "0"
+            },
+            {
+              "value": "PreWash",
+              "default": "0"
+            },
+            {
+              "value": "Steam",
+              "default": "0"
+            },
+            {
+              "value": "ColdWash",
+              "default": "0"
+            },
+            {
+              "value": "ExtraRinse",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "FreshCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "Reserve_Time_H",
+              "default": "0"
+            }
+          ]
+        },
+        "3": {
+          "_comment": "Sanitary",
+          "courseType": "APCourse",
+          "id": 3,
+          "OPCourse": 2,
+          "name": "@WM_MX_COURSE_SANITARY_W",
+          "script": "",
+          "freshcareEnable": true,
+          "controlEnable": true,
+          "imgIndex": 35,
+          "function": [
+            {
+              "value": "Soil",
+              "default": "3"
+            },
+            {
+              "value": "WaterTemp",
+              "default": "7"
+            },
+            {
+              "value": "SpinSpeed",
+              "default": "4"
+            },
+            {
+              "value": "RinseCount",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "Rinse_Spin",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "ExtraRinseCount",
+              "default": "0"
+            },
+            {
+              "value": "PreWash",
+              "default": "0"
+            },
+            {
+              "value": "Steam",
+              "default": "0"
+            },
+            {
+              "value": "ColdWash",
+              "default": "0"
+            },
+            {
+              "value": "ExtraRinse",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "FreshCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "Reserve_Time_H",
+              "default": "0"
+            }
+          ]
+        },
+        "2": {
+          "_comment": "Allergiene",
+          "courseType": "APCourse",
+          "id": 2,
+          "OPCourse": 3,
+          "name": "@WM_MX_COURSE_ALLERGIENE_W",
+          "script": "",
+          "freshcareEnable": true,
+          "controlEnable": true,
+          "imgIndex": 36,
+          "function": [
+            {
+              "value": "Soil",
+              "default": "0"
+            },
+            {
+              "value": "WaterTemp",
+              "default": "0"
+            },
+            {
+              "value": "SpinSpeed",
+              "default": "4"
+            },
+            {
+              "value": "RinseCount",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "Rinse_Spin",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "ExtraRinseCount",
+              "default": "0"
+            },
+            {
+              "value": "PreWash",
+              "default": "0"
+            },
+            {
+              "value": "Steam",
+              "default": "1"
+            },
+            {
+              "value": "ColdWash",
+              "default": "0"
+            },
+            {
+              "value": "ExtraRinse",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "FreshCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "Reserve_Time_H",
+              "default": "0"
+            }
+          ]
+        },
+        "7": {
+          "_comment": "Bright Whites",
+          "courseType": "APCourse",
+          "id": 7,
+          "OPCourse": 8,
+          "name": "@WM_MX_COURSE_BRIGHT_WHITES_W",
+          "script": "",
+          "freshcareEnable": true,
+          "controlEnable": true,
+          "imgIndex": 37,
+          "function": [
+            {
+              "value": "Soil",
+              "default": "3"
+            },
+            {
+              "value": "WaterTemp",
+              "default": "6"
+            },
+            {
+              "value": "SpinSpeed",
+              "default": "4"
+            },
+            {
+              "value": "RinseCount",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "Rinse_Spin",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "ExtraRinseCount",
+              "default": "0"
+            },
+            {
+              "value": "PreWash",
+              "default": "0"
+            },
+            {
+              "value": "Steam",
+              "default": "0"
+            },
+            {
+              "value": "ColdWash",
+              "default": "0"
+            },
+            {
+              "value": "ExtraRinse",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "FreshCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "Reserve_Time_H",
+              "default": "0"
+            }
+          ]
+        },
+        "1": {
+          "_comment": "Tub Clean",
+          "courseType": "APCourse",
+          "id": 1,
+          "OPCourse": 13,
+          "name": "@WM_MX_COURSE_TUB_CLEAN_W",
+          "script": "",
+          "freshcareEnable": false,
+          "controlEnable": true,
+          "imgIndex": 38,
+          "function": [
+            {
+              "value": "Soil",
+              "default": "0"
+            },
+            {
+              "value": "WaterTemp",
+              "default": "0"
+            },
+            {
+              "value": "SpinSpeed",
+              "default": "3",
+              "showing": "-"
+            },
+            {
+              "value": "RinseCount",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "Rinse_Spin",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "ExtraRinseCount",
+              "default": "0"
+            },
+            {
+              "value": "PreWash",
+              "default": "0"
+            },
+            {
+              "value": "Steam",
+              "default": "1"
+            },
+            {
+              "value": "ColdWash",
+              "default": "0"
+            },
+            {
+              "value": "ExtraRinse",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "FreshCare",
+              "default": "0"
+            },
+            {
+              "value": "Reserve_Time_H",
+              "default": "0"
+            }
+          ]
+        },
+        "9": {
+          "_comment": "Delicates",
+          "courseType": "APCourse",
+          "id": 9,
+          "OPCourse": 10,
+          "name": "@WM_MX_COURSE_DELICATES_W",
+          "script": "",
+          "freshcareEnable": true,
+          "controlEnable": true,
+          "imgIndex": 41,
+          "function": [
+            {
+              "value": "Soil",
+              "default": "3"
+            },
+            {
+              "value": "WaterTemp",
+              "default": "2"
+            },
+            {
+              "value": "SpinSpeed",
+              "default": "3"
+            },
+            {
+              "value": "RinseCount",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "Rinse_Spin",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "ExtraRinseCount",
+              "default": "0"
+            },
+            {
+              "value": "PreWash",
+              "default": "0"
+            },
+            {
+              "value": "Steam",
+              "default": "0"
+            },
+            {
+              "value": "ColdWash",
+              "default": "0"
+            },
+            {
+              "value": "ExtraRinse",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "FreshCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "Reserve_Time_H",
+              "default": "0"
+            }
+          ]
+        },
+        "11": {
+          "_comment": "Speed Wash",
+          "courseType": "APCourse",
+          "id": 11,
+          "OPCourse": 12,
+          "name": "@WM_MX_COURSE_SPEED_WASH_W",
+          "script": "",
+          "freshcareEnable": true,
+          "controlEnable": true,
+          "imgIndex": 43,
+          "function": [
+            {
+              "value": "Soil",
+              "default": "1"
+            },
+            {
+              "value": "WaterTemp",
+              "default": "6"
+            },
+            {
+              "value": "SpinSpeed",
+              "default": "5"
+            },
+            {
+              "value": "RinseCount",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "Rinse_Spin",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "ExtraRinseCount",
+              "default": "0"
+            },
+            {
+              "value": "PreWash",
+              "default": "0"
+            },
+            {
+              "value": "Steam",
+              "default": "0"
+            },
+            {
+              "value": "ColdWash",
+              "default": "0"
+            },
+            {
+              "value": "ExtraRinse",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "FreshCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "Reserve_Time_H",
+              "default": "0"
+            }
+          ]
+        },
+        "12": {
+          "_comment": "DownloadCourse",
+          "courseType": "APCourse",
+          "id": 12
+        }
+      },
+      "OPCourse": {
+        "0": {
+          "_comment": "OPCourse",
+          "id": "0"
+        },
+        "1": {
+          "_comment": "Refresh",
+          "id": "1"
+        },
+        "2": {
+          "_comment": "Sanitary",
+          "id": "2"
+        },
+        "3": {
+          "_comment": "Allergiene",
+          "id": "3"
+        },
+        "4": {
+          "_comment": "Bedding",
+          "id": "4"
+        },
+        "5": {
+          "_comment": "Perm.Press",
+          "id": "5"
+        },
+        "6": {
+          "_comment": "Normal",
+          "id": "6"
+        },
+        "7": {
+          "_comment": "Heavy Duty",
+          "id": "7"
+        },
+        "8": {
+          "_comment": "Bright Whites",
+          "id": "8"
+        },
+        "9": {
+          "_comment": "Cold Care",
+          "id": "9"
+        },
+        "10": {
+          "_comment": "Delicates",
+          "id": "10"
+        },
+        "11": {
+          "_comment": "Hand Wash",
+          "id": "11"
+        },
+        "12": {
+          "_comment": "Speed Wash",
+          "id": "12"
+        },
+        "13": {
+          "_comment": "Tub Clean",
+          "id": "13"
+        },
+        "14": {
+          "_comment": "Towels",
+          "id": "14"
+        },
+        "15": {
+          "_comment": "Small Load",
+          "id": "15"
+        },
+        "16": {
+          "_comment": "Rinse+Spin",
+          "id": "16"
+        },
+        "17": {
+          "_comment": "Rugged",
+          "id": "17"
+        },
+        "18": {
+          "_comment": "KidsWears",
+          "id": "18"
+        },
+        "19": {
+          "_comment": "WorkOut Wear",
+          "id": "19"
+        },
+        "20": {
+          "_comment": "Drain+Spin",
+          "id": "20"
+        },
+        "21": {
+          "_comment": "Sportswear",
+          "id": "21"
+        },
+        "22": {
+          "_comment": "Jumbo Wash",
+          "id": "22"
+        }
+      },
+      "SmartCourse": {
+        "51": {
+          "_comment": "SmallLoad",
+          "courseType": "SmartCourse",
+          "id": 51,
+          "OPCourse": 15,
+          "APCourse": 12,
+          "name": "@WM_US_FL_SMARTCOURSE_SMALL_LOAD_W",
+          "script": "@WM_US_FL_SMARTCOURSE_SMALL_LOAD_SCRIPT_S",
+          "freshcareEnable": true,
+          "downloadEnable": true,
+          "controlEnable": true,
+          "imgIndex": 46,
+          "function": [
+            {
+              "value": "Soil",
+              "default": "3"
+            },
+            {
+              "value": "SpinSpeed",
+              "default": "4"
+            },
+            {
+              "value": "WaterTemp",
+              "default": "4"
+            },
+            {
+              "value": "RinseCount",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "Rinse_Spin",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "ExtraRinseCount",
+              "default": "0"
+            },
+            {
+              "value": "ExtraRinse",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "PreWash",
+              "default": "0"
+            },
+            {
+              "value": "Steam",
+              "default": "0"
+            },
+            {
+              "value": "ColdWash",
+              "default": "0"
+            },
+            {
+              "value": "FreshCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "Reserve_Time_H",
+              "default": "0"
+            }
+          ]
+        },
+        "52": {
+          "_comment": "ColorCare",
+          "courseType": "SmartCourse",
+          "id": 52,
+          "OPCourse": 6,
+          "APCourse": 12,
+          "name": "@WM_US_FL_SMARTCOURSE_COLOR_CARE_W",
+          "script": "@WM_US_FL_SMARTCOURSE_COLOR_CARE_SCRIPT_S",
+          "freshcareEnable": true,
+          "downloadEnable": true,
+          "controlEnable": true,
+          "imgIndex": 47,
+          "function": [
+            {
+              "value": "Soil",
+              "default": "3"
+            },
+            {
+              "value": "SpinSpeed",
+              "default": "3"
+            },
+            {
+              "value": "WaterTemp",
+              "default": "2"
+            },
+            {
+              "value": "RinseCount",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "Rinse_Spin",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "ExtraRinseCount",
+              "default": "0"
+            },
+            {
+              "value": "ExtraRinse",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "PreWash",
+              "default": "0"
+            },
+            {
+              "value": "Steam",
+              "default": "0"
+            },
+            {
+              "value": "ColdWash",
+              "default": "0"
+            },
+            {
+              "value": "FreshCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "Reserve_Time_H",
+              "default": "0"
+            }
+          ]
+        },
+        "53": {
+          "_comment": "Beachwear",
+          "courseType": "SmartCourse",
+          "id": 53,
+          "OPCourse": 10,
+          "APCourse": 12,
+          "name": "@WM_US_FL_SMARTCOURSE_BEACHWEAR_W",
+          "script": "@WM_US_FL_SMARTCOURSE_BEACHWEAR_SCRIPT_S",
+          "freshcareEnable": true,
+          "downloadEnable": true,
+          "controlEnable": true,
+          "imgIndex": 48,
+          "function": [
+            {
+              "value": "Soil",
+              "default": "1"
+            },
+            {
+              "value": "SpinSpeed",
+              "default": "3"
+            },
+            {
+              "value": "WaterTemp",
+              "default": "2"
+            },
+            {
+              "value": "RinseCount",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "Rinse_Spin",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "ExtraRinseCount",
+              "default": "0"
+            },
+            {
+              "value": "ExtraRinse",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "PreWash",
+              "default": "0"
+            },
+            {
+              "value": "Steam",
+              "default": "0"
+            },
+            {
+              "value": "ColdWash",
+              "default": "0"
+            },
+            {
+              "value": "FreshCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "Reserve_Time_H",
+              "default": "0"
+            }
+          ]
+        },
+        "54": {
+          "_comment": "NewClothes",
+          "courseType": "SmartCourse",
+          "id": 54,
+          "OPCourse": 6,
+          "APCourse": 12,
+          "name": "@WM_US_FL_SMARTCOURSE_NEW_CLOTHES_W",
+          "script": "@WM_US_FL_SMARTCOURSE_NEW_CLOTHES_SCRIPT_S",
+          "freshcareEnable": true,
+          "downloadEnable": true,
+          "controlEnable": true,
+          "imgIndex": 49,
+          "function": [
+            {
+              "value": "Soil",
+              "default": "1"
+            },
+            {
+              "value": "SpinSpeed",
+              "default": "2"
+            },
+            {
+              "value": "WaterTemp",
+              "default": "2"
+            },
+            {
+              "value": "RinseCount",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "Rinse_Spin",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "ExtraRinseCount",
+              "default": "0"
+            },
+            {
+              "value": "ExtraRinse",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "PreWash",
+              "default": "0"
+            },
+            {
+              "value": "Steam",
+              "default": "0"
+            },
+            {
+              "value": "ColdWash",
+              "default": "0"
+            },
+            {
+              "value": "FreshCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "Reserve_Time_H",
+              "default": "0"
+            }
+          ]
+        },
+        "55": {
+          "_comment": "Denim",
+          "courseType": "SmartCourse",
+          "id": 55,
+          "OPCourse": 6,
+          "APCourse": 12,
+          "name": "@WM_US_FL_SMARTCOURSE_DENIM_W",
+          "script": "@WM_US_FL_SMARTCOURSE_DENIM_SCRIPT_S",
+          "freshcareEnable": true,
+          "downloadEnable": true,
+          "controlEnable": true,
+          "imgIndex": 50,
+          "function": [
+            {
+              "value": "Soil",
+              "default": "3"
+            },
+            {
+              "value": "SpinSpeed",
+              "default": "3"
+            },
+            {
+              "value": "WaterTemp",
+              "default": "2"
+            },
+            {
+              "value": "RinseCount",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "Rinse_Spin",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "ExtraRinseCount",
+              "default": "0"
+            },
+            {
+              "value": "ExtraRinse",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "PreWash",
+              "default": "0"
+            },
+            {
+              "value": "Steam",
+              "default": "0"
+            },
+            {
+              "value": "ColdWash",
+              "default": "0"
+            },
+            {
+              "value": "FreshCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "Reserve_Time_H",
+              "default": "0"
+            }
+          ]
+        },
+        "59": {
+          "_comment": "Swimwear",
+          "courseType": "SmartCourse",
+          "id": 59,
+          "OPCourse": 10,
+          "APCourse": 12,
+          "name": "@WM_US_FL_SMARTCOURSE_SWIMWEAR_W",
+          "script": "@WM_US_FL_SMARTCOURSE_SWIMWEAR_SCRIPT_S",
+          "freshcareEnable": true,
+          "downloadEnable": true,
+          "controlEnable": true,
+          "imgIndex": 54,
+          "function": [
+            {
+              "value": "Soil",
+              "default": "1"
+            },
+            {
+              "value": "SpinSpeed",
+              "default": "2"
+            },
+            {
+              "value": "WaterTemp",
+              "default": "2"
+            },
+            {
+              "value": "RinseCount",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "Rinse_Spin",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "ExtraRinseCount",
+              "default": "0"
+            },
+            {
+              "value": "ExtraRinse",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "PreWash",
+              "default": "0"
+            },
+            {
+              "value": "Steam",
+              "default": "0"
+            },
+            {
+              "value": "ColdWash",
+              "default": "0"
+            },
+            {
+              "value": "FreshCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "Reserve_Time_H",
+              "default": "0"
+            }
+          ]
+        },
+        "60": {
+          "_comment": "RainyDay",
+          "courseType": "SmartCourse",
+          "id": 60,
+          "OPCourse": 6,
+          "APCourse": 12,
+          "name": "@WM_US_FL_SMARTCOURSE_RAINY_DAY_W",
+          "script": "@WM_US_FL_SMARTCOURSE_RAINY_DAY_SCRIPT_S",
+          "freshcareEnable": true,
+          "downloadEnable": true,
+          "controlEnable": true,
+          "imgIndex": 55,
+          "function": [
+            {
+              "value": "Soil",
+              "default": "3"
+            },
+            {
+              "value": "SpinSpeed",
+              "default": "5"
+            },
+            {
+              "value": "WaterTemp",
+              "default": "4"
+            },
+            {
+              "value": "RinseCount",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "Rinse_Spin",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "ExtraRinseCount",
+              "default": "0"
+            },
+            {
+              "value": "ExtraRinse",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "Steam",
+              "default": "0"
+            },
+            {
+              "value": "PreWash",
+              "default": "0"
+            },
+            {
+              "value": "ColdWash",
+              "default": "0"
+            },
+            {
+              "value": "FreshCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "Reserve_Time_H",
+              "default": "0"
+            }
+          ]
+        },
+        "61": {
+          "_comment": "Gym Clothes",
+          "courseType": "SmartCourse",
+          "id": 61,
+          "OPCourse": 21,
+          "APCourse": 12,
+          "name": "@WM_US_FL_SMARTCOURSE_GYM_CLOTHES_W",
+          "script": "@WM_US_FL_SMARTCOURSE_GYM_CLOTHES_SCRIPT_S",
+          "freshcareEnable": true,
+          "downloadEnable": true,
+          "controlEnable": true,
+          "imgIndex": 56,
+          "function": [
+            {
+              "value": "Soil",
+              "default": "1"
+            },
+            {
+              "value": "SpinSpeed",
+              "default": "3"
+            },
+            {
+              "value": "WaterTemp",
+              "default": "4"
+            },
+            {
+              "value": "RinseCount",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "Rinse_Spin",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "ExtraRinseCount",
+              "default": "0"
+            },
+            {
+              "value": "ExtraRinse",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "PreWash",
+              "default": "0"
+            },
+            {
+              "value": "Steam",
+              "default": "0"
+            },
+            {
+              "value": "ColdWash",
+              "default": "0"
+            },
+            {
+              "value": "FreshCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "Reserve_Time_H",
+              "default": "0"
+            }
+          ]
+        },
+        "63": {
+          "_comment": "SweatStains",
+          "courseType": "SmartCourse",
+          "id": 63,
+          "OPCourse": 6,
+          "APCourse": 12,
+          "name": "@WM_US_FL_SMARTCOURSE_SWEAT_STAINS_W",
+          "script": "@WM_US_FL_SMARTCOURSE_SWEAT_STAINS_SCRIPT_S",
+          "freshcareEnable": true,
+          "downloadEnable": true,
+          "controlEnable": true,
+          "imgIndex": 58,
+          "function": [
+            {
+              "value": "Soil",
+              "default": "1"
+            },
+            {
+              "value": "SpinSpeed",
+              "default": "4"
+            },
+            {
+              "value": "WaterTemp",
+              "default": "4"
+            },
+            {
+              "value": "RinseCount",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "Rinse_Spin",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "ExtraRinseCount",
+              "default": "0"
+            },
+            {
+              "value": "Steam",
+              "default": "0"
+            },
+            {
+              "value": "ExtraRinse",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "PreWash",
+              "default": "0"
+            },
+            {
+              "value": "ColdWash",
+              "default": "0"
+            },
+            {
+              "value": "FreshCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "Reserve_Time_H",
+              "default": "0"
+            }
+          ]
+        },
+        "64": {
+          "_comment": "SingleGarments",
+          "courseType": "SmartCourse",
+          "id": 64,
+          "OPCourse": 12,
+          "APCourse": 12,
+          "name": "@WM_US_FL_SMARTCOURSE_SINGLE_GARMENTS_W",
+          "script": "@WM_US_FL_SMARTCOURSE_SINGLE_GARMENTS_SCRIPT_S",
+          "freshcareEnable": true,
+          "downloadEnable": true,
+          "controlEnable": true,
+          "imgIndex": 59,
+          "function": [
+            {
+              "value": "Soil",
+              "default": "1"
+            },
+            {
+              "value": "SpinSpeed",
+              "default": "4"
+            },
+            {
+              "value": "WaterTemp",
+              "default": "6"
+            },
+            {
+              "value": "RinseCount",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "Rinse_Spin",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "ExtraRinseCount",
+              "default": "0"
+            },
+            {
+              "value": "ExtraRinse",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "PreWash",
+              "default": "0"
+            },
+            {
+              "value": "Steam",
+              "default": "0"
+            },
+            {
+              "value": "ColdWash",
+              "default": "0"
+            },
+            {
+              "value": "FreshCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "Reserve_Time_H",
+              "default": "0"
+            }
+          ]
+        },
+        "100": {
+          "_comment": "BabyClothes",
+          "courseType": "SmartCourse",
+          "id": 100,
+          "OPCourse": 6,
+          "APCourse": 12,
+          "name": "@WM_US_FL_SMARTCOURSE_BABY_CLOTHES_W",
+          "script": "@WM_US_FL_SMARTCOURSE_BABY_CLOTHES_SCRIPT_S",
+          "freshcareEnable": true,
+          "downloadEnable": true,
+          "controlEnable": true,
+          "imgIndex": 52,
+          "function": [
+            {
+              "value": "Soil",
+              "default": "3"
+            },
+            {
+              "value": "SpinSpeed",
+              "default": "4"
+            },
+            {
+              "value": "WaterTemp",
+              "default": "6"
+            },
+            {
+              "value": "RinseCount",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "Rinse_Spin",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "ExtraRinseCount",
+              "default": "1"
+            },
+            {
+              "value": "ExtraRinse",
+              "default": "1",
+              "visibility": "gone"
+            },
+            {
+              "value": "PreWash",
+              "default": "1"
+            },
+            {
+              "value": "Steam",
+              "default": "0"
+            },
+            {
+              "value": "ColdWash",
+              "default": "0"
+            },
+            {
+              "value": "FreshCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "Reserve_Time_H",
+              "default": "0"
+            }
+          ]
+        },
+        "105": {
+          "_comment": "OvernightWash",
+          "courseType": "SmartCourse",
+          "id": 105,
+          "OPCourse": 6,
+          "APCourse": 12,
+          "name": "@WM_US_FL_SMARTCOURSE_OVERNIGHT_WASH_W",
+          "script": "@WM_US_FL_SMARTCOURSE_OVERNIGHT_WASH_SCRIPT_S",
+          "freshcareEnable": true,
+          "downloadEnable": true,
+          "controlEnable": true,
+          "imgIndex": 26,
+          "function": [
+            {
+              "value": "Soil",
+              "default": "3"
+            },
+            {
+              "value": "SpinSpeed",
+              "default": "2"
+            },
+            {
+              "value": "WaterTemp",
+              "default": "4"
+            },
+            {
+              "value": "RinseCount",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "Rinse_Spin",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "ExtraRinseCount",
+              "default": "0"
+            },
+            {
+              "value": "ExtraRinse",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "PreWash",
+              "default": "0"
+            },
+            {
+              "value": "Steam",
+              "default": "0"
+            },
+            {
+              "value": "ColdWash",
+              "default": "0"
+            },
+            {
+              "value": "FreshCare",
+              "default": "1",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "Reserve_Time_H",
+              "default": "0"
+            }
+          ]
+        },
+        "106": {
+          "_comment": "EconoWash",
+          "courseType": "SmartCourse",
+          "id": 106,
+          "OPCourse": 6,
+          "APCourse": 12,
+          "name": "@WM_US_FL_SMARTCOURSE_ECONOWASH_W",
+          "script": "@WM_US_FL_SMARTCOURSE_ECONOWASH_SCRIPT_S",
+          "freshcareEnable": true,
+          "downloadEnable": true,
+          "controlEnable": true,
+          "imgIndex": 112,
+          "function": [
+            {
+              "value": "Soil",
+              "default": "3"
+            },
+            {
+              "value": "SpinSpeed",
+              "default": "4"
+            },
+            {
+              "value": "WaterTemp",
+              "default": "2"
+            },
+            {
+              "value": "RinseCount",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "Rinse_Spin",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "ExtraRinseCount",
+              "default": "0"
+            },
+            {
+              "value": "ExtraRinse",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "PreWash",
+              "default": "0"
+            },
+            {
+              "value": "Steam",
+              "default": "0"
+            },
+            {
+              "value": "ColdWash",
+              "default": "1"
+            },
+            {
+              "value": "FreshCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "Reserve_Time_H",
+              "default": "0"
+            }
+          ]
+        },
+        "107": {
+          "_comment": "DelicateDresses",
+          "courseType": "SmartCourse",
+          "id": 107,
+          "OPCourse": 10,
+          "APCourse": 12,
+          "name": "@WM_US_FL_SMARTCOURSE_DELICATE_DRESSES_W",
+          "script": "@WM_US_FL_SMARTCOURSE_DELICATE_DRESSES_SCRIPT_S",
+          "freshcareEnable": true,
+          "downloadEnable": true,
+          "controlEnable": true,
+          "imgIndex": 113,
+          "function": [
+            {
+              "value": "Soil",
+              "default": "1"
+            },
+            {
+              "value": "SpinSpeed",
+              "default": "2"
+            },
+            {
+              "value": "WaterTemp",
+              "default": "2"
+            },
+            {
+              "value": "RinseCount",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "Rinse_Spin",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "ExtraRinseCount",
+              "default": "0"
+            },
+            {
+              "value": "ExtraRinse",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "PreWash",
+              "default": "0"
+            },
+            {
+              "value": "Steam",
+              "default": "0"
+            },
+            {
+              "value": "ColdWash",
+              "default": "0"
+            },
+            {
+              "value": "FreshCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "Reserve_Time_H",
+              "default": "0"
+            }
+          ]
+        },
+        "108": {
+          "_comment": "HalfLoadWash",
+          "courseType": "SmartCourse",
+          "id": 108,
+          "OPCourse": 6,
+          "APCourse": 12,
+          "name": "@WM_US_FL_SMARTCOURSE_HALF_LOAD_WASH_W",
+          "script": "@WM_US_FL_SMARTCOURSE_HALF_LOAD_WASH_SCRIPT_S",
+          "freshcareEnable": true,
+          "downloadEnable": true,
+          "controlEnable": true,
+          "imgIndex": 15,
+          "function": [
+            {
+              "value": "Soil",
+              "default": "3"
+            },
+            {
+              "value": "SpinSpeed",
+              "default": "4"
+            },
+            {
+              "value": "WaterTemp",
+              "default": "4"
+            },
+            {
+              "value": "RinseCount",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "Rinse_Spin",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "ExtraRinseCount",
+              "default": "0"
+            },
+            {
+              "value": "ExtraRinse",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "Steam",
+              "default": "0"
+            },
+            {
+              "value": "PreWash",
+              "default": "0"
+            },
+            {
+              "value": "ColdWash",
+              "default": "0"
+            },
+            {
+              "value": "FreshCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "Reserve_Time_H",
+              "default": "0"
+            }
+          ]
+        },
+        "109": {
+          "_comment": "FullLoadWash",
+          "courseType": "SmartCourse",
+          "id": 109,
+          "OPCourse": 6,
+          "APCourse": 12,
+          "name": "@WM_US_FL_SMARTCOURSE_FULL_LOAD_WASH_W",
+          "script": "@WM_US_FL_SMARTCOURSE_FULL_LOAD_WASH_SCRIPT_S",
+          "freshcareEnable": true,
+          "downloadEnable": true,
+          "controlEnable": true,
+          "imgIndex": 109,
+          "function": [
+            {
+              "value": "Soil",
+              "default": "5"
+            },
+            {
+              "value": "SpinSpeed",
+              "default": "4"
+            },
+            {
+              "value": "WaterTemp",
+              "default": "4"
+            },
+            {
+              "value": "RinseCount",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "Rinse_Spin",
+              "default": "0",
+              "visibility": "gone"
+            },
+            {
+              "value": "ExtraRinseCount",
+              "default": "1"
+            },
+            {
+              "value": "ExtraRinse",
+              "default": "1",
+              "visibility": "gone"
+            },
+            {
+              "value": "Steam",
+              "default": "0"
+            },
+            {
+              "value": "PreWash",
+              "default": "0"
+            },
+            {
+              "value": "ColdWash",
+              "default": "0"
+            },
+            {
+              "value": "FreshCare",
+              "default": "0",
+              "selectable": [
+                0,
+                1
+              ]
+            },
+            {
+              "value": "Reserve_Time_H",
+              "default": "0"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "gateway": {
+    "auth_base": "https://us.m.lgaccount.com",
+    "api_root": "https://aic.lgthinq.com:46030/api",
+    "oauth_root": "https://us.lgeapi.com",
+    "country": "US",
+    "language": "en-US"
+  },
+  "auth": {
+    "access_token": "abcbc3004d39aa3cf645f82f7327dde9c2983a4dbc6579401b8a713c75fa0a9c22b71fac6a28330a11772ec0dbd43123",
+    "refresh_token": "def6a8af4322736f66a38bab8fbea53835e704cee96a5434b8d89415accf777ec18e79d1bbd84329988b6db57c512456"
+  },
+  "session": "B21649540DF63EA9ABD04AC601C41A22.node_sadap_10",
+  "country": "US",
+  "language": "en-US"
+}

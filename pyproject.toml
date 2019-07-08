@@ -11,8 +11,7 @@ requires = [
     "requests"
 ]
 description-file = "README.md"
-requires-python = ">=3.4"
-
+requires-python = ">=3.5"
 [tool.flit.metadata.requires-extra]
 test = [
     "responses"
