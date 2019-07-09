@@ -13,8 +13,9 @@ To use it, provide it with a country and language code via the `-c` and `-l` fla
 
 LG accounts seem to be associated with specific countries, so be sure to use the one with which you originally created your account.
 For Korean, for example, you'd use `-c KR -l ko-KR`.
-Also note that logging in via a linked Google account doesn't seem to work at the moment.
-However, other login methods (facebook, Amazon, regular email & password) have been successfully tested.
+
+On first run, the script will ask you to log in with your LG account.
+Logging in with Google does not seem to work, but other methods (plain email & password, Facebook, and Amazon) do. 
 
 By default, the example just lists the devices associated with your account.
 You can also specify one of several other commands:
