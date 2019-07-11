@@ -2,17 +2,23 @@ import enum
 from typing import Optional
 
 from .client import Device
+from .util import lookup_enum, lookup_reference
 
 
 class WasherState(enum.Enum):
     """The state of the washer device."""
 
     ADD_DRAIN = '@WM_STATE_ADD_DRAIN_W'
+    COMPLETE = '@WM_STATE_COMPLETE_W'
     DETECTING = '@WM_STATE_DETECTING_W'
+    DETERGENT_AMOUNT = '@WM_STATE_DETERGENT_AMOUNT_W'
     DRYING = '@WM_STATE_DRYING_W'
     END = '@WM_STATE_END_W'
     ERROR_AUTO_OFF = '@WM_STATE_ERROR_AUTO_OFF_W'
     FRESH_CARE = '@WM_STATE_FRESHCARE_W'
+    FROZEN_PREVENT_INITIAL = '@WM_STATE_FROZEN_PREVENT_INITIAL_W'
+    FROZEN_PREVENT_PAUSE = '@WM_STATE_FROZEN_PREVENT_PAUSE_W'
+    FROZEN_PREVENT_RUNNING = '@WM_STATE_FROZEN_PREVENT_RUNNING_W'
     INITIAL = '@WM_STATE_INITIAL_W'
     OFF = '@WM_STATE_POWER_OFF_W'
     PAUSE = '@WM_STATE_PAUSE_W'
@@ -24,6 +30,7 @@ class WasherState(enum.Enum):
     SMART_DIAGNOSIS = '@WM_STATE_SMART_DIAG_W'
     SMART_DIAGNOSIS_DATA = '@WM_STATE_SMART_DIAGDATA_W'
     SPINNING = '@WM_STATE_SPINNING_W'
+    TCL_ALARM_NORMAL = 'TCL_ALARM_NORMAL'
     TUBCLEAN_COUNT_ALARM = '@WM_STATE_TUBCLEAN_COUNT_ALRAM_W'
 
 
@@ -60,23 +67,15 @@ class WasherStatus(object):
         self.washer = washer
         self.data = data
 
-    def _lookup_enum(self, attr: str) -> str:
-        """Looks up an enum value for the provided attr.
-
-        :param attr: The attribute to lookup in the enum.
-        :returns: The enum value.
-        """
-        return self.washer.model.enum_name(attr, self.data[attr])
-
     @property
     def state(self) -> WasherState:
         """Get the state of the washer."""
-        return WasherState(self._lookup_enum('State'))
+        return WasherState(lookup_enum('State', self.data, self.washer))
 
     @property
     def previous_state(self) -> WasherState:
         """Get the previous state of the washer."""
-        return WasherState(self._lookup_enum('PreState'))
+        return WasherState(lookup_enum('PreState', self.data, self.washer))
 
     @property
     def is_on(self) -> bool:
@@ -110,14 +109,14 @@ class WasherStatus(object):
     @property
     def course(self) -> str:
         """Get the current course."""
-        return self._lookup_reference('APCourse')
+        return lookup_reference('APCourse', self.data, self.washer)
 
     @property
     def smart_course(self) -> str:
         """Get the current smart course."""
-        return self._lookup_reference('SmartCourse')
+        return lookup_reference('SmartCourse', self.data, self.washer)
 
     @property
     def error(self) -> str:
         """Get the current error."""
-        return self._lookup_reference('Error')
+        return lookup_reference('Error', self.data, self.washer)

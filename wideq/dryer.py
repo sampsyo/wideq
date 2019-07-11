@@ -2,6 +2,7 @@ import enum
 from typing import Optional
 
 from .client import Device, _UNKNOWN
+from .util import lookup_enum, lookup_reference
 
 
 class DryerState(enum.Enum):
@@ -123,38 +124,30 @@ class DryerStatus(object):
         else:
             return 'ON'
 
-    def _lookup_enum(self, attr: str) -> str:
-        """Looks up an enum value for the provided attr.
-
-        :param attr: The attribute to lookup in the enum.
-        :returns: The enum value.
-        """
-        return self.dryer.model.enum_name(attr, self.data[attr])
-
     @property
     def state(self) -> DryerState:
         """Get the state of the dryer."""
-        return DryerState(self._lookup_enum('State'))
+        return DryerState(lookup_enum('State', self.data, self.dryer))
 
     @property
     def previous_state(self) -> DryerState:
         """Get the previous state of the dryer."""
-        return DryerState(self._lookup_enum('PreState'))
+        return DryerState(lookup_enum('PreState', self.data, self.dryer))
 
     @property
     def dry_level(self) -> DryLevel:
         """Get the dry level."""
-        return DryLevel(self._lookup_enum('DryLevel'))
+        return DryLevel(lookup_enum('DryLevel', self.data, self.dryer))
 
     @property
     def temperature_control(self) -> TempControl:
         """Get the temperature control setting."""
-        return TempControl(self._lookup_enum('TempControl'))
+        return TempControl(lookup_enum('TempControl', self.data, self.dryer))
 
     @property
     def time_dry(self) -> TimeDry:
         """Get the time dry setting."""
-        return TimeDry(self._lookup_enum('TimeDry'))
+        return TimeDry(lookup_enum('TimeDry', self.data, self.dryer))
 
     @property
     def is_on(self) -> bool:
@@ -174,28 +167,17 @@ class DryerStatus(object):
             int(self.data['Initial_Time_H']) * 60 +
             int(self.data['Initial_Time_M']))
 
-    def _lookup_reference(self, attr: str) -> str:
-        """Look up a reference value for the provided attribute.
-
-        :param attr: The attribute to find the value for.
-        :returns: The looked up value.
-        """
-        value = self.dryer.model.reference_name(attr, self.data[attr])
-        if value is None:
-            return 'Off'
-        return value
-
     @property
     def course(self) -> str:
         """Get the current course."""
-        return self._lookup_reference('Course')
+        return lookup_reference('Course', self.data, self.dryer)
 
     @property
     def smart_course(self) -> str:
         """Get the current smart course."""
-        return self._lookup_reference('SmartCourse')
+        return lookup_reference('SmartCourse', self.data, self.dryer)
 
     @property
     def error(self) -> str:
         """Get the current error."""
-        return self._lookup_reference('Error')
+        return lookup_reference('Error', self.data, self.dryer)
