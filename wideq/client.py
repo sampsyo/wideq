@@ -372,6 +372,7 @@ class ModelInfo(object):
         reference = self.value(key).reference
         if value in reference:
             return reference[value]['_comment']
+        return None
 
     @property
     def binary_monitor_data(self):
