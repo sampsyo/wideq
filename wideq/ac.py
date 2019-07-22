@@ -4,6 +4,43 @@ import enum
 
 from .client import Device
 
+class ACVSwingMode(enum.Enum):
+    """The vertical swing mode for an AC/HVAC device.
+
+    Blades are numbered vertically from 1 (topmost) 
+    to 6. 
+    
+    All is 100.
+    """
+    OFF = "@OFF"
+    ONE = "@1"
+    TWO = "@2"
+    THREE = "@3"
+    FOUR = "@4"
+    FIVE = "@5"
+    SIX = "@6"
+    ALL = "@100"
+
+class ACHSwingMode(enum.Enum):
+    """The horizontal swing mode for an AC/HVAC device.
+
+    Blades are numbered horizontally from 1 (leftmost) 
+    to 5.
+
+    Left half goes from 1-3, and right half goes from
+    3-5.
+
+    All is 100.
+    """
+    OFF = "@OFF"
+    ONE = "@1"
+    TWO = "@2"
+    THREE = "@3"
+    FOUR = "@4"
+    FIVE = "@5"
+    LEFT_HALF = "@13"
+    RIGHT_HALF = "@35"
+    ALL = "@100"
 
 class ACMode(enum.Enum):
     """The operation mode for an AC/HVAC device."""
@@ -130,6 +167,20 @@ class ACDevice(Device):
 
         speed_value = self.model.enum_value('WindStrength', speed.value)
         self._set_control('WindStrength', speed_value)
+
+    def set_horz_swing(self, swing):
+        """Set the horizontal swing to a value from the `ACHSwingMode` enum.
+        """
+
+        swing_value = self.model.enum_value('WDirHStep', swing.value)
+        self._set_control('WDirHStep', swing_value)
+
+    def set_vert_swing(self, swing):
+        """Set the vertical swing to a value from the `ACVSwingMode` enum.
+        """
+
+        swing_value = self.model.enum_value('WDirVStep', swing.value)
+        self._set_control('WDirVStep', swing_value)
 
     def set_mode(self, mode):
         """Set the device's operating mode to an `OpMode` value.
