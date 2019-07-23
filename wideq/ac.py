@@ -4,12 +4,13 @@ import enum
 
 from .client import Device
 
+
 class ACVSwingMode(enum.Enum):
     """The vertical swing mode for an AC/HVAC device.
 
-    Blades are numbered vertically from 1 (topmost) 
-    to 6. 
-    
+    Blades are numbered vertically from 1 (topmost)
+    to 6.
+
     All is 100.
     """
     OFF = "@OFF"
@@ -21,10 +22,11 @@ class ACVSwingMode(enum.Enum):
     SIX = "@6"
     ALL = "@100"
 
+
 class ACHSwingMode(enum.Enum):
     """The horizontal swing mode for an AC/HVAC device.
 
-    Blades are numbered horizontally from 1 (leftmost) 
+    Blades are numbered horizontally from 1 (leftmost)
     to 5.
 
     Left half goes from 1-3, and right half goes from
@@ -41,6 +43,7 @@ class ACHSwingMode(enum.Enum):
     LEFT_HALF = "@13"
     RIGHT_HALF = "@35"
     ALL = "@100"
+
 
 class ACMode(enum.Enum):
     """The operation mode for an AC/HVAC device."""
