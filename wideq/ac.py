@@ -295,6 +295,14 @@ class ACStatus(object):
         return ACFanSpeed(self.lookup_enum('WindStrength'))
 
     @property
+    def horz_swing(self):
+        return ACHSwingMode(self.lookup_enum('WDirHStep'))
+
+    @property
+    def vert_swing(self):
+        return ACVSwingMode(self.lookup_enum('WDirVStep'))
+
+    @property
     def is_on(self):
         op = ACOp(self.lookup_enum('Operation'))
         return op != ACOp.OFF
