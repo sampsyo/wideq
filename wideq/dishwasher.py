@@ -8,13 +8,14 @@ from .util import lookup_enum, lookup_reference
 class DishWasherState(enum.Enum):
     """The state of the dishwasher device."""
     INITIAL = '@DW_STATE_INITIAL_W'
-    RUNNING = '@DW_STATE_RUNNING_W' 
+    RUNNING = '@DW_STATE_RUNNING_W'
     PAUSED = "@DW_STATE_PAUSE_W"
     OFF = '@DW_STATE_POWER_OFF_W'
     COMPLETE = '@DW_STATE_COMPLETE_W'
     POWER_FAIL = "@DW_STATE_POWER_FAIL_W"
 
-DISHWASHER_STATE_READABLE = {    
+
+DISHWASHER_STATE_READABLE = {
     'INITIAL': 'Standby',
     'RUNNING': 'Running',
     'PAUSED': 'Paused',
@@ -34,6 +35,7 @@ class DishWasherProcess(enum.Enum):
     NIGHT_DRYING = '@DW_STATE_NIGHTDRY_W'
     CANCELLED = '@DW_STATE_CANCEL_W'
 
+
 DISHWASHER_PROCESS_READABLE = {
     'RESERVE': 'Delayed Start',
     'RUNNING': DISHWASHER_STATE_READABLE['RUNNING'],
@@ -43,6 +45,7 @@ DISHWASHER_PROCESS_READABLE = {
     'NIGHT_DRYING':  'Night Drying',
     'CANCELLED': 'Cancelled',
 }
+
 
 # Provide a map to correct typos in the official course names.
 DISHWASHER_COURSE_MAP = {
@@ -90,7 +93,7 @@ class DishWasherStatus(object):
         return DishWasherState(
             lookup_enum('State', self.data, self.dishwasher))
 
-    @property                           
+    @property
     def readable_state(self) -> str:
         """Get a human readable state of the dishwasher."""
         return DISHWASHER_STATE_READABLE[self.state.name]
@@ -104,14 +107,14 @@ class DishWasherStatus(object):
         else:
             return None
 
-    @property                           
+    @property
     def readable_process(self) -> str:
         """Get a human readable process of the dishwasher."""
         if self.process:
             return DISHWASHER_PROCESS_READABLE[self.process.name]
         else:
             return None
-  
+
     @property
     def is_on(self) -> bool:
         """Check if the dishwasher is on or not."""

@@ -2,7 +2,8 @@ import json
 import unittest
 
 from wideq.client import Client, DeviceInfo
-from wideq.dishwasher import DishWasherDevice, DishWasherState, DishWasherStatus
+from wideq.dishwasher import DishWasherDevice, DishWasherState, \
+     DishWasherStatus
 
 POLL_DATA = {
     "16~19": "0",
