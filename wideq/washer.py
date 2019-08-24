@@ -48,7 +48,7 @@ class WasherDevice(Device):
         # Abort if monitoring has not started yet.
         if not hasattr(self, 'mon'):
             return None
-        
+
         data = self.mon.poll()
         if data:
             res = self.model.decode_monitor(data)
