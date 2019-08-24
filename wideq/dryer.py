@@ -96,9 +96,10 @@ class DryerDevice(Device):
         # Abort if monitoring has not started yet.
         if not hasattr(self, 'mon'):
             return None
-
-        res = self.mon.poll_json()
-        if res:
+        
+        data = self.mon.poll()
+        if data:
+            res = self.model.decode_monitor(data)
             return DryerStatus(self, res)
         else:
             return None
