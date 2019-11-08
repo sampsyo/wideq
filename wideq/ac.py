@@ -106,9 +106,9 @@ class ACOp(enum.Enum):
     """Whether a device is on or off."""
 
     OFF = "@AC_MAIN_OPERATION_OFF_W"
-    RIGHT_ON = "@AC_MAIN_OPERATION_RIGHT_ON_W"  # This one seems to mean "on"?
-    LEFT_ON = "@AC_MAIN_OPERATION_LEFT_ON_W"
-    ALL_ON = "@AC_MAIN_OPERATION_ALL_ON_W"
+    RIGHT_ON = "@AC_MAIN_OPERATION_RIGHT_ON_W" #only on right fan
+    LEFT_ON = "@AC_MAIN_OPERATION_LEFT_ON_W" #only on left fan
+    ALL_ON = "@AC_MAIN_OPERATION_ALL_ON_W" #all on
 
 
 class ACDevice(Device):
@@ -224,7 +224,7 @@ class ACDevice(Device):
         """Turn on or off the device (according to a boolean).
         """
 
-        op = ACOp.RIGHT_ON if is_on else ACOp.OFF
+        op = ACOp.ALL_ON if is_on else ACOp.OFF
         op_value = self.model.enum_value('Operation', op.value)
         self._set_control('Operation', op_value)
 
