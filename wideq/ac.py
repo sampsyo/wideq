@@ -73,14 +73,6 @@ class ACFanSpeed(enum.Enum):
     POWER = '@AC_MAIN_WIND_STRENGTH_POWER_W'
     AUTO = '@AC_MAIN_WIND_STRENGTH_AUTO_W'
     NATURE = '@AC_MAIN_WIND_STRENGTH_NATURE_W'
-    '''
-    some lg ac model works dual wind power, left and right
-    
-    in my case model name is PAC_910604_WW
-    
-    looks like below link
-    https://www.lge.co.kr/lgekor/product/aircare/air-conditioner/productDetail.do?cateId=3300&prdId=EPRD.336263
-    '''
     R_LOW = '@AC_MAIN_WIND_STRENGTH_LOW_RIGHT_W'
     R_MID = '@AC_MAIN_WIND_STRENGTH_MID_RIGHT_W'
     R_HIGH = '@AC_MAIN_WIND_STRENGTH_HIGH_RIGHT_W'
