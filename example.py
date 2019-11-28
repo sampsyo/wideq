@@ -79,6 +79,11 @@ def ac_mon(client, device_id):
 
     try:
         ac.monitor_start()
+    except wideq.core.NotConnectedError:
+        print('Device not available.')
+        return
+
+    try:
         while True:
             time.sleep(1)
             state = ac.poll()
