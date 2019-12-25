@@ -129,6 +129,8 @@ def lgedm_post(url, data=None, access_token=None, session_id=None):
                 raise NotLoggedInError()
             elif code == "0106":
                 raise NotConnectedError()
+            elif code == "0010": #I don't remember exactly but it's not critical error
+                return out
             else:
                 raise APIError(code, message)
 
@@ -334,7 +336,7 @@ class Session(object):
 
         work_list = [{'deviceId': device_id, 'workId': work_id}]
         res = self.post('rti/rtiResult', {'workList': work_list})['workList']
-
+        
         # When monitoring first starts, it usually takes a few
         # iterations before data becomes available. In the initial
         # "warmup" phase, `returnCode` is missing from the response.
@@ -364,6 +366,18 @@ class Session(object):
             'cmdOpt': 'Stop',
             'deviceId': device_id,
             'workId': work_id,
+        })
+
+    def set_device_operation(self, device_id, values):
+        """ some device can use this for operation"""
+
+        return self.post('rti/rtiControl', {
+            'cmd': 'Control',
+            'cmdOpt': 'Operation',
+            'value': values,
+            'deviceId': device_id,
+            'workId': gen_uuid(),
+            'data': '',
         })
 
     def set_device_controls(self, device_id, values):
@@ -397,3 +411,59 @@ class Session(object):
             'data': '',
         })
         return res['returnData']
+
+    def delete_permission(self, device_id):
+        """ for using mobile app and HA at the same time"""
+        self.post('rti/delControlPermission', {
+            'deviceId': device_id,
+        })
+
+    def get_power_data(self, device_id, period):
+        """ get AC power consumption data"""
+        res = self.post('aircon/inquiryPowerData', {
+            'deviceId': device_id,
+            'period': period,
+        })
+        code = res.get('returnCd')  # returnCode can be missing.
+        if code == '0000':
+            return res['powerData']
+        elif code == '0010':
+            return '0'
+        else:
+            raise MonitorError(device_id, code)
+
+    def get_water_usage(self, device_id, typeCode, sDate, eDate):
+        """get water purifier usage data"""
+        res = self.post('rms/inquiryWaterConsumptionInfo', {
+            'deviceId': device_id,
+            'type': typeCode,
+            'startDate': sDate,
+            'endDate': eDate,
+        })
+        code = res.get('returnCd')  # returnCode can be missing.
+        if code != '0000':
+            raise MonitorError(device_id, code)
+        else:
+            return res['item']
+            
+    def get_outdoor_weather(self, area):
+        """ get outdoor weather data from accuweather.
+        it need area code"""
+
+        res = self.post('weather/weatherNewsData',{
+            'area': area
+        })
+        code = res.get('returnCd')  # returnCode can be missing.
+        if code != '0000':
+            raise MonitorError(device_id, code)
+        else:
+            return res
+
+    def get_dustsensor_data(self):
+        """ if AC device has dust sensor, get dust sensor data"""
+        res = self.post('v2/devices/97b2fc516b00b58c376cd8123f56cc8f/data?data=sensor.pm25%2Bsensor.pm10%2Bsensor.pm1&type=last')
+        code = res.get('returnCd')  # returnCode can be missing.
+        if code != '0000':
+            raise MonitorError(device_id, code)
+        else:
+            return res
