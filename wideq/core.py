@@ -85,6 +85,15 @@ class TokenError(APIError):
         pass
 
 
+class FailedRequestError(APIError):
+    """A failed request typically indicates an unsupported control on a
+    device.
+    """
+
+    def __init__(self):
+        pass
+
+
 class InvalidRequestError(APIError):
     """The server rejected a request as invalid."""
 
@@ -105,6 +114,7 @@ class MonitorError(APIError):
 API_ERRORS = {
     "0102": NotLoggedInError,
     "0106": NotConnectedError,
+    "0100": FailedRequestError,
     9000: InvalidRequestError,  # Surprisingly, an integer (not a string).
 }
 
