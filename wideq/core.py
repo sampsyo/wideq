@@ -67,15 +67,9 @@ class APIError(Exception):
 class NotLoggedInError(APIError):
     """The session is not valid or expired."""
 
-    def __init__(self):
-        pass
-
 
 class NotConnectedError(APIError):
     """The service can't contact the specified device."""
-
-    def __init__(self):
-        pass
 
 
 class TokenError(APIError):
@@ -90,15 +84,9 @@ class FailedRequestError(APIError):
     device.
     """
 
-    def __init__(self):
-        pass
-
 
 class InvalidRequestError(APIError):
     """The server rejected a request as invalid."""
-
-    def __init__(self):
-        pass
 
 
 class MonitorError(APIError):
@@ -147,13 +135,12 @@ def lgedm_post(url, data=None, access_token=None, session_id=None):
     # Check for API errors.
     if 'returnCd' in out:
         code = out['returnCd']
-        if code == '0000':
-            pass
-        elif code in API_ERRORS:
-            raise API_ERRORS[code]()
-        else:
+        if code != '0000':
             message = out['returnMsg']
-            raise APIError(code, message)
+            if code in API_ERRORS:
+                raise API_ERRORS[code](code, message)
+            else:
+                raise APIError(code, message)
 
     return out
 
