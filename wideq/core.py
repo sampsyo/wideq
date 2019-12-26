@@ -85,6 +85,13 @@ class TokenError(APIError):
         pass
 
 
+class InvalidRequestError(APIError):
+    """The server rejected a request as invalid."""
+
+    def __init__(self):
+        pass
+
+
 class MonitorError(APIError):
     """Monitoring a device failed, possibly because the monitoring
     session failed and needs to be restarted.
@@ -93,6 +100,13 @@ class MonitorError(APIError):
     def __init__(self, device_id, code):
         self.device_id = device_id
         self.code = code
+
+
+API_ERRORS = {
+    "0102": NotLoggedInError,
+    "0106": NotConnectedError,
+    9000: InvalidRequestError,  # Surprisingly, an integer (not a string).
+}
 
 
 def lgedm_post(url, data=None, access_token=None, session_id=None):
@@ -123,14 +137,13 @@ def lgedm_post(url, data=None, access_token=None, session_id=None):
     # Check for API errors.
     if 'returnCd' in out:
         code = out['returnCd']
-        if code != '0000':
+        if code == '0000':
+            pass
+        elif code in API_ERRORS:
+            raise API_ERRORS[code]()
+        else:
             message = out['returnMsg']
-            if code == "0102":
-                raise NotLoggedInError()
-            elif code == "0106":
-                raise NotConnectedError()
-            else:
-                raise APIError(code, message)
+            raise APIError(code, message)
 
     return out
 
