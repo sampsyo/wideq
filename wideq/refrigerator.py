@@ -1,7 +1,7 @@
 import enum
 from typing import Optional
 
-from .client import Device
+from .client import Device, _UNKNOWN
 from .util import lookup_enum, lookup_reference
 
 
@@ -23,6 +23,7 @@ class FreshAirFilter(enum.Enum):
     SMARTCARE_ON = "@RE_STATE_SMART_SMART_CARE_ON"
     SMARTCARE_OFF = "@RE_STATE_SMART_SMART_CARE_OFF"
     SMARTCARE_WAIT = "@RE_STATE_SMART_SMART_CARE_WAIT"
+    EMPTY = ""
 
 
 class SmartSavingMode(enum.Enum):
@@ -30,12 +31,14 @@ class SmartSavingMode(enum.Enum):
     OFF = "@CP_TERM_USE_NOT_W"
     NIGHT = "@RE_SMARTSAVING_MODE_NIGHT_W"
     CUSTOM = "@RE_SMARTSAVING_MODE_CUSTOM_W"
+    EMPTY = ""
 
 
 class SmartSavingModeStatus(enum.Enum):
 
     OFF = "OFF"
     ON = "ON"
+    EMPTY = ""
 
 
 class EcoFriendly(enum.Enum):
@@ -54,10 +57,23 @@ class DoorOpenState(enum.Enum):
 
     OPEN = "OPEN"
     CLOSE = "CLOSE"
+    EMPTY = ""
+    UNKNOWN = _UNKNOWN
 
 
 class RefrigeratorDevice(Device):
     """A higher-level interface for a refrigerator."""
+
+    def set_temp_refrigerator_c(self, temp_refrigerator):
+
+        temp_refrigerator_value = self.model.enum_value('TempRefrigerator', str(temp_refrigerator))
+        # '{"RETM":"{{TempRefrigerator}}", "REFT":"{{TempFreezer}}", "REIP":"{{IcePlus}}", "REEF":"{{EcoFriendly}}" }'
+        self._set_control('RETM', temp_refrigerator_value)
+
+    def set_temp_freezer_c(self, temp_freezer):
+
+        temp_freezer_value = self.model.enum_value('TempFreezer', str(temp_freezer))
+        self._set_control('REFT', temp_freezer_value)
 
     def poll(self) -> Optional['RefrigeratorStatus']:
         """Poll the device's current state.
@@ -90,49 +106,54 @@ class RefrigeratorStatus(object):
         self.refrigerator = refrigerator
         self.data = data
 
-    def lookup_enum(self, key):
-        return self.refrigerator.model.enum_name(key, self.data[key])
+    @property
+    def temp_refrigerator_c(self):
+        return int(lookup_enum('TempRefrigerator', self.data, self.refrigerator))
 
     @property
-    def temprefrigerator_c(self):
-        return self.lookup_enum('TempRefrigerator')
+    def temp_freezer_c(self):
+        return int(lookup_enum('TempFreezer', self.data, self.refrigerator))
 
     @property
-    def tempfreezer_c(self):
-        return self.lookup_enum('TempFreezer')
+    def ice_plus_status(self):
+        return IcePlus(lookup_enum('IcePlus', self.data, self.refrigerator))
 
     @property
-    def iceplus(self):
-        return IcePlus(self.lookup_enum('IcePlus'))
+    def fresh_air_filter_status(self):
+        return FreshAirFilter(lookup_enum('FreshAirFilter', self.data, self.refrigerator))
 
     @property
-    def freshairfilter(self):
-        return FreshAirFilter(self.lookup_enum('FreshAirFilter'))
+    def energy_saving_mode(self):
+        return SmartSavingMode(lookup_enum('SmartSavingMode', self.data, self.refrigerator))
 
     @property
-    def smartsavingmode(self):
-        return SmartSavingMode(self.lookup_enum('SmartSavingMode'))
+    def door_opened(self):
+        door = DoorOpenState(lookup_enum('DoorOpenState', self.data, self.refrigerator))
+        return door == DoorOpenState.OPEN
 
     @property
-    def dooropenstate(self):
-        return DoorOpenState(self.lookup_enum('DoorOpenState'))
+    def temp_unit(self):
+        return lookup_enum('TempUnit', self.data, self.refrigerator)
 
     @property
-    def tempunit(self):
-        return self.lookup_enum('TempUnit')
+    def energy_saving_enabled(self):
+        status = SmartSavingModeStatus(lookup_enum('SmartSavingModeStatus', self.data, self.refrigerator))
+        return status == SmartSavingModeStatus.ON
 
     @property
-    def smartsavingmodestatus(self):
-        return SmartSavingModeStatus(self.lookup_enum('SmartSavingModeStatus'))
+    def locked(self):
+        status = LockingStatus(lookup_enum('LockingStatus', self.data, self.refrigerator))
+        return status == LockingStatus.LOCK
 
     @property
-    def lockingstatus(self):
-        return LockingStatus(self.lookup_enum('LockingStatus'))
-
-    @property
-    def activesavingstatus(self):
+    def active_saving_status(self):
         return self.data['ActiveSavingStatus']
 
     @property
-    def ecofriendly(self):
-        return EcoFriendly(self.lookup_enum('EcoFriendly'))
+    def eco_enabled(self):
+        eco = EcoFriendly(lookup_enum('EcoFriendly', self.data, self.refrigerator))
+        return eco == EcoFriendly.ON
+
+    @property
+    def water_filter_used_month(self):
+        return self.data['WaterFilterUsedMonth']
