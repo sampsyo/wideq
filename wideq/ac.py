@@ -4,6 +4,7 @@ import enum
 
 from .client import Device
 from .util import lookup_enum
+from .core import FailedRequestError
 
 
 class ACVSwingMode(enum.Enum):
@@ -257,8 +258,11 @@ class ACDevice(Device):
     def get_volume(self):
         """Get the speaker volume level."""
 
-        value = self._get_control('SpkVolume')
-        return int(value)
+        try:
+            value = self._get_control('SpkVolume')
+            return int(value)
+        except FailedRequestError:
+            return 0  # Device does not support volume control.
 
     def poll(self):
         """Poll the device's current state.

@@ -67,15 +67,9 @@ class APIError(Exception):
 class NotLoggedInError(APIError):
     """The session is not valid or expired."""
 
-    def __init__(self):
-        pass
-
 
 class NotConnectedError(APIError):
     """The service can't contact the specified device."""
-
-    def __init__(self):
-        pass
 
 
 class TokenError(APIError):
@@ -83,6 +77,16 @@ class TokenError(APIError):
 
     def __init__(self):
         pass
+
+
+class FailedRequestError(APIError):
+    """A failed request typically indicates an unsupported control on a
+    device.
+    """
+
+
+class InvalidRequestError(APIError):
+    """The server rejected a request as invalid."""
 
 
 class MonitorError(APIError):
@@ -93,6 +97,14 @@ class MonitorError(APIError):
     def __init__(self, device_id, code):
         self.device_id = device_id
         self.code = code
+
+
+API_ERRORS = {
+    "0102": NotLoggedInError,
+    "0106": NotConnectedError,
+    "0100": FailedRequestError,
+    9000: InvalidRequestError,  # Surprisingly, an integer (not a string).
+}
 
 
 def lgedm_post(url, data=None, access_token=None, session_id=None):
@@ -125,10 +137,8 @@ def lgedm_post(url, data=None, access_token=None, session_id=None):
         code = out['returnCd']
         if code != '0000':
             message = out['returnMsg']
-            if code == "0102":
-                raise NotLoggedInError()
-            elif code == "0106":
-                raise NotConnectedError()
+            if code in API_ERRORS:
+                raise API_ERRORS[code](code, message)
             else:
                 raise APIError(code, message)
 
