@@ -2,7 +2,7 @@ import enum
 from typing import Optional
 
 from .client import Device, _UNKNOWN
-from .util import lookup_enum, lookup_reference
+from .util import lookup_enum
 
 
 class IcePlus(enum.Enum):

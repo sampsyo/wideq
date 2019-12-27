@@ -3,7 +3,7 @@
 import enum
 
 from .client import Device
-from .util import lookup_enum, lookup_reference
+from .util import lookup_enum
 
 
 class ACVSwingMode(enum.Enum):
