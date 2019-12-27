@@ -3,6 +3,7 @@
 import enum
 
 from .client import Device
+from .util import lookup_enum, lookup_reference
 
 
 class ACVSwingMode(enum.Enum):
@@ -317,26 +318,23 @@ class ACStatus(object):
     def temp_cfg_f(self):
         return self.ac.c2f[self.temp_cfg_c]
 
-    def lookup_enum(self, key):
-        return self.ac.model.enum_name(key, self.data[key])
-
     @property
     def mode(self):
-        return ACMode(self.lookup_enum('OpMode'))
+        return ACMode(lookup_enum('OpMode', self.data, self.ac))
 
     @property
     def fan_speed(self):
-        return ACFanSpeed(self.lookup_enum('WindStrength'))
+        return ACFanSpeed(lookup_enum('WindStrength', self.data, self.ac))
 
     @property
     def horz_swing(self):
-        return ACHSwingMode(self.lookup_enum('WDirHStep'))
+        return ACHSwingMode(lookup_enum('WDirHStep', self.data, self.ac))
 
     @property
     def vert_swing(self):
-        return ACVSwingMode(self.lookup_enum('WDirVStep'))
+        return ACVSwingMode(lookup_enum('WDirVStep', self.data, self.ac))
 
     @property
     def is_on(self):
-        op = ACOp(self.lookup_enum('Operation'))
+        op = ACOp(lookup_enum('Operation', self.data, self.ac))
         return op != ACOp.OFF
