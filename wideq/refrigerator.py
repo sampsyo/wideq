@@ -6,7 +6,6 @@ from .util import lookup_enum
 
 
 class IcePlus(enum.Enum):
-
     OFF = "@CP_OFF_EN_W"
     ON = "@CP_ON_EN_W"
     ICE_PLUS = "@RE_TERM_ICE_PLUS_W"
@@ -15,7 +14,6 @@ class IcePlus(enum.Enum):
 
 
 class FreshAirFilter(enum.Enum):
-
     OFF = "@CP_TERM_OFF_KO_W"
     AUTO = "@RE_STATE_FRESH_AIR_FILTER_MODE_AUTO_W"
     POWER = "@RE_STATE_FRESH_AIR_FILTER_MODE_POWER_W"
@@ -27,7 +25,6 @@ class FreshAirFilter(enum.Enum):
 
 
 class SmartSavingMode(enum.Enum):
-
     OFF = "@CP_TERM_USE_NOT_W"
     NIGHT = "@RE_SMARTSAVING_MODE_NIGHT_W"
     CUSTOM = "@RE_SMARTSAVING_MODE_CUSTOM_W"
@@ -35,26 +32,22 @@ class SmartSavingMode(enum.Enum):
 
 
 class SmartSavingModeStatus(enum.Enum):
-
     OFF = "OFF"
     ON = "ON"
     EMPTY = ""
 
 
 class EcoFriendly(enum.Enum):
-
     OFF = "@CP_OFF_EN_W"
     ON = "@CP_ON_EN_W"
 
 
 class LockingStatus(enum.Enum):
-
     UNLOCK = "UNLOCK"
     LOCK = "LOCK"
 
 
 class DoorOpenState(enum.Enum):
-
     OPEN = "OPEN"
     CLOSE = "CLOSE"
     EMPTY = ""
@@ -65,18 +58,14 @@ class RefrigeratorDevice(Device):
     """A higher-level interface for a refrigerator."""
 
     def set_temp_refrigerator_c(self, temp):
-
+        """Set the refrigerator temperature in Celsius.
+        """
         value = self.model.enum_value('TempRefrigerator', str(temp))
-        # {
-        #   "RETM":"{{TempRefrigerator}}",
-        #   "REFT":"{{TempFreezer}}",
-        #   "REIP":"{{IcePlus}}",
-        #   "REEF":"{{EcoFriendly}}"
-        # }
         self._set_control('RETM', value)
 
     def set_temp_freezer_c(self, temp):
-
+        """Set the freezer temperature in Celsius.
+        """
         value = self.model.enum_value('TempFreezer', str(temp))
         self._set_control('REFT', value)
 
