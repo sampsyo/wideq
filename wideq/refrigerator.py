@@ -1,7 +1,7 @@
 import enum
 from typing import Optional
 
-from .client import Device, _UNKNOWN
+from .client import Device
 from .util import lookup_enum
 
 
@@ -29,29 +29,6 @@ class SmartSavingMode(enum.Enum):
     NIGHT = "@RE_SMARTSAVING_MODE_NIGHT_W"
     CUSTOM = "@RE_SMARTSAVING_MODE_CUSTOM_W"
     EMPTY = ""
-
-
-class SmartSavingModeStatus(enum.Enum):
-    OFF = "OFF"
-    ON = "ON"
-    EMPTY = ""
-
-
-class EcoFriendly(enum.Enum):
-    OFF = "@CP_OFF_EN_W"
-    ON = "@CP_ON_EN_W"
-
-
-class LockingStatus(enum.Enum):
-    UNLOCK = "UNLOCK"
-    LOCK = "LOCK"
-
-
-class DoorOpenState(enum.Enum):
-    OPEN = "OPEN"
-    CLOSE = "CLOSE"
-    EMPTY = ""
-    UNKNOWN = _UNKNOWN
 
 
 class RefrigeratorDevice(Device):
@@ -127,8 +104,8 @@ class RefrigeratorStatus(object):
 
     @property
     def door_opened(self):
-        door = lookup_enum('DoorOpenState', self.data, self.refrigerator)
-        return DoorOpenState(door) == DoorOpenState.OPEN
+        state = lookup_enum('DoorOpenState', self.data, self.refrigerator)
+        return state == "OPEN"
 
     @property
     def temp_unit(self):
@@ -139,12 +116,12 @@ class RefrigeratorStatus(object):
         mode = lookup_enum(
             'SmartSavingModeStatus', self.data, self.refrigerator
         )
-        return SmartSavingModeStatus(mode) == SmartSavingModeStatus.ON
+        return mode == 'ON'
 
     @property
     def locked(self):
         status = lookup_enum('LockingStatus', self.data, self.refrigerator)
-        return LockingStatus(status) == LockingStatus.LOCK
+        return status == "LOCK"
 
     @property
     def active_saving_status(self):
@@ -153,7 +130,7 @@ class RefrigeratorStatus(object):
     @property
     def eco_enabled(self):
         eco = lookup_enum('EcoFriendly', self.data, self.refrigerator)
-        return EcoFriendly(eco) == EcoFriendly.ON
+        return eco == "@CP_ON_EN_W"
 
     @property
     def water_filter_used_month(self):
