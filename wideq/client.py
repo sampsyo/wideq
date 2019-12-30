@@ -1,48 +1,47 @@
-"""A high-level, convenient abstraction for interacting with the LG
-SmartThinQ API for most use cases.
-"""
-import json
-import enum
-import logging
-import requests
-import base64
-from collections import namedtuple
-from typing import Any, Optional
+"""A high-level, convenient abstraction for interacting with the LG	
+SmartThinQ API for most use cases.	
+"""	
+import json	
+import enum	
+import logging	
+import requests	
+import base64	
+from collections import namedtuple	
+from typing import Any, Optional	
 
-from . import core
+ from . import core	
 
-DEFAULT_COUNTRY = 'US'
-DEFAULT_LANGUAGE = 'en-US'
-#: Represents an unknown enum value.
-_UNKNOWN = 'Unknown'
+DEFAULT_COUNTRY = 'US'	
+DEFAULT_LANGUAGE = 'en-US'	
+#: Represents an unknown enum value.	
+_UNKNOWN = 'Unknown'	
 
 
 class Monitor(object):
     """A monitoring task for a device.
-
-    This task is robust to some API-level failures. If the monitoring
-    task expires, it attempts to start a new one automatically. This
-    makes one `Monitor` object suitable for long-term monitoring.
-    """
-
+        This task is robust to some API-level failures. If the monitoring
+        task expires, it attempts to start a new one automatically. This
+        makes one `Monitor` object suitable for long-term monitoring.
+        """
+    
     def __init__(self, session, device_id):
         self.session = session
         self.device_id = device_id
-
+    
     def start(self):
         self.work_id = self.session.monitor_start(self.device_id)
-
+    
     def stop(self):
         self.session.monitor_stop(self.device_id, self.work_id)
-
+    
     def poll(self):
         """Get the current status data (a bytestring) or None if the
-        device is not yet ready.
-        """
+            device is not yet ready.
+            """
 
         try:
             return self.session.monitor_poll(self.device_id, self.work_id)
-        except core.MonitorError:
+        except core.MonitorError:	
             # Try to restart the task.
             self.stop()
             self.start()
@@ -51,49 +50,49 @@ class Monitor(object):
     @staticmethod
     def decode_json(data):
         """Decode a bytestring that encodes JSON status data."""
-
+        
         return json.loads(data.decode('utf8'))
-
+    
     def poll_json(self):
         """For devices where status is reported via JSON data, get the
-        decoded status result (or None if status is not available).
-        """
-
+            decoded status result (or None if status is not available).
+            """
+        
         data = self.poll()
         return self.decode_json(data) if data else None
-
+    
     def __enter__(self):
         self.start()
         return self
-
+    
     def __exit__(self, type, value, tb):
         self.stop()
 
 
 class Client(object):
     """A higher-level API wrapper that provides a session more easily
-    and allows serialization of state.
-    """
-
+        and allows serialization of state.
+        """
+    
     def __init__(self, gateway=None, auth=None, session=None,
                  country=DEFAULT_COUNTRY, language=DEFAULT_LANGUAGE):
         # The three steps required to get access to call the API.
         self._gateway = gateway
         self._auth = auth
         self._session = session
-
+        
         # The last list of devices we got from the server. This is the
         # raw JSON list data describing the devices.
         self._devices = None
-
+        
         # Cached model info data. This is a mapping from URLs to JSON
         # responses.
         self._model_info = {}
-
+   
         # Locale information used to discover a gateway, if necessary.
         self._country = country
         self._language = language
-
+ 
     @property
     def gateway(self):
         if not self._gateway:
@@ -101,46 +100,45 @@ class Client(object):
                 self._country, self._language
             )
         return self._gateway
-
+    
     @property
     def auth(self):
         if not self._auth:
             assert False, "unauthenticated"
         return self._auth
-
+    
     @property
     def session(self):
         if not self._session:
             self._session, self._devices = self.auth.start_session()
         return self._session
-
+    
     @property
     def devices(self):
         """DeviceInfo objects describing the user's devices.
-        """
-
+            """
+        
         if not self._devices:
             self._devices = self.session.get_devices()
         return (DeviceInfo(d) for d in self._devices)
-
+    
     def get_device(self, device_id):
         """Look up a DeviceInfo object by device ID.
-
-        Return None if the device does not exist.
-        """
-
+            Return None if the device does not exist.
+            """
+        
         for device in self.devices:
             if device.id == device_id:
                 return device
         return None
-
+    
     @classmethod
     def load(cls, state):
         """Load a client from serialized state.
-        """
-
+            """
+        
         client = cls()
-
+        
         if 'gateway' in state:
             data = state['gateway']
             client._gateway = core.Gateway(
@@ -148,19 +146,19 @@ class Client(object):
                 data.get('country', DEFAULT_COUNTRY),
                 data.get('language', DEFAULT_LANGUAGE),
             )
-
+        
         if 'auth' in state:
             data = state['auth']
             client._auth = core.Auth(
-                client.gateway, data['access_token'], data['refresh_token']
+            client.gateway, data['access_token'], data['refresh_token']
             )
-
+        
         if 'session' in state:
             client._session = core.Session(client.auth, state['session'])
-
+                
         if 'model_info' in state:
             client._model_info = state['model_info']
-
+                
         if 'country' in state:
             client._country = state['country']
 
@@ -171,11 +169,11 @@ class Client(object):
 
     def dump(self):
         """Serialize the client state."""
-
+        
         out = {
             'model_info': self._model_info,
         }
-
+        
         if self._gateway:
             out['gateway'] = {
                 'auth_base': self._gateway.auth_base,
@@ -183,13 +181,13 @@ class Client(object):
                 'oauth_root': self._gateway.oauth_root,
                 'country': self._gateway.country,
                 'language': self._gateway.language,
-            }
-
+        }
+        
         if self._auth:
             out['auth'] = {
                 'access_token': self._auth.access_token,
                 'refresh_token': self._auth.refresh_token,
-            }
+        }
 
         if self._session:
             out['session'] = self._session.session_id
@@ -198,20 +196,19 @@ class Client(object):
         out['language'] = self._language
 
         return out
-
+    
     def refresh(self):
         self._auth = self.auth.refresh()
         self._session, self._devices = self.auth.start_session()
-
+    
     @classmethod
     def from_token(cls, refresh_token, country=None, language=None):
         """Construct a client using just a refresh token.
-
-        This allows simpler state storage (e.g., for human-written
-        configuration) but it is a little less efficient because we need
-        to reload the gateway servers and restart the session.
-        """
-
+            This allows simpler state storage (e.g., for human-written
+            configuration) but it is a little less efficient because we need
+            to reload the gateway servers and restart the session.
+            """
+        
         client = cls(
             country=country or DEFAULT_COUNTRY,
             language=language or DEFAULT_LANGUAGE,
@@ -219,11 +216,11 @@ class Client(object):
         client._auth = core.Auth(client.gateway, None, refresh_token)
         client.refresh()
         return client
-
+    
     def model_info(self, device):
         """For a DeviceInfo object, get a ModelInfo object describing
-        the model's capabilities.
-        """
+            the model's capabilities.
+            """
         url = device.model_info_url
         if url not in self._model_info:
             self._model_info[url] = device.load_model_info()
@@ -232,7 +229,7 @@ class Client(object):
 
 class DeviceType(enum.Enum):
     """The category of device."""
-
+    
     REFRIGERATOR = 101
     KIMCHI_REFRIGERATOR = 102
     WATER_PURIFIER = 103
@@ -247,7 +244,11 @@ class DeviceType(enum.Enum):
     AC = 401  # Includes heat pumps, etc., possibly all HVAC devices.
     AIR_PURIFIER = 402
     DEHUMIDIFIER = 403
-    ROBOT_KING = 501  # Robotic vacuum cleaner?
+    ROBOT_KING = 501  # This is Robotic vacuum cleaner
+    TV = 701
+    BOILER = 801
+    SPEAKER = 901
+    HOMEVU = 902
     ARCH = 1001
     MISSG = 3001
     SENSOR = 3002
@@ -258,39 +259,49 @@ class DeviceType(enum.Enum):
     IOT_DUST_SENSOR = 3006
     EMS_AIR_STATION = 4001
     AIR_SENSOR = 4003
+    PURICARE_AIR_DETECTOR = 4004
+    V2PHONE = 6001
+    HOMEROBOT = 9000
 
 
 class DeviceInfo(object):
     """Details about a user's device.
-
     This is populated from a JSON dictionary provided by the API.
     """
-
+    
     def __init__(self, data):
         self.data = data
 
     @property
     def model_id(self):
         return self.data['modelNm']
-
+    
     @property
     def id(self):
         return self.data['deviceId']
-
+    
     @property
     def model_info_url(self):
         return self.data['modelJsonUrl']
-
+    
     @property
     def name(self):
         return self.data['alias']
+
+    @property
+    def macaddress(self):  # for same type device
+        return self.data['macAddress']
+
+    @property
+    def model_name(self): # for specific model division
+        return self.data['modelNm']
 
     @property
     def type(self):
         """The kind of device, as a `DeviceType` value."""
 
         return DeviceType(self.data['deviceType'])
-
+    
     def load_model_info(self):
         """Load JSON data describing the model's capabilities.
         """
@@ -307,14 +318,18 @@ ReferenceValue = namedtuple('ReferenceValue', ['reference'])
 
 class ModelInfo(object):
     """A description of a device model's capabilities.
-    """
-
+        """
+    
     def __init__(self, data):
         self.data = data
+    
+    @property
+    def model_type(self):
+        """ get model type"""
+        return self.data['Info']['modelType']
 
     def value(self, name: str):
         """Look up information about a value.
-
         :param name: The name to look up.
         :returns: One of (`BitValue`, `EnumValue`, `RangeValue`,
             `ReferenceValue`).
@@ -362,7 +377,6 @@ class ModelInfo(object):
 
     def reference_name(self, key: str, value: Any) -> Optional[str]:
         """Look up the friendly name for an encoded reference value.
-
         :param key: The referenced key.
         :param value: The value whose name we want to look up.
         :returns: The friendly name for the referenced value.  If no name
@@ -374,12 +388,35 @@ class ModelInfo(object):
             return reference[value]['_comment']
         return None
 
+    def option_item(self, name):
+        """get option item for searching each device's support function
+        """
+            
+        options = self.value(name).options
+        return options
+
+       
+    def reference_comment(self, key, value):
+        """Look up reference comment
+        """
+        value = str(value)
+        if not self.value_type(key):
+            return value
+                
+        reference = self.value(key).reference
+                    
+        if value in reference:
+            comment = reference[value]['_comment']
+            return comment if comment else reference[value]['label']
+        else:
+            return '-'
+
     @property
     def binary_monitor_data(self):
         """Check that type of monitoring is BINARY(BYTE).
         """
         return self.data['Monitoring']['type'] == 'BINARY(BYTE)'
-
+    
     def decode_monitor_binary(self, data):
         """Decode binary encoded status data.
         """
@@ -392,11 +429,11 @@ class ModelInfo(object):
                 value = (value << 8) + v
             decoded[key] = str(value)
         return decoded
-
+    
     def decode_monitor_json(self, data):
         """Decode a bytestring that encodes JSON status data."""
         return json.loads(data.decode('utf8'))
-
+    
     def decode_monitor(self, data):
         """Decode  status data."""
         if self.binary_monitor_data:
@@ -406,8 +443,7 @@ class ModelInfo(object):
 
 
 class Device(object):
-    """A higher-level interface to a specific device.
-
+    """A higher-level interface to a specific device.   
     Unlike `DeviceInfo`, which just stores data *about* a device,
     `Device` objects refer to their client and can perform operations
     regarding the device.
@@ -416,40 +452,93 @@ class Device(object):
     def __init__(self, client: Client, device: DeviceInfo):
         """Create a wrapper for a `DeviceInfo` object associated with a
         `Client`.
-        """
+        """        
         self.client = client
         self.device = device
         self.model: ModelInfo = client.model_info(device)
+
+    def _set_operation(self, value):
+        """Set a device's operation for a given `value`.
+        """
+        
+        self.client.session.set_device_controls(
+            self.device.id,
+            value,
+            )
 
     def _set_control(self, key, value):
         """Set a device's control for `key` to `value`."""
         self.client.session.set_device_controls(
             self.device.id,
             {key: value},
-        )
+            )
 
     def _get_config(self, key):
         """Look up a device's configuration for a given value.
-
         The response is parsed as base64-encoded JSON.
         """
         data = self.client.session.get_device_config(
-            self.device.id,
-            key,
+               self.device.id,
+               key,
         )
         return json.loads(base64.b64decode(data).decode('utf8'))
-
+    
     def _get_control(self, key):
         """Look up a device's control value."""
         data = self.client.session.get_device_config(
-            self.device.id,
-            key,
-            'Control',
+               self.device.id,
+                key,
+               'Control',
         )
 
-        # The response comes in a funky key/value format: "(key:value)".
+            # The response comes in a funky key/value format: "(key:value)".
         _, value = data[1:-1].split(':')
         return value
+
+    def _set_control_ac_wdirstep(self, key, value):
+        """set ac wind dir step.
+        """
+        
+        self.client.session.set_device_controls(
+            self.device.id,
+            {key: value},
+            )
+
+    def _delete_permission(self):
+        """for use mobile app and HA component"""
+        self.client.session.delete_permission(
+            self.device.id,
+        )
+    
+        
+    def _get_power_data(self, sDate, eDate):
+        """ get AC Power Consumption Data"""
+        period = 'Day_'+sDate+'T000000Z/'+eDate+'T000000Z'
+        data = self.client.session.get_power_data(
+               self.device.id,
+                period,
+        )
+        return data
+
+    def _get_water_usage(self, typeCode, sDate, eDate):
+        """ get water purifier using data"""
+        data = self.client.session.get_water_usage(
+               self.device.id,
+                typeCode,
+                sDate,
+                eDate,
+        )
+        return data
+
+    def _get_dustsensor_data(self):
+        """get dustsensor data"""
+        data = self.client.session.get_dustsensor_data()
+        code = res.get('returnCd')
+        if code != '0000':
+            raise MonitorError(device_id, code)
+        else:
+           return data
+
 
     def monitor_start(self):
         """Start monitoring the device's status."""
