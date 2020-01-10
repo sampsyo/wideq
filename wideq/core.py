@@ -7,6 +7,7 @@ import hashlib
 import hmac
 import datetime
 import requests
+from typing import Any, Dict, List
 
 GATEWAY_URL = 'https://kic.lgthinq.com:46030/api/common/gatewayUriList'
 APP_KEY = 'wideq'
@@ -19,11 +20,11 @@ OAUTH_CLIENT_KEY = 'LGAO221A02'
 DATE_FORMAT = '%a, %d %b %Y %H:%M:%S +0000'
 
 
-def gen_uuid():
+def gen_uuid() -> str:
     return str(uuid.uuid4())
 
 
-def oauth2_signature(message, secret):
+def oauth2_signature(message: str, secret: str) -> bytes:
     """Get the base64-encoded SHA-1 HMAC digest of a string, as used in
     OAauth2 request signatures.
 
@@ -37,7 +38,7 @@ def oauth2_signature(message, secret):
     return base64.b64encode(digest)
 
 
-def get_list(obj, key):
+def get_list(obj, key: str) -> List[Dict[str, Any]]:
     """Look up a list using a key from an object.
 
     If `obj[key]` is a list, return it unchanged. If is something else,
@@ -294,7 +295,7 @@ class Auth(object):
 
 
 class Session(object):
-    def __init__(self, auth, session_id):
+    def __init__(self, auth, session_id) -> None:
         self.auth = auth
         self.session_id = session_id
 
@@ -308,7 +309,7 @@ class Session(object):
         url = urljoin(self.auth.gateway.api_root + '/', path)
         return lgedm_post(url, data, self.auth.access_token, self.session_id)
 
-    def get_devices(self):
+    def get_devices(self) -> List[Dict[str, Any]]:
         """Get a list of devices associated with the user's account.
 
         Return a list of dicts with information about the devices.
