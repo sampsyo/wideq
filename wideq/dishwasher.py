@@ -99,7 +99,7 @@ class DishWasherStatus(object):
         return DISHWASHER_STATE_READABLE[self.state.name]
 
     @property
-    def process(self) -> DishWasherProcess:
+    def process(self) -> Optional[DishWasherProcess]:
         """Get the process of the dishwasher."""
         process = lookup_enum('Process', self.data, self.dishwasher)
         if process and process != '-':
@@ -113,7 +113,7 @@ class DishWasherStatus(object):
         if self.process:
             return DISHWASHER_PROCESS_READABLE[self.process.name]
         else:
-            return None
+            return ""
 
     @property
     def is_on(self) -> bool:
