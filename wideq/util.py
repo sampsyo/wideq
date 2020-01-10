@@ -1,7 +1,6 @@
 from typing import TypeVar
-
 from .client import Device
-
+import uuid
 
 T = TypeVar('T', bound=Device)
 
@@ -29,3 +28,8 @@ def lookup_reference(attr: str, data: dict, device: T) -> str:
     if value is None:
         return 'Off'
     return value
+
+
+def gen_uuid() -> str:
+    """Returns a new UUID."""
+    return str(uuid.uuid4())

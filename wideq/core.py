@@ -1,12 +1,12 @@
 """A low-level, general abstraction for the LG SmartThinQ API.
 """
 import base64
-import uuid
 from urllib.parse import urljoin, urlencode, urlparse, parse_qs
 import hashlib
 import hmac
 import datetime
 import requests
+from .util import gen_uuid
 
 GATEWAY_URL = 'https://kic.lgthinq.com:46030/api/common/gatewayUriList'
 APP_KEY = 'wideq'
@@ -17,10 +17,6 @@ CLIENT_ID = 'LGAO221A02'
 OAUTH_SECRET_KEY = 'c053c2a6ddeb7ad97cb0eed0dcb31cf8'
 OAUTH_CLIENT_KEY = 'LGAO221A02'
 DATE_FORMAT = '%a, %d %b %Y %H:%M:%S +0000'
-
-
-def gen_uuid():
-    return str(uuid.uuid4())
 
 
 def oauth2_signature(message, secret):
