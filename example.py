@@ -160,7 +160,8 @@ EXAMPLE_COMMANDS = {
 def example_command(client, cmd, args):
     func = EXAMPLE_COMMANDS.get(cmd)
     if not func:
-        print("Invalid command: '{}' (use one of {})".format(cmd, ', '.join(EXAMPLE_COMMANDS)))
+        print("Invalid command: '{}'.\n"
+              "Use one of: {}".format(cmd, ', '.join(EXAMPLE_COMMANDS)))
         return
     func(client, *args)
 
