@@ -7,7 +7,7 @@ import hashlib
 import hmac
 import datetime
 import requests
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 GATEWAY_URL = 'https://kic.lgthinq.com:46030/api/common/gatewayUriList'
 APP_KEY = 'wideq'
@@ -252,7 +252,7 @@ class Gateway(object):
         self.language = language
 
     @classmethod
-    def discover(cls, country, language):
+    def discover(cls, country, language) -> 'Gateway':
         gw = gateway_info(country, language)
         return cls(gw['empUri'], gw['thinqUri'], gw['oauthUri'],
                    country, language)
@@ -275,7 +275,7 @@ class Auth(object):
         access_token, refresh_token = parse_oauth_callback(url)
         return cls(gateway, access_token, refresh_token)
 
-    def start_session(self):
+    def start_session(self) -> Tuple['Session', List[Dict[str, Any]]]:
         """Start an API session for the logged-in user. Return the
         Session object and a list of the user's devices.
         """

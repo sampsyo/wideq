@@ -25,7 +25,7 @@ class Monitor(object):
     makes one `Monitor` object suitable for long-term monitoring.
     """
 
-    def __init__(self, session, device_id) -> None:
+    def __init__(self, session: core.Session, device_id: str) -> None:
         self.session = session
         self.device_id = device_id
 
@@ -75,13 +75,16 @@ class Client(object):
     and allows serialization of state.
     """
 
-    def __init__(self, gateway=None, auth=None, session=None,
+    def __init__(self,
+                 gateway: Optional[core.Gateway] = None,
+                 auth: Optional[core.Auth] = None,
+                 session: Optional[core.Session] = None,
                  country: str = DEFAULT_COUNTRY,
                  language: str = DEFAULT_LANGUAGE) -> None:
         # The three steps required to get access to call the API.
-        self._gateway: core.Gateway = gateway
-        self._auth: core.Auth = auth
-        self._session: core.Session = session
+        self._gateway: Optional[core.Gateway] = gateway
+        self._auth: Optional[core.Auth] = auth
+        self._session: Optional[core.Session] = session
 
         # The last list of devices we got from the server. This is the
         # raw JSON list data describing the devices.
