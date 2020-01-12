@@ -146,19 +146,6 @@ def lgedm_post(url, data=None, access_token=None, session_id=None):
     return out
 
 
-def gateway_info(country, language):
-    """Load information about the hosts to use for API interaction.
-
-    `country` and `language` are codes, like "US" and "en-US,"
-    respectively.
-    """
-
-    return lgedm_post(
-        GATEWAY_URL,
-        {'countryCode': country, 'langCode': language},
-    )
-
-
 def oauth_url(auth_base, country, language):
     """Construct the URL for users to log in (in a browser) to start an
     authenticated session.
@@ -253,7 +240,13 @@ class Gateway(object):
 
     @classmethod
     def discover(cls, country, language) -> 'Gateway':
-        gw = gateway_info(country, language)
+        """Load information about the hosts to use for API interaction.
+
+        `country` and `language` are codes, like "US" and "en-US,"
+        respectively.
+        """
+        gw = lgedm_post(GATEWAY_URL,
+                        {'countryCode': country, 'langCode': language})
         return cls(gw['empUri'], gw['thinqUri'], gw['oauthUri'],
                    country, language)
 
