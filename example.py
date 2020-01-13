@@ -214,19 +214,17 @@ def main():
         description='Interact with the LG SmartThinQ API.'
     )
     parser.add_argument('cmd', metavar='CMD', nargs='?', default='ls',
-                        help='one of {}'.format(', '.join(EXAMPLE_COMMANDS)))
+                        help=f'one of: {", ".join(EXAMPLE_COMMANDS)}')
     parser.add_argument('args', metavar='ARGS', nargs='*',
                         help='subcommand arguments')
 
     parser.add_argument(
         '--country', '-c',
-        help='country code for account (default: {})'
-        .format(wideq.DEFAULT_COUNTRY)
+        help=f'country code for account (default: {wideq.DEFAULT_COUNTRY})'
     )
     parser.add_argument(
         '--language', '-l',
-        help='language code for the API (default: {})'
-        .format(wideq.DEFAULT_LANGUAGE)
+        help=f'language code for the API (default: {wideq.DEFAULT_LANGUAGE})'
     )
 
     args = parser.parse_args()
