@@ -5,6 +5,8 @@ import json
 import time
 import argparse
 import sys
+import re
+from typing import List
 
 STATE_FILE = 'wideq_state.json'
 
@@ -169,7 +171,7 @@ def example_command(client, cmd, args):
     func(client, *args)
 
 
-def example(country, language, cmd, args):
+def example(country: str, language: str, cmd: str, args: List[str]) -> None:
     # Load the current state for the example.
     try:
         with open(STATE_FILE) as f:
@@ -207,7 +209,7 @@ def example(country, language, cmd, args):
         json.dump(state, f)
 
 
-def main():
+def main() -> None:
     """The main command-line entry point.
     """
     parser = argparse.ArgumentParser(
@@ -220,14 +222,28 @@ def main():
 
     parser.add_argument(
         '--country', '-c',
-        help=f'country code for account (default: {wideq.DEFAULT_COUNTRY})'
+        help=f'country code for account (default: {wideq.DEFAULT_COUNTRY})',
+        default=wideq.DEFAULT_COUNTRY
     )
     parser.add_argument(
         '--language', '-l',
-        help=f'language code for the API (default: {wideq.DEFAULT_LANGUAGE})'
+        help=f'language code for the API (default: {wideq.DEFAULT_LANGUAGE})',
+        default=wideq.DEFAULT_LANGUAGE
     )
-
     args = parser.parse_args()
+    country_regex = re.compile(r"^[A-Z]{2,3}$")
+    if not country_regex.match(args.country):
+        print("Error: Country must be two or three letters" \
+              f" all upper case (e.g. US, NO, KR) got: '{args.country}'",
+              file=sys.stderr)
+        exit(1)
+    language_regex = re.compile(r"^[a-z]{2,3}-[A-Z]{2,3}$")
+    if not language_regex.match(args.language):
+        print("Error: Language must be a combination of language" \
+              " and country (e.g. en-US, no-NO, kr-KR)" \
+              f" got: '{args.language}'",
+              file=sys.stderr)
+        exit(1)
     example(args.country, args.language, args.cmd, args.args)
 
 
