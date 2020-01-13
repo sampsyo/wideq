@@ -67,7 +67,7 @@ DATA = {
             'type': 'Bit'
         },
         'Unexpected': {'type': 'Unexpected'},
-        'String': {
+        'StringOption': {
             'type': 'String',
             'option': 'some string'
         },
@@ -124,12 +124,14 @@ class ModelInfoTest(unittest.TestCase):
         data = "{'type': 'Unexpected'}"
         with self.assertRaisesRegex(
                 ValueError,
-                f"unsupported value type 'Unexpected' data: '{data}'"):
+                f"unsupported value name: 'Unexpected' type: 'Unexpected' "
+                f"data: '{data}'"):
             self.model_info.value('Unexpected')
 
     def test_value_unsupported_but_data_available(self):
-        data = "{'type': 'String', 'option': 'some string}'"
-        with self.assertRaises(
+        data = "{'type': 'String', 'option': 'some string'}"
+        with self.assertRaisesRegex(
                 ValueError,
-                msg=f"unsupported value type 'String' data: '{data}"):
-            self.model_info.value('String')
+                f"unsupported value name: 'StringOption'"
+                f" type: 'String' data: '{data}"):
+            self.model_info.value('StringOption')
