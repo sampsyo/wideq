@@ -340,7 +340,8 @@ class ModelInfo(object):
             ref = d['option'][0]
             return ReferenceValue(self.data[ref])
         else:
-            raise ValueError("unsupported value type {}".format(d['type']))
+            raise ValueError(
+                f"unsupported value type '{str(d['type'])}' data: '{str(d)}'")
 
     def default(self, name):
         """Get the default value, if it exists, for a given value.
