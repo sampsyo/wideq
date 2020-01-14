@@ -1,7 +1,7 @@
 import unittest
 
 from wideq.client import (
-    BitValue, EnumValue, ModelInfo, RangeValue, ReferenceValue)
+    BitValue, EnumValue, ModelInfo, RangeValue, ReferenceValue, StringValue)
 
 
 DATA = {
@@ -66,10 +66,15 @@ DATA = {
             ],
             'type': 'Bit'
         },
+        'TimeBsOn': {
+            '_comment':
+                '오전 12시 30분은 0030, 오후12시30분은 1230 ,오후 4시30분은 1630 off는 0 ',
+            'type': 'String'
+        },
         'Unexpected': {'type': 'Unexpected'},
-        'StringOption': {
-            'type': 'String',
-            'option': 'some string'
+        'Unexpected2': {
+            'type': 'Unexpected',
+            'option': 'some option'
         },
     },
     'Course': {
@@ -120,6 +125,12 @@ class ModelInfoTest(unittest.TestCase):
         expected = ReferenceValue(DATA['Course'])
         self.assertEqual(expected, actual)
 
+    def test_string(self):
+        actual = self.model_info.value('TimeBsOn')
+        expected = StringValue(
+            "오전 12시 30분은 0030, 오후12시30분은 1230 ,오후 4시30분은 1630 off는 0 ")
+        self.assertEqual(expected, actual)
+
     def test_value_unsupported(self):
         data = "{'type': 'Unexpected'}"
         with self.assertRaisesRegex(
@@ -129,9 +140,9 @@ class ModelInfoTest(unittest.TestCase):
             self.model_info.value('Unexpected')
 
     def test_value_unsupported_but_data_available(self):
-        data = "{'type': 'String', 'option': 'some string'}"
+        data = "{'type': 'Unexpected', 'option': 'some option'}"
         with self.assertRaisesRegex(
                 ValueError,
-                f"unsupported value name: 'StringOption'"
-                f" type: 'String' data: '{data}"):
-            self.model_info.value('StringOption')
+                f"unsupported value name: 'Unexpected2'"
+                f" type: 'Unexpected' data: '{data}"):
+            self.model_info.value('Unexpected2')
