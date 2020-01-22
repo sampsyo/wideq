@@ -268,7 +268,7 @@ class ACDevice(Device):
             value = self._get_control('DisplayControl')
             return value == '0'  # Seems backwards, but isn't.
         except FailedRequestError:
-            # Device does not support reporting display light status
+            # Device does not support reporting display light status.
             # Since it's probably not changable the it must be on
             return True
 
