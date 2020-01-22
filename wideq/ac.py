@@ -252,12 +252,14 @@ class ACDevice(Device):
     def get_outdoor_power(self):
         """Get instant power usage in watts of the outdoor unit"""
 
-        return self._get_config('InOutInstantPower')
+        value = self._get_config('OutTotalInstantPower')
+        return value['OutTotalInstantPower']
 
     def get_power(self):
         """Get the instant power usage in watts of the whole unit"""
 
-        return self._get_config('OutTotalInstantPower')
+        value = self._get_config('InOutInstantPower')
+        return value['InOutInstantPower']
 
     def get_light(self):
         """Get a Boolean indicating whether the display light is on."""
