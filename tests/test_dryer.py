@@ -63,7 +63,7 @@ class DryerStatusTest(unittest.TestCase):
         self.assertEqual(TempControl.MID_HIGH, status.temperature_control)
         self.assertEqual(TimeDry.OFF, status.time_dry)
 
-    @mock.patch('wideq.client.logging')
+    @mock.patch('wideq.client.LOGGER')
     def test_properties_unknown_enum_value(self, mock_logging):
         """
         This should not raise an error for an invalid enum value and instead
