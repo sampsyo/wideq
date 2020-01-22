@@ -7,6 +7,7 @@ import hashlib
 import hmac
 import datetime
 import requests
+import logging
 from typing import Any, Dict, List, Tuple
 
 GATEWAY_URL = 'https://kic.lgthinq.com:46030/api/common/gatewayUriList'
@@ -20,6 +21,47 @@ OAUTH_CLIENT_KEY = 'LGAO221A02'
 DATE_FORMAT = '%a, %d %b %Y %H:%M:%S +0000'
 DEFAULT_COUNTRY = 'US'
 DEFAULT_LANGUAGE = 'en-US'
+
+
+def get_wideq_logger() -> logging.Logger:
+    level = logging.INFO
+    fmt = "%(asctime)s %(levelname)s [%(name)s] %(message)s"
+    datefmt = "%Y-%m-%d %H:%M:%S"
+    logger = logging.getLogger("wideq")
+    logger.setLevel(level)
+
+    try:
+        import colorlog  # type: ignore
+        colorfmt = f"%(log_color)s{fmt}%(reset)s"
+        handler = colorlog.StreamHandler()
+        handler.setFormatter(
+            colorlog.ColoredFormatter(
+                colorfmt,
+                datefmt=datefmt,
+                reset=True,
+                log_colors={
+                    "DEBUG": "cyan",
+                    "INFO": "green",
+                    "WARNING": "yellow",
+                    "ERROR": "red",
+                    "CRITICAL": "red",
+                },
+            )
+        )
+    except ImportError:
+        handler = logging.StreamHandler()
+        handler.setFormatter(logging.Formatter(fmt=fmt, datefmt=datefmt))
+
+    logger.addHandler(handler)
+    return logger
+
+
+LOGGER = get_wideq_logger()
+
+
+def set_log_level(level: int):
+    logger = get_wideq_logger()
+    logger.setLevel(level)
 
 
 def gen_uuid() -> str:

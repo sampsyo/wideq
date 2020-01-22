@@ -6,9 +6,12 @@ import time
 import argparse
 import sys
 import re
+import os.path
+import logging
 from typing import List
 
 STATE_FILE = 'wideq_state.json'
+LOGGER = logging.getLogger("wideq.example")
 
 
 def authenticate(gateway):
@@ -166,20 +169,26 @@ EXAMPLE_COMMANDS = {
 def example_command(client, cmd, args):
     func = EXAMPLE_COMMANDS.get(cmd)
     if not func:
-        print("Invalid command: '{}'.\n"
-              "Use one of: {}".format(cmd, ', '.join(EXAMPLE_COMMANDS)),
-              file=sys.stderr)
+        LOGGER.error("Invalid command: '%s'.\n"
+                     "Use one of: %s", cmd, ', '.join(EXAMPLE_COMMANDS))
         return
     func(client, *args)
 
 
-def example(country: str, language: str, cmd: str, args: List[str]) -> None:
+def example(country: str, language: str, verbose: bool,
+            cmd: str, args: List[str]) -> None:
+    if verbose:
+        wideq.set_log_level(logging.DEBUG)
+
     # Load the current state for the example.
     try:
         with open(STATE_FILE) as f:
+            LOGGER.debug("State file found '%s'", os.path.abspath(STATE_FILE))
             state = json.load(f)
     except IOError:
         state = {}
+        LOGGER.debug("No state file found (tried: '%s')",
+                     os.path.abspath(STATE_FILE))
 
     client = wideq.Client.load(state)
     if country:
@@ -198,17 +207,18 @@ def example(country: str, language: str, cmd: str, args: List[str]) -> None:
             break
 
         except wideq.NotLoggedInError:
-            print('Session expired.')
+            LOGGER.info('Session expired.')
             client.refresh()
 
         except UserError as exc:
-            print(exc.msg, file=sys.stderr)
+            LOGGER.error(exc.msg)
             sys.exit(1)
 
     # Save the updated state.
     state = client.dump()
     with open(STATE_FILE, 'w') as f:
         json.dump(state, f)
+        LOGGER.debug("Wrote state file '%s'", os.path.abspath(STATE_FILE))
 
 
 def main() -> None:
@@ -232,21 +242,27 @@ def main() -> None:
         help=f'language code for the API (default: {wideq.DEFAULT_LANGUAGE})',
         default=wideq.DEFAULT_LANGUAGE
     )
+    parser.add_argument(
+        '--verbose', '-v',
+        help='verbose mode to help debugging',
+        action='store_true', default=False
+    )
+
     args = parser.parse_args()
     country_regex = re.compile(r"^[A-Z]{2,3}$")
     if not country_regex.match(args.country):
-        print("Error: Country must be two or three letters"
-              f" all upper case (e.g. US, NO, KR) got: '{args.country}'",
-              file=sys.stderr)
+        LOGGER.error("Country must be two or three letters"
+                     " all upper case (e.g. US, NO, KR) got: '%s'",
+                     args.country)
         exit(1)
     language_regex = re.compile(r"^[a-z]{2,3}-[A-Z]{2,3}$")
     if not language_regex.match(args.language):
-        print("Error: Language must be a combination of language"
-              " and country (e.g. en-US, no-NO, kr-KR)"
-              f" got: '{args.language}'",
-              file=sys.stderr)
+        LOGGER.error("Language must be a combination of language"
+                     " and country (e.g. en-US, no-NO, kr-KR)"
+                     " got: '%s'",
+                     args.language)
         exit(1)
-    example(args.country, args.language, args.cmd, args.args)
+    example(args.country, args.language, args.verbose, args.cmd, args.args)
 
 
 if __name__ == '__main__':
