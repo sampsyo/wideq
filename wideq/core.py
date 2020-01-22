@@ -18,6 +18,8 @@ CLIENT_ID = 'LGAO221A02'
 OAUTH_SECRET_KEY = 'c053c2a6ddeb7ad97cb0eed0dcb31cf8'
 OAUTH_CLIENT_KEY = 'LGAO221A02'
 DATE_FORMAT = '%a, %d %b %Y %H:%M:%S +0000'
+DEFAULT_COUNTRY = 'US'
+DEFAULT_LANGUAGE = 'en-US'
 
 
 def gen_uuid() -> str:
@@ -253,6 +255,21 @@ class Gateway(object):
     def oauth_url(self):
         return oauth_url(self.auth_base, self.country, self.language)
 
+    def serialize(self) -> Dict[str, str]:
+        return {
+            'auth_base': self.auth_base,
+            'api_root': self.api_root,
+            'oauth_root': self.oauth_root,
+            'country': self.country,
+            'language': self.language,
+        }
+
+    @classmethod
+    def deserialize(cls, data: Dict[str, Any]) -> 'Gateway':
+        return cls(data['auth_base'], data['api_root'], data['oauth_root'],
+                   data.get('country', DEFAULT_COUNTRY),
+                   data.get('language', DEFAULT_LANGUAGE))
+
 
 class Auth(object):
     def __init__(self, gateway, access_token, refresh_token):
@@ -285,6 +302,12 @@ class Auth(object):
         new_access_token = refresh_auth(self.gateway.oauth_root,
                                         self.refresh_token)
         return Auth(self.gateway, new_access_token, self.refresh_token)
+
+    def serialize(self) -> Dict[str, str]:
+        return {
+            'access_token': self.access_token,
+            'refresh_token': self.refresh_token,
+        }
 
 
 class Session(object):

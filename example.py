@@ -235,14 +235,14 @@ def main() -> None:
     args = parser.parse_args()
     country_regex = re.compile(r"^[A-Z]{2,3}$")
     if not country_regex.match(args.country):
-        print("Error: Country must be two or three letters" \
+        print("Error: Country must be two or three letters"
               f" all upper case (e.g. US, NO, KR) got: '{args.country}'",
               file=sys.stderr)
         exit(1)
     language_regex = re.compile(r"^[a-z]{2,3}-[A-Z]{2,3}$")
     if not language_regex.match(args.language):
-        print("Error: Language must be a combination of language" \
-              " and country (e.g. en-US, no-NO, kr-KR)" \
+        print("Error: Language must be a combination of language"
+              " and country (e.g. en-US, no-NO, kr-KR)"
               f" got: '{args.language}'",
               file=sys.stderr)
         exit(1)
