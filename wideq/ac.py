@@ -249,13 +249,13 @@ class ACDevice(Device):
 
         return self._get_config('EnergyDesiredValue')
 
-    def get_inout_instant_power(self):
-        """Get the instant power consumption."""
+    def get_outdoor_power(self):
+        """Get instant power usage in watts of the outdoor unit"""
 
         return self._get_config('InOutInstantPower')
 
-    def get_out_total_instant_power(self):
-        """Get the OutTotalInstantPower value (not sure what that is)"""
+    def get_power(self):
+        """Get the instant power usage in watts of the whole unit"""
 
         return self._get_config('OutTotalInstantPower')
 
