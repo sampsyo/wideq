@@ -249,6 +249,16 @@ class ACDevice(Device):
 
         return self._get_config('EnergyDesiredValue')
 
+    def get_inout_instant_power(self):
+        """Get the instant power consumption."""
+
+        return self._get_config('InOutInstantPower')
+
+    def get_out_total_instant_power(self):
+        """Get the OutTotalInstantPower value (not sure what that is)"""
+
+        return self._get_config('OutTotalInstantPower')
+
     def get_light(self):
         """Get a Boolean indicating whether the display light is on."""
 
