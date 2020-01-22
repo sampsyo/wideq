@@ -2,3 +2,4 @@
 .tox
 dist/
 wideq_state.json
+__pycache__

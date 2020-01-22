@@ -146,6 +146,8 @@ def ac_config(client, device_id):
     print(ac.get_filter_state())
     print(ac.get_mfilter_state())
     print(ac.get_energy_target())
+    print(ac.get_power(), " watts")
+    print(ac.get_outdoor_power(), " watts")
     print(ac.get_volume())
     print(ac.get_light())
     print(ac.get_zones())
