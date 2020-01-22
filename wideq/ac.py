@@ -264,8 +264,11 @@ class ACDevice(Device):
     def get_light(self):
         """Get a Boolean indicating whether the display light is on."""
 
-        value = self._get_control('DisplayControl')
-        return value == '0'  # Seems backwards, but isn't.
+        try:
+            value = self._get_control('DisplayControl')
+            return value == '0'  # Seems backwards, but isn't.
+        except FailedRequestError:
+            return 0  # Device does not support reporting display light status
 
     def get_volume(self):
         """Get the speaker volume level."""
