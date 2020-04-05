@@ -8,7 +8,10 @@ import hmac
 import datetime
 import requests
 import logging
+from functools import lru_cache
 from typing import Any, Dict, List, Tuple
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 
 GATEWAY_URL = 'https://kic.lgthinq.com:46030/api/common/gatewayUriList'
 APP_KEY = 'wideq'
@@ -57,6 +60,32 @@ def get_wideq_logger() -> logging.Logger:
 
 
 LOGGER = get_wideq_logger()
+
+
+@lru_cache(maxsize=5)
+def get_retry_session():
+    # See https://www.peterbe.com/plog/best-practice-with-retries-with-requests
+    # for the source of this retry mechanism
+    num_retries = 100 # fail *eventually*, but effectively retry in perpetuity
+    backoff_factor = 0.5
+    status_forcelist = (500, 502, 504)
+    session = requests.Session()
+    session.headers = {
+        'x-thinq-application-key': APP_KEY,
+        'x-thinq-security-key': SECURITY_KEY,
+        'Accept': 'application/json',
+    }
+    retry = Retry(
+        total=num_retries,
+        read=num_retries,
+        connect=num_retries,
+        backoff_factor=backoff_factor,
+        status_forcelist=status_forcelist,
+    )
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount('http://', adapter)
+    session.mount('https://', adapter)
+    return session
 
 
 def set_log_level(level: int):
@@ -163,18 +192,14 @@ def lgedm_post(url, data=None, access_token=None, session_id=None):
     authenticated requests. They are not required, for example, to load
     the gateway server data or to start a session.
     """
-
-    headers = {
-        'x-thinq-application-key': APP_KEY,
-        'x-thinq-security-key': SECURITY_KEY,
-        'Accept': 'application/json',
-    }
+    headers=dict()
     if access_token:
         headers['x-thinq-token'] = access_token
     if session_id:
         headers['x-thinq-jsessionId'] = session_id
 
-    res = requests.post(url, json={DATA_ROOT: data}, headers=headers)
+    session = get_retry_session()
+    res = session.post(url, json={DATA_ROOT: data}, headers=headers)
     out = res.json()[DATA_ROOT]
 
     # Check for API errors.
@@ -266,7 +291,7 @@ def refresh_auth(oauth_root, refresh_token):
         'Accept': 'application/json',
     }
 
-    res = requests.post(token_url, data=data, headers=headers)
+    res = get_retry_session().post(token_url, data=data, headers=headers)
     res_data = res.json()
 
     if res_data['status'] != 1:
