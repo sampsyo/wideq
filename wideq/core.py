@@ -66,7 +66,7 @@ LOGGER = get_wideq_logger()
 def get_retry_session():
     # See https://www.peterbe.com/plog/best-practice-with-retries-with-requests
     # for the source of this retry mechanism
-    num_retries = 100 # fail *eventually*, but effectively retry in perpetuity
+    num_retries = 100  # fail *eventually*, but effectively retry in perpetuity
     backoff_factor = 0.5
     status_forcelist = (500, 502, 504)
     session = requests.Session()
@@ -192,7 +192,7 @@ def lgedm_post(url, data=None, access_token=None, session_id=None):
     authenticated requests. They are not required, for example, to load
     the gateway server data or to start a session.
     """
-    headers=dict()
+    headers = dict()
     if access_token:
         headers['x-thinq-token'] = access_token
     if session_id:
