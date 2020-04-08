@@ -24,6 +24,9 @@ OAUTH_CLIENT_KEY = 'LGAO221A02'
 DATE_FORMAT = '%a, %d %b %Y %H:%M:%S +0000'
 DEFAULT_COUNTRY = 'US'
 DEFAULT_LANGUAGE = 'en-US'
+NUM_RETRIES = 100  # fail *eventually*, but effectively retry in perpetuity
+BACKOFF_FACTOR = 0.5
+STATUS_FORCELIST = (500, 502, 504)
 
 
 def get_wideq_logger() -> logging.Logger:
@@ -66,21 +69,13 @@ LOGGER = get_wideq_logger()
 def get_retry_session():
     # See https://www.peterbe.com/plog/best-practice-with-retries-with-requests
     # for the source of this retry mechanism
-    num_retries = 100  # fail *eventually*, but effectively retry in perpetuity
-    backoff_factor = 0.5
-    status_forcelist = (500, 502, 504)
     session = requests.Session()
-    session.headers = {
-        'x-thinq-application-key': APP_KEY,
-        'x-thinq-security-key': SECURITY_KEY,
-        'Accept': 'application/json',
-    }
     retry = Retry(
-        total=num_retries,
-        read=num_retries,
-        connect=num_retries,
-        backoff_factor=backoff_factor,
-        status_forcelist=status_forcelist,
+        totaL=NUM_RETRIES,
+        read=NUM_RETRIES,
+        connect=NUM_RETRIES,
+        backoff_factor=BACKOFF_FACTOR,
+        status_forcelist=STATUS_FORCELIST,
     )
     adapter = HTTPAdapter(max_retries=retry)
     session.mount('http://', adapter)
@@ -192,7 +187,11 @@ def lgedm_post(url, data=None, access_token=None, session_id=None):
     authenticated requests. They are not required, for example, to load
     the gateway server data or to start a session.
     """
-    headers = dict()
+    headers = {
+        'x-thinq-application-key': APP_KEY,
+        'x-thinq-security-key': SECURITY_KEY,
+        'Accept': 'application/json',
+    }
     if access_token:
         headers['x-thinq-token'] = access_token
     if session_id:
