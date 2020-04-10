@@ -8,7 +8,6 @@ import hmac
 import datetime
 import requests
 import logging
-from functools import lru_cache
 from typing import Any, Dict, List, Tuple
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
@@ -24,9 +23,9 @@ OAUTH_CLIENT_KEY = 'LGAO221A02'
 DATE_FORMAT = '%a, %d %b %Y %H:%M:%S +0000'
 DEFAULT_COUNTRY = 'US'
 DEFAULT_LANGUAGE = 'en-US'
-NUM_RETRIES = 100  # fail *eventually*, but effectively retry in perpetuity
+NUM_RETRIES = 5 # Anecdotally this seems sufficient.
 BACKOFF_FACTOR = 0.5
-STATUS_FORCELIST = (500, 502, 504)
+STATUS_FORCELIST = (502, 503, 504)
 
 
 def get_wideq_logger() -> logging.Logger:
@@ -65,13 +64,12 @@ def get_wideq_logger() -> logging.Logger:
 LOGGER = get_wideq_logger()
 
 
-@lru_cache(maxsize=5)
 def get_retry_session():
     # See https://www.peterbe.com/plog/best-practice-with-retries-with-requests
     # for the source of this retry mechanism
     session = requests.Session()
     retry = Retry(
-        totaL=NUM_RETRIES,
+        total=NUM_RETRIES,
         read=NUM_RETRIES,
         connect=NUM_RETRIES,
         backoff_factor=BACKOFF_FACTOR,
@@ -81,6 +79,9 @@ def get_retry_session():
     session.mount('http://', adapter)
     session.mount('https://', adapter)
     return session
+
+
+SESSION = get_retry_session()
 
 
 def set_log_level(level: int):
@@ -197,8 +198,7 @@ def lgedm_post(url, data=None, access_token=None, session_id=None):
     if session_id:
         headers['x-thinq-jsessionId'] = session_id
 
-    session = get_retry_session()
-    res = session.post(url, json={DATA_ROOT: data}, headers=headers)
+    res = SESSION.post(url, json={DATA_ROOT: data}, headers=headers)
     out = res.json()[DATA_ROOT]
 
     # Check for API errors.
@@ -290,7 +290,7 @@ def refresh_auth(oauth_root, refresh_token):
         'Accept': 'application/json',
     }
 
-    res = get_retry_session().post(token_url, data=data, headers=headers)
+    res = SESSION.post(token_url, data=data, headers=headers)
     res_data = res.json()
 
     if res_data['status'] != 1:
