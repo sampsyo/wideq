@@ -23,7 +23,7 @@ OAUTH_CLIENT_KEY = 'LGAO221A02'
 DATE_FORMAT = '%a, %d %b %Y %H:%M:%S +0000'
 DEFAULT_COUNTRY = 'US'
 DEFAULT_LANGUAGE = 'en-US'
-NUM_RETRIES = 5 # Anecdotally this seems sufficient.
+NUM_RETRIES = 5  # Anecdotally this seems sufficient.
 BACKOFF_FACTOR = 0.5
 STATUS_FORCELIST = (502, 503, 504)
 
