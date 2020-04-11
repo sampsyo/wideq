@@ -65,7 +65,7 @@ def get_wideq_logger() -> logging.Logger:
 LOGGER = get_wideq_logger()
 
 
-def get_retry_session():
+def retry_session():
     """Get a Requests session that retries HTTP and HTTPS requests.
     """
     # Adapted from:
@@ -82,9 +82,6 @@ def get_retry_session():
     session.mount('http://', adapter)
     session.mount('https://', adapter)
     return session
-
-
-SESSION = get_retry_session()
 
 
 def set_log_level(level: int):
@@ -201,7 +198,8 @@ def lgedm_post(url, data=None, access_token=None, session_id=None):
     if session_id:
         headers['x-thinq-jsessionId'] = session_id
 
-    res = SESSION.post(url, json={DATA_ROOT: data}, headers=headers)
+    with retry_session() as session:
+        res = session.post(url, json={DATA_ROOT: data}, headers=headers)
     out = res.json()[DATA_ROOT]
 
     # Check for API errors.
@@ -293,7 +291,8 @@ def refresh_auth(oauth_root, refresh_token):
         'Accept': 'application/json',
     }
 
-    res = SESSION.post(token_url, data=data, headers=headers)
+    with retry_session() as session:
+        res = session.post(token_url, data=data, headers=headers)
     res_data = res.json()
 
     if res_data['status'] != 1:
