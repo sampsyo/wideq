@@ -23,9 +23,10 @@ OAUTH_CLIENT_KEY = 'LGAO221A02'
 DATE_FORMAT = '%a, %d %b %Y %H:%M:%S +0000'
 DEFAULT_COUNTRY = 'US'
 DEFAULT_LANGUAGE = 'en-US'
-NUM_RETRIES = 5  # Anecdotally this seems sufficient.
-BACKOFF_FACTOR = 0.5
-STATUS_FORCELIST = (502, 503, 504)
+
+RETRY_COUNT = 5  # Anecdotally this seems sufficient.
+RETRY_FACTOR = 0.5
+RETRY_STATUSES = (502, 503, 504)
 
 
 def get_wideq_logger() -> logging.Logger:
@@ -65,15 +66,17 @@ LOGGER = get_wideq_logger()
 
 
 def get_retry_session():
-    # See https://www.peterbe.com/plog/best-practice-with-retries-with-requests
-    # for the source of this retry mechanism
+    """Get a Requests session that retries HTTP and HTTPS requests.
+    """
+    # Adapted from:
+    # https://www.peterbe.com/plog/best-practice-with-retries-with-requests
     session = requests.Session()
     retry = Retry(
-        total=NUM_RETRIES,
-        read=NUM_RETRIES,
-        connect=NUM_RETRIES,
-        backoff_factor=BACKOFF_FACTOR,
-        status_forcelist=STATUS_FORCELIST,
+        total=RETRY_COUNT,
+        read=RETRY_COUNT,
+        connect=RETRY_COUNT,
+        backoff_factor=RETRY_FACTOR,
+        status_forcelist=RETRY_STATUSES,
     )
     adapter = HTTPAdapter(max_retries=retry)
     session.mount('http://', adapter)
