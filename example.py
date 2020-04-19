@@ -134,7 +134,7 @@ def set_temp(client, device_id, temp):
     """Set the configured temperature for an AC device."""
 
     ac = wideq.ACDevice(client, _force_device(client, device_id))
-    ac.set_fahrenheit(int(temp))
+    ac.set_celsius(int(temp))
 
 
 def turn(client, device_id, on_off):
@@ -207,7 +207,7 @@ def example(country: str, language: str, verbose: bool,
             break
 
         except wideq.NotLoggedInError:
-            LOGGER.info('Session expired.')
+            # logging.info('Session expired.')
             client.refresh()
 
         except UserError as exc:
