@@ -10,7 +10,7 @@ import os.path
 import logging
 from typing import List
 
-STATE_FILE = 'wideq_state.json'
+STATE_FILE = '/root/workspace/homeServer/wideq/wideq_state.json'
 LOGGER = logging.getLogger("wideq.example")
 
 
