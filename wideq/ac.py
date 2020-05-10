@@ -192,7 +192,6 @@ class ACDevice(Device):
             f"could not determine correct 'on' operation:"
             f" too many reported operations: '{str(operations)}'")
 
-
     def set_celsius(self, c):
         """Set the device's target temperature in Celsius degrees.
         """
