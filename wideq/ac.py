@@ -154,6 +154,45 @@ class ACDevice(Device):
             out[c_num] = f
         return out
 
+    @property
+    def supported_operations(self):
+        """Get a list of the ACOp Operations the device supports.
+        """
+
+        mapping = self.model.value('Operation').options
+        return [ACOp(o) for i, o in mapping.items()]
+
+    @property
+    def supported_on_operation(self):
+        """Get the most correct "On" operation the device supports.
+        :raises ValueError: If ALL_ON is not supported, but there are
+            multiple supported ON operations. If a model raises this,
+            its behaviour needs to be determined so this function can
+            make a better decision.
+        """
+
+        operations = self.supported_operations
+        operations.remove(ACOp.OFF)
+
+        # This ON operation appears to be supported in newer AC models
+        if ACOp.ALL_ON in operations:
+            return ACOp.ALL_ON
+
+        # Older models, or possibly just the LP1419IVSM, do not support ALL_ON,
+        # instead advertising only a single operation of RIGHT_ON.
+        # Thus, if there's only one ON operation, we use that.
+        if len(operations) == 1:
+            return operations[0]
+
+        # Hypothetically, the API could return multiple ON operations, neither
+        # of which are ALL_ON. This will raise in that case, as we don't know
+        # what that model will expect us to do to turn everything on.
+        # Or, this code will never actually be reached! We can only hope. :)
+        raise ValueError(
+            f"could not determine correct 'on' operation:"
+            f" too many reported operations: '{str(operations)}'")
+
+
     def set_celsius(self, c):
         """Set the device's target temperature in Celsius degrees.
         """
@@ -229,7 +268,7 @@ class ACDevice(Device):
         """Turn on or off the device (according to a boolean).
         """
 
-        op = ACOp.ALL_ON if is_on else ACOp.OFF
+        op = self.supported_on_operation if is_on else ACOp.OFF
         op_value = self.model.enum_value('Operation', op.value)
         self._set_control('Operation', op_value)
 

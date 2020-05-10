@@ -146,6 +146,8 @@ def turn(client, device_id, on_off):
 
 def ac_config(client, device_id):
     ac = wideq.ACDevice(client, _force_device(client, device_id))
+    print(ac.supported_operations)
+    print(ac.supported_on_operation)
     print(ac.get_filter_state())
     print(ac.get_mfilter_state())
     print(ac.get_energy_target())
