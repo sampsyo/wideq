@@ -1,11 +1,22 @@
 """Reverse-engineered client for the LG SmartThinQ API.
 """
-from .core import *  # noqa
-from .client import *  # noqa
-from .ac import *  # noqa
-from .dishwasher import *  # noqa
-from .dryer import *  # noqa
-from .refrigerator import *  # noqa
-from .washer import *  # noqa
+import uuid
 
 __version__ = '1.4.0'
+
+
+def as_list(obj):
+    """Wrap non-lists in lists.
+
+    If `obj` is a list, return it unchanged. Otherwise, return a
+    single-element list containing it.
+    """
+
+    if isinstance(obj, list):
+        return obj
+    else:
+        return [obj]
+
+
+def gen_uuid():
+    return str(uuid.uuid4())
