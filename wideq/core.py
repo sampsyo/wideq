@@ -199,10 +199,16 @@ def lgedm_post(api_root, path, data=None, access_token=None, session_id=None):
         headers['x-thinq-jsessionId'] = session_id
 
     with retry_session() as session:
-        res = session.post(urljoin(api_root + '/', path), json={DATA_ROOT: data}, headers=headers)
+        res = session.post(urljoin(api_root + '/', path),
+                           json={DATA_ROOT: data}, headers=headers)
 
         if "rtiControl" in path:
-            session.post(urljoin(api_root + '/', 'rti/delControlPermission'), json={DATA_ROOT: {'deviceId': data.get('deviceId')}}, headers=headers)
+            session.post(
+                urljoin(api_root + '/', 'rti/delControlPermission'),
+                json={
+                    DATA_ROOT: {'deviceId': data.get('deviceId')}
+                }, headers=headers
+            )
             # Ignore the response, since it's not a breaking error, maybe log a warning
 
     out = res.json()[DATA_ROOT]
@@ -394,7 +400,8 @@ class Session(object):
         request from an active Session.
         """
 
-        return lgedm_post(self.auth.gateway.api_root, path, data, self.auth.access_token, self.session_id)
+        return lgedm_post(self.auth.gateway.api_root, path, data,
+                          self.auth.access_token, self.session_id)
 
     def get_devices(self) -> List[Dict[str, Any]]:
         """Get a list of devices associated with the user's account.
