@@ -1,214 +1,184 @@
-"""------------------for Dryer"""
-import logging
+import enum
 from typing import Optional
 
-from .device import (
-    Device,
-    DeviceStatus,
-    STATE_OPTIONITEM_NONE,
-)
+from .client import Device, _UNKNOWN
+from .util import lookup_enum, lookup_reference
 
-from .dryer_states import (
-    STATE_DRYER,
-    STATE_DRYER_ERROR,
-    DRYERSTATES,
-    DRYERDRYLEVELS,
-    DRYERTEMPS,
-    DRYERREFERRORS,
-)
 
-_LOGGER = logging.getLogger(__name__)
+class DryerState(enum.Enum):
+    """The state of the dryer device."""
+
+    COOLING = '@WM_STATE_COOLING_W'
+    END = '@WM_STATE_END_W'
+    ERROR = '@WM_STATE_ERROR_W'
+    DRYING = '@WM_STATE_DRYING_W'
+    INITIAL = '@WM_STATE_INITIAL_W'
+    OFF = '@WM_STATE_POWER_OFF_W'
+    PAUSE = '@WM_STATE_PAUSE_W'
+    RUNNING = '@WM_STATE_RUNNING_W'
+    SMART_DIAGNOSIS = '@WM_STATE_SMART_DIAGNOSIS_W'
+    WRINKLE_CARE = '@WM_STATE_WRINKLECARE_W'
+    UNKNOWN = _UNKNOWN
+
+
+class DryLevel(enum.Enum):
+    """Represents the dry level setting of the dryer."""
+
+    CUPBOARD = '@WM_DRY27_DRY_LEVEL_CUPBOARD_W'
+    DAMP = '@WM_DRY27_DRY_LEVEL_DAMP_W'
+    EXTRA = '@WM_DRY27_DRY_LEVEL_EXTRA_W'
+    IRON = '@WM_DRY27_DRY_LEVEL_IRON_W'
+    LESS = '@WM_DRY27_DRY_LEVEL_LESS_W'
+    MORE = '@WM_DRY27_DRY_LEVEL_MORE_W'
+    NORMAL = '@WM_DRY27_DRY_LEVEL_NORMAL_W'
+    OFF = '-'
+    VERY = '@WM_DRY27_DRY_LEVEL_VERY_W'
+    UNKNOWN = _UNKNOWN
+
+
+class DryerError(enum.Enum):
+    """A dryer error."""
+
+    ERROR_AE = '@WM_US_DRYER_ERROR_AE_W'
+    ERROR_CE1 = '@WM_US_DRYER_ERROR_CE1_W'
+    ERROR_DE4 = '@WM_WW_FL_ERROR_DE4_W'
+    ERROR_DOOR = '@WM_US_DRYER_ERROR_DE_W'
+    ERROR_DRAINMOTOR = '@WM_US_DRYER_ERROR_OE_W'
+    ERROR_EMPTYWATER = '@WM_US_DRYER_ERROR_EMPTYWATER_W'
+    ERROR_F1 = '@WM_US_DRYER_ERROR_F1_W'
+    ERROR_LE1 = '@WM_US_DRYER_ERROR_LE1_W'
+    ERROR_LE2 = '@WM_US_DRYER_ERROR_LE2_W'
+    ERROR_NOFILTER = '@WM_US_DRYER_ERROR_NOFILTER_W'
+    ERROR_NP = '@WM_US_DRYER_ERROR_NP_GAS_W'
+    ERROR_PS = '@WM_US_DRYER_ERROR_PS_W'
+    ERROR_TE1 = '@WM_US_DRYER_ERROR_TE1_W'
+    ERROR_TE2 = '@WM_US_DRYER_ERROR_TE2_W'
+    ERROR_TE5 = '@WM_US_DRYER_ERROR_TE5_W'
+    ERROR_TE6 = '@WM_US_DRYER_ERROR_TE6_W'
+    UNKNOWN = _UNKNOWN
+
+
+class TempControl(enum.Enum):
+    """Represents temperature control setting."""
+
+    OFF = '-'
+    ULTRA_LOW = '@WM_DRY27_TEMP_ULTRA_LOW_W'
+    LOW = '@WM_DRY27_TEMP_LOW_W'
+    MEDIUM = '@WM_DRY27_TEMP_MEDIUM_W'
+    MID_HIGH = '@WM_DRY27_TEMP_MID_HIGH_W'
+    HIGH = '@WM_DRY27_TEMP_HIGH_W'
+    UNKNOWN = _UNKNOWN
+
+
+class TimeDry(enum.Enum):
+    """Represents a timed dry setting."""
+
+    OFF = '-'
+    TWENTY = '20'
+    THIRTY = '30'
+    FOURTY = '40'
+    FIFTY = '50'
+    SIXTY = '60'
+    UNKNOWN = _UNKNOWN
 
 
 class DryerDevice(Device):
     """A higher-level interface for a dryer."""
-    def __init__(self, client, device):
-        super().__init__(client, device, DryerStatus(self, None))
 
-    def poll(self) -> Optional["DryerStatus"]:
-        """Poll the device's current state."""
+    def poll(self) -> Optional['DryerStatus']:
+        """Poll the device's current state.
 
-        res = self.device_poll("washerDryer")
-        if not res:
+        Monitoring must be started first with `monitor_start`.
+
+        :returns: Either a `DryerStatus` instance or `None` if the status is
+            not yet available.
+        """
+        # Abort if monitoring has not started yet.
+        if not hasattr(self, 'mon'):
             return None
 
-        self._status = DryerStatus(self, res)
-        return self._status
+        data = self.mon.poll()
+        if data:
+            res = self.model.decode_monitor(data)
+            return DryerStatus(self, res)
+        else:
+            return None
 
 
-class DryerStatus(DeviceStatus):
+class DryerStatus(object):
     """Higher-level information about a dryer's current status.
 
-    :param device: The Device instance.
+    :param dryer: The DryerDevice instance.
     :param data: JSON data from the API.
     """
-    def __init__(self, device, data):
-        super().__init__(device, data)
-        self._run_state = None
-        self._pre_state = None
-        self._error = None
 
-    def _get_run_state(self):
-        if not self._run_state:
-            state = self.lookup_enum(["State", "state"])
-            if not state:
-                return STATE_DRYER.POWER_OFF
-            self._run_state = self._set_unknown(
-                state=DRYERSTATES.get(state, None), key=state, type="status"
-            )
-        return self._run_state
+    def __init__(self, dryer: DryerDevice, data: dict):
+        self.dryer = dryer
+        self.data = data
 
-    def _get_pre_state(self):
-        if not self._pre_state:
-            state = self.lookup_enum(["PreState", "preState"])
-            if not state:
-                return STATE_DRYER.POWER_OFF
-            self._pre_state = self._set_unknown(
-                state=DRYERSTATES.get(state, None), key=state, type="status"
-            )
-        return self._pre_state
-
-    def _get_error(self):
-        if not self._error:
-            error = self.lookup_reference(["Error", "error"])
-            if not error:
-                return STATE_DRYER_ERROR.OFF
-            self._error = self._set_unknown(
-                state=DRYERREFERRORS.get(error, None), key=error, type="error_status"
-            )
-        return self._error
-
-    @property
-    def is_on(self):
-        run_state = self._get_run_state()
-        return run_state != STATE_DRYER.POWER_OFF
-
-    @property
-    def is_run_completed(self):
-        run_state = self._get_run_state()
-        pre_state = self._get_pre_state()
-        if run_state == STATE_DRYER.END or (
-            run_state == STATE_DRYER.POWER_OFF and pre_state == STATE_DRYER.END
-        ):
-            return True
-        return False
-
-    @property
-    def is_error(self):
-        error = self._get_error()
-        if error != STATE_DRYER_ERROR.NO_ERROR and error != STATE_DRYER_ERROR.OFF:
-            return True
-        return False
-
-    @property
-    def run_state(self):
-        run_state = self._get_run_state()
-        return run_state.value
-
-    @property
-    def pre_state(self):
-        pre_state = self._get_pre_state()
-        return pre_state.value
-
-    @property
-    def error_state(self):
-        if not self.is_on:
-            return STATE_OPTIONITEM_NONE
-        error = self._get_error()
-        return error.value
-
-    @property
-    def current_course(self):
-        if self.is_info_v2:
-            course_key = self._device.model_info.config_value(
-                "courseType"
-            )
+    def get_bit(self, key: str, index: int) -> str:
+        bit_value = int(self.data[key])
+        bit_index = 2 ** index
+        mode = bin(bit_value & bit_index)
+        if mode == bin(0):
+            return 'OFF'
         else:
-            course_key = ["APCourse", "Course"]
-        course = self.lookup_reference(course_key)
-        return course
+            return 'ON'
 
     @property
-    def current_smartcourse(self):
-        if self.is_info_v2:
-            course_key = self._device.model_info.config_value(
-                "smartCourseType"
-            )
-        else:
-            course_key = "SmartCourse"
-        smart_course = self.lookup_reference(course_key)
-        return smart_course
+    def state(self) -> DryerState:
+        """Get the state of the dryer."""
+        return DryerState(lookup_enum('State', self.data, self.dryer))
 
     @property
-    def remaintime_hour(self):
-        if self.is_info_v2:
-            return DeviceStatus.int_or_none(self._data.get("remainTimeHour"))
-        return self._data.get("Remain_Time_H")
+    def previous_state(self) -> DryerState:
+        """Get the previous state of the dryer."""
+        return DryerState(lookup_enum('PreState', self.data, self.dryer))
 
     @property
-    def remaintime_min(self):
-        if self.is_info_v2:
-            return DeviceStatus.int_or_none(self._data.get("remainTimeMinute"))
-        return self._data.get("Remain_Time_M")
+    def dry_level(self) -> DryLevel:
+        """Get the dry level."""
+        return DryLevel(lookup_enum('DryLevel', self.data, self.dryer))
 
     @property
-    def initialtime_hour(self):
-        if self.is_info_v2:
-            return DeviceStatus.int_or_none(self._data.get("initialTimeHour"))
-        return self._data.get("Initial_Time_H")
+    def temperature_control(self) -> TempControl:
+        """Get the temperature control setting."""
+        return TempControl(lookup_enum('TempControl', self.data, self.dryer))
 
     @property
-    def initialtime_min(self):
-        if self.is_info_v2:
-            return DeviceStatus.int_or_none(self._data.get("initialTimeMinute"))
-        return self._data.get("Initial_Time_M")
-
-    @property
-    def reservetime_hour(self):
-        if self.is_info_v2:
-            return DeviceStatus.int_or_none(self._data.get("reserveTimeHour"))
-        return self._data.get("Reserve_Time_H")
-
-    @property
-    def reservetime_min(self):
-        if self.is_info_v2:
-            return DeviceStatus.int_or_none(self._data.get("reserveTimeMinute"))
-        return self._data.get("Reserve_Time_M")
-
-    @property
-    def temp_control_option_state(self):
-        temp_control = self.lookup_enum(["TempControl", "tempControl"])
-        if not temp_control:
-            return STATE_OPTIONITEM_NONE
-        return self._set_unknown(
-            state=DRYERTEMPS.get(temp_control, None), key=temp_control, type="TempControl",
-        ).value
-
-    @property
-    def dry_level_option_state(self):
-        dry_level = self.lookup_enum(["DryLevel", "dryLevel"])
-        if not dry_level:
-            return STATE_OPTIONITEM_NONE
-        return self._set_unknown(
-            state=DRYERDRYLEVELS.get(dry_level, None), key=dry_level, type="DryLevel",
-        ).value
-
-    @property
-    def time_dry_option_state(self):
+    def time_dry(self) -> TimeDry:
         """Get the time dry setting."""
-        time_dry = self.lookup_enum("TimeDry")
-        if not time_dry:
-            return STATE_OPTIONITEM_NONE
-        return time_dry
+        return TimeDry(lookup_enum('TimeDry', self.data, self.dryer))
 
     @property
-    def doorlock_state(self):
-        if self.is_info_v2:
-            return self.lookup_bit("doorLock")
-        return self.lookup_bit("DoorLock")
+    def is_on(self) -> bool:
+        """Check if the dryer is on or not."""
+        return self.state != DryerState.OFF
 
     @property
-    def childlock_state(self):
-        if self.is_info_v2:
-            return self.lookup_bit("childLock")
-        return self.lookup_bit("ChildLock")
+    def remaining_time(self) -> int:
+        """Get the remaining time in minutes."""
+        return (int(self.data['Remain_Time_H']) * 60 +
+                int(self.data['Remain_Time_M']))
+
+    @property
+    def initial_time(self) -> int:
+        """Get the initial time in minutes."""
+        return (
+            int(self.data['Initial_Time_H']) * 60 +
+            int(self.data['Initial_Time_M']))
+
+    @property
+    def course(self) -> str:
+        """Get the current course."""
+        return lookup_reference('Course', self.data, self.dryer)
+
+    @property
+    def smart_course(self) -> str:
+        """Get the current smart course."""
+        return lookup_reference('SmartCourse', self.data, self.dryer)
+
+    @property
+    def error(self) -> str:
+        """Get the current error."""
+        return lookup_reference('Error', self.data, self.dryer)

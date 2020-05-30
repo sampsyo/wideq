@@ -1,196 +1,140 @@
-"""------------------for Refrigerator"""
-import logging
+import enum
 from typing import Optional
 
-from .device import (
-    STATE_OPTIONITEM_NONE,
-    UNIT_TEMP_FAHRENHEIT,
-    Device,
-    DeviceStatus,
-)
+from .client import Device
+from .util import lookup_enum
 
-from .refrigerator_states import (
-    REFRTEMPUNIT,
-    REFRICEPLUS,
-    REFRAIRFILTER,
-    REFRSMARTSAVMODE,
-    REFRSMARTSAVSTATUS,
-    REFRDOORSTATUS,
-    REFRLOCKSTATUS,
-    REFRECOSTATUS,
-)
 
-_LOGGER = logging.getLogger(__name__)
+class IcePlus(enum.Enum):
+    OFF = "@CP_OFF_EN_W"
+    ON = "@CP_ON_EN_W"
+    ICE_PLUS = "@RE_TERM_ICE_PLUS_W"
+    ICE_PLUS_FREEZE = "@RE_MAIN_SPEED_FREEZE_TERM_W"
+    ICE_PLUS_OFF = "@CP_TERM_OFF_KO_W"
+
+
+class FreshAirFilter(enum.Enum):
+    OFF = "@CP_TERM_OFF_KO_W"
+    AUTO = "@RE_STATE_FRESH_AIR_FILTER_MODE_AUTO_W"
+    POWER = "@RE_STATE_FRESH_AIR_FILTER_MODE_POWER_W"
+    REPLACE_FILTER = "@RE_STATE_REPLACE_FILTER_W"
+    SMARTCARE_ON = "@RE_STATE_SMART_SMART_CARE_ON"
+    SMARTCARE_OFF = "@RE_STATE_SMART_SMART_CARE_OFF"
+    SMARTCARE_WAIT = "@RE_STATE_SMART_SMART_CARE_WAIT"
+    EMPTY = ""
+
+
+class SmartSavingMode(enum.Enum):
+    OFF = "@CP_TERM_USE_NOT_W"
+    NIGHT = "@RE_SMARTSAVING_MODE_NIGHT_W"
+    CUSTOM = "@RE_SMARTSAVING_MODE_CUSTOM_W"
+    SMART_GRID_OFF = "@CP_OFF_EN_W"
+    SMART_GRID_DEMAND_RESPONSE = "@RE_TERM_DEMAND_RESPONSE_FUNCTIONALITY_W"
+    SMART_GRID_CUSTOM = "@RE_TERM_DELAY_DEFROST_CAPABILITY_W"
+    EMPTY = ""
 
 
 class RefrigeratorDevice(Device):
-    """A higher-level interface for a dryer."""
-    def __init__(self, client, device):
-        super().__init__(client, device, RefrigeratorStatus(self, None))
+    """A higher-level interface for a refrigerator."""
 
-    def poll(self) -> Optional["RefrigeratorStatus"]:
-        """Poll the device's current state."""
+    def set_temp_refrigerator_c(self, temp):
+        """Set the refrigerator temperature in Celsius.
+        """
+        value = self.model.enum_value('TempRefrigerator', str(temp))
+        self._set_control('RETM', value)
 
-        res = self.device_poll("refState")
-        if not res:
+    def set_temp_freezer_c(self, temp):
+        """Set the freezer temperature in Celsius.
+        """
+        value = self.model.enum_value('TempFreezer', str(temp))
+        self._set_control('REFT', value)
+
+    def poll(self) -> Optional['RefrigeratorStatus']:
+        """Poll the device's current state.
+
+        Monitoring must be started first with `monitor_start`.
+
+        :returns: Either a `RefrigeratorStatus` instance or `None` if the
+            status is not yet available.
+        """
+        # Abort if monitoring has not started yet.
+        if not hasattr(self, 'mon'):
             return None
 
-        self._status = RefrigeratorStatus(self, res)
-        return self._status
+        data = self.mon.poll()
+        if data:
+            res = self.model.decode_monitor(data)
+            return RefrigeratorStatus(self, res)
+        else:
+            return None
 
 
-class RefrigeratorStatus(DeviceStatus):
+class RefrigeratorStatus(object):
     """Higher-level information about a refrigerator's current status.
 
-    :param device: The Device instance.
+    :param refrigerator: The RefrigeratorDevice instance.
     :param data: JSON data from the API.
     """
-    def __init__(self, device, data):
-        super().__init__(device, data)
-        self._temp_unit = None
 
-    def _get_temp_unit(self):
-        if not self._temp_unit:
-            temp_unit = self.lookup_enum(["TempUnit", "tempUnit"])
-            if not temp_unit:
-                self._temp_unit = STATE_OPTIONITEM_NONE
-            else:
-                self._temp_unit = self._set_unknown(
-                    state=REFRTEMPUNIT.get(temp_unit, None), key=temp_unit, type="TempUnit",
-                ).value
-        return self._temp_unit
-
-    def _get_temp_val_v1(self, key):
-        temp = self.lookup_enum(key)
-        temp_key = self._data.get(key)
-        if not temp or temp_key is None:
-            if temp_key is not None:
-                return str(temp_key)
-            return STATE_OPTIONITEM_NONE
-        if temp != temp_key:
-            return temp
-        unit = self._get_temp_unit()
-        unit_key = "_F" if unit == UNIT_TEMP_FAHRENHEIT else "_C"
-        result = self._device.model_info.enum_name(
-            key + unit_key, temp_key
-        )
-        if not result:
-            return temp
-        return result
-
-    def _get_temp_val_v2(self, key):
-        temp = self.int_or_none(self._data.get(key))
-        if not temp:
-            return STATE_OPTIONITEM_NONE
-        unit = self._data.get("tempUnit")
-        ref_key = self._device.model_info.target_key(
-            key, unit, "tempUnit"
-        )
-        if not ref_key:
-            return str(temp)
-        return self._device.model_info.enum_name(
-            ref_key, str(temp)
-        )
+    def __init__(self, refrigerator: RefrigeratorDevice, data: dict):
+        self.refrigerator = refrigerator
+        self.data = data
 
     @property
-    def is_on(self):
-        return True
+    def temp_refrigerator_c(self):
+        temp = lookup_enum('TempRefrigerator', self.data, self.refrigerator)
+        return int(temp)
 
     @property
-    def temp_refrigerator(self):
-        if self.is_info_v2:
-            return self._get_temp_val_v2("fridgeTemp")
-        return self._get_temp_val_v1("TempRefrigerator")
-
-    @property
-    def temp_freezer(self):
-        if self.is_info_v2:
-            return self._get_temp_val_v2("freezerTemp")
-        return self._get_temp_val_v1("TempFreezer")
-
-    @property
-    def temp_unit(self):
-        return self._get_temp_unit()
-
-    @property
-    def door_opened_state(self):
-        if self.is_info_v2:
-            state = self._data.get("atLeastOneDoorOpen")
-        else:
-            state = self.lookup_enum("DoorOpenState")
-        if not state:
-            return STATE_OPTIONITEM_NONE
-        return self._set_unknown(
-            state=REFRDOORSTATUS.get(state, None), key=state, type="DoorOpenState",
-        ).value
-
-    @property
-    def smart_saving_mode(self):
-        mode = self.lookup_enum(["SmartSavingMode", "smartSavingMode"])
-        if not mode:
-            return STATE_OPTIONITEM_NONE
-        return self._set_unknown(
-            state=REFRSMARTSAVMODE.get(mode, None), key=mode, type="SmartSavingMode",
-        ).value
-
-    @property
-    def smart_saving_state(self):
-        state = self.lookup_enum(["SmartSavingModeStatus", "smartSavingRun"])
-        if not state:
-            return STATE_OPTIONITEM_NONE
-        return self._set_unknown(
-            state=REFRSMARTSAVSTATUS.get(state, None), key=state, type="SmartSavingModeStatus",
-        ).value
-
-    @property
-    def eco_friendly_state(self):
-        state = self.lookup_enum(["EcoFriendly", "ecoFriendly"])
-        if not state:
-            return STATE_OPTIONITEM_NONE
-        return self._set_unknown(
-            state=REFRECOSTATUS.get(state, None), key=state, type="EcoFriendly",
-        ).value
+    def temp_freezer_c(self):
+        temp = lookup_enum('TempFreezer', self.data, self.refrigerator)
+        return int(temp)
 
     @property
     def ice_plus_status(self):
-        status = self.lookup_enum(["IcePlus", "expressFridge"])
-        if not status:
-            return STATE_OPTIONITEM_NONE
-        return self._set_unknown(
-            state=REFRICEPLUS.get(status, None), key=status, type="IcePlus",
-        ).value
+        status = lookup_enum('IcePlus', self.data, self.refrigerator)
+        return IcePlus(status)
 
     @property
     def fresh_air_filter_status(self):
-        status = self.lookup_enum(["FreshAirFilter", "freshAirFilter"])
-        if not status:
-            return STATE_OPTIONITEM_NONE
-        return self._set_unknown(
-            state=REFRAIRFILTER.get(status, None), key=status, type="FreshAirFilter",
-        ).value
+        status = lookup_enum('FreshAirFilter', self.data, self.refrigerator)
+        return FreshAirFilter(status)
 
     @property
-    def water_filter_used_month(self):
-        counter = None
-        if self.is_info_v2:
-            status = self._data.get("waterFilter")
-            if status:
-                counters = status.split("_", 1)
-                if len(counters) > 1:
-                    counter = counters[0]
-        else:
-            counter = self._data.get("WaterFilterUsedMonth")
-        return "N/A" if not counter else counter
+    def energy_saving_mode(self):
+        mode = lookup_enum('SmartSavingMode', self.data, self.refrigerator)
+        return SmartSavingMode(mode)
 
     @property
-    def locked_state(self):
-        state = self.lookup_enum("LockingStatus")
-        if not state:
-            return STATE_OPTIONITEM_NONE
-        return self._set_unknown(
-            state=REFRLOCKSTATUS.get(state, None), key=state, type="LockingStatus",
-        ).value
+    def door_opened(self):
+        state = lookup_enum('DoorOpenState', self.data, self.refrigerator)
+        return state == "OPEN"
+
+    @property
+    def temp_unit(self):
+        return lookup_enum('TempUnit', self.data, self.refrigerator)
+
+    @property
+    def energy_saving_enabled(self):
+        mode = lookup_enum(
+            'SmartSavingModeStatus', self.data, self.refrigerator
+        )
+        return mode == 'ON'
+
+    @property
+    def locked(self):
+        status = lookup_enum('LockingStatus', self.data, self.refrigerator)
+        return status == "LOCK"
 
     @property
     def active_saving_status(self):
-        return self._data.get("ActiveSavingStatus", "N/A")
+        return self.data['ActiveSavingStatus']
+
+    @property
+    def eco_enabled(self):
+        eco = lookup_enum('EcoFriendly', self.data, self.refrigerator)
+        return eco == "@CP_ON_EN_W"
+
+    @property
+    def water_filter_used_month(self):
+        return self.data['WaterFilterUsedMonth']

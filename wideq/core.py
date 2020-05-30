@@ -11,17 +11,11 @@ import hashlib
 import hmac
 import logging
 from datetime import datetime
-from typing import Any, Dict, Generator, Optional
-
-from . import as_list, gen_uuid
-from . import core_exceptions as exc
-from .device import DeviceInfo, DEFAULT_TIMEOUT
-
-import os
-import json
+from typing import Any, Dict, List, Generator, Optional
 
 DEFAULT_COUNTRY = "US"
 DEFAULT_LANGUAGE = "en-US"
+DEFAULT_TIMEOUT = 10  # seconds
 
 # v2
 V2_API_KEY = "VGhpblEyLjAgU0VSVklDRQ=="
@@ -45,13 +39,50 @@ CLIENT_ID = "LGAO221A02"
 OAUTH_SECRET_KEY = "c053c2a6ddeb7ad97cb0eed0dcb31cf8"
 DATE_FORMAT = "%a, %d %b %Y %H:%M:%S +0000"
 
-API2_ERRORS = {
-    "0102": exc.NotLoggedInError,
-    "0106": exc.NotConnectedError,
-}
 
-MIN_TIME_BETWEEN_UPDATE = 25  # seconds
-_LOGGER = logging.getLogger(__name__)
+def get_wideq_logger() -> logging.Logger:
+    level = logging.INFO
+    fmt = "%(asctime)s %(levelname)s [%(name)s] %(message)s"
+    datefmt = "%Y-%m-%d %H:%M:%S"
+    logger = logging.getLogger("wideq")
+    logger.setLevel(level)
+
+    try:
+        import colorlog  # type: ignore
+        colorfmt = f"%(log_color)s{fmt}%(reset)s"
+        handler = colorlog.StreamHandler()
+        handler.setFormatter(
+            colorlog.ColoredFormatter(
+                colorfmt,
+                datefmt=datefmt,
+                reset=True,
+                log_colors={
+                    "DEBUG": "cyan",
+                    "INFO": "green",
+                    "WARNING": "yellow",
+                    "ERROR": "red",
+                    "CRITICAL": "red",
+                },
+            )
+        )
+    except ImportError:
+        handler = logging.StreamHandler()
+        handler.setFormatter(logging.Formatter(fmt=fmt, datefmt=datefmt))
+
+    logger.addHandler(handler)
+    return logger
+
+
+LOGGER = get_wideq_logger()
+
+
+def set_log_level(level: int):
+    logger = get_wideq_logger()
+    logger.setLevel(level)
+
+
+def gen_uuid() -> str:
+    return str(uuid.uuid4())
 
 
 class Tlsv1HttpAdapter(HTTPAdapter):
@@ -64,7 +95,7 @@ class Tlsv1HttpAdapter(HTTPAdapter):
         )
 
 
-def oauth2_signature(message, secret):
+def oauth2_signature(message: str, secret: str) -> bytes:
     """Get the base64-encoded SHA-1 HMAC digest of a string, as used in
     OAauth2 request signatures.
 
@@ -76,6 +107,99 @@ def oauth2_signature(message, secret):
     hashed = hmac.new(secret_bytes, message.encode("utf8"), hashlib.sha1)
     digest = hashed.digest()
     return base64.b64encode(digest)
+
+
+def as_list(obj):
+    """Wrap non-lists in lists.
+
+    If `obj` is a list, return it unchanged. Otherwise, return a
+    single-element list containing it.
+    """
+
+    if isinstance(obj, list):
+        return obj
+    else:
+        return [obj]
+
+
+def get_list(obj, key: str) -> List[Dict[str, Any]]:
+    """Look up a list using a key from an object.
+
+    If `obj[key]` is a list, return it unchanged. If is something else,
+    return a single-element list containing it. If the key does not
+    exist, return an empty list.
+    """
+
+    try:
+        val = obj[key]
+    except KeyError:
+        return []
+
+    if isinstance(val, list):
+        return val
+    else:
+        return [val]
+
+
+class APIError(Exception):
+    """An error reported by the API."""
+
+    def __init__(self, code, message):
+        self.code = code
+        self.message = message
+
+
+class NotLoggedInError(APIError):
+    """The session is not valid or expired."""
+
+    def __init__(self):
+        pass
+
+
+class NotConnectedError(APIError):
+    """The service can't contact the specified device."""
+
+    def __init__(self):
+        pass
+
+
+class TokenError(APIError):
+    """An authentication token was rejected."""
+
+    def __init__(self):
+        pass
+
+
+class FailedRequestError(APIError):
+    """A failed request typically indicates an unsupported control on a
+    device.
+    """
+
+    def __init__(self):
+        pass
+
+
+class InvalidRequestError(APIError):
+    """The server rejected a request as invalid."""
+
+    def __init__(self):
+        pass
+
+
+class MonitorError(APIError):
+    """Monitoring a device failed, possibly because the monitoring
+    session failed and needs to be restarted.
+    """
+
+    def __init__(self, device_id, code):
+        self.device_id = device_id
+        self.code = code
+
+
+API2_ERRORS = {
+    "0102": NotLoggedInError,
+    "0106": NotConnectedError,
+}
 
 
 def thinq2_headers(
@@ -135,7 +259,7 @@ def thinq2_get(
         pass
     # this code to avoid ssl error 'dh key too small'
 
-    _LOGGER.debug("thinq2_get before: %s", url)
+    LOGGER.debug("thinq2_get before: %s", url)
 
     res = requests.get(
         url,
@@ -150,16 +274,16 @@ def thinq2_get(
     )
 
     out = res.json()
-    _LOGGER.debug("thinq2_get after: %s", out)
+    LOGGER.debug("thinq2_get after: %s", out)
 
     if "resultCode" not in out:
-        raise exc.APIError("-1", out)
+        raise APIError("-1", out)
 
     code = out["resultCode"]
     if code != "0000":
         if code in API2_ERRORS:
             raise API2_ERRORS[code]()
-        raise exc.APIError(code, "error")
+        raise APIError(code, "error")
     return out["result"]
 
 
@@ -174,8 +298,6 @@ def lgedm2_post(
     use_tlsv1=True,
 ):
     """Make an HTTP request in the format used by the API servers."""
-
-    _LOGGER.debug("lgedm2_post before: %s", url)
 
     s = requests.Session()
     if use_tlsv1:
@@ -194,11 +316,10 @@ def lgedm2_post(
     )
 
     out = res.json()
-    _LOGGER.debug("lgedm2_post after: %s", out)
 
     msg = out.get(DATA_ROOT)
     if not msg:
-        raise exc.APIError("-1", out)
+        raise APIError("-1", out)
 
     if "returnCd" in msg:
         code = msg["returnCd"]
@@ -206,7 +327,7 @@ def lgedm2_post(
             message = msg["returnMsg"]
             if code in API2_ERRORS:
                 raise API2_ERRORS[code]()
-            raise exc.APIError(code, message)
+            raise APIError(code, message)
 
     return msg
 
@@ -247,10 +368,10 @@ def auth_request(oauth_url, data):
     res = requests.post(url, headers=headers, data=data, timeout=DEFAULT_TIMEOUT)
 
     if res.status_code != 200:
-        raise exc.TokenError()
+        raise TokenError()
 
     res_data = res.json()
-    _LOGGER.debug(res_data)
+    LOGGER.debug(res_data)
 
     return res_data
 
@@ -444,15 +565,12 @@ class Session(object):
         monitoring.
         """
 
-        res = self.post(
-            "rti/rtiMon",
-            {
-                "cmd": "Mon",
-                "cmdOpt": "Start",
-                "deviceId": device_id,
-                "workId": gen_uuid(),
-            },
-        )
+        res = self.post("rti/rtiMon", {
+            "cmd": "Mon",
+            "cmdOpt": "Start",
+            "deviceId": device_id,
+            "workId": gen_uuid(),
+        })
         return res["workId"]
 
     def monitor_poll(self, device_id, work_id):
@@ -478,7 +596,7 @@ class Session(object):
         # Check for errors.
         code = res.get("returnCode")  # returnCode can be missing.
         if code != "0000":
-            raise exc.MonitorError(device_id, code)
+            raise MonitorError(device_id, code)
 
         # The return data may or may not be present, depending on the
         # monitoring task status.
@@ -493,10 +611,12 @@ class Session(object):
     def monitor_stop(self, device_id, work_id):
         """Stop monitoring a device."""
 
-        self.post(
-            "rti/rtiMon",
-            {"cmd": "Mon", "cmdOpt": "Stop", "deviceId": device_id, "workId": work_id},
-        )
+        self.post("rti/rtiMon", {
+            "cmd": "Mon",
+            "cmdOpt": "Stop",
+            "deviceId": device_id,
+            "workId": work_id
+        })
 
     def set_device_controls(self, device_id, values):
         """Control a device's settings.
@@ -504,17 +624,14 @@ class Session(object):
         `values` is a key/value map containing the settings to update.
         """
 
-        return self.post(
-            "rti/rtiControl",
-            {
-                "cmd": "Control",
-                "cmdOpt": "Set",
-                "value": values,
-                "deviceId": device_id,
-                "workId": gen_uuid(),
-                "data": "",
-            },
-        )
+        return self.post("rti/rtiControl", {
+            "cmd": "Control",
+            "cmdOpt": "Set",
+            "value": values,
+            "deviceId": device_id,
+            "workId": gen_uuid(),
+            "data": "",
+        })
 
     def get_device_config(self, device_id, key, category="Config"):
         """Get a device configuration option.
@@ -523,233 +640,15 @@ class Session(object):
         "Control"; the right choice appears to depend on the key.
         """
 
-        res = self.post(
-            "rti/rtiControl",
-            {
-                "cmd": category,
-                "cmdOpt": "Get",
-                "value": key,
-                "deviceId": device_id,
-                "workId": gen_uuid(),
-                "data": "",
-            },
-        )
+        res = self.post("rti/rtiControl", {
+            "cmd": category,
+            "cmdOpt": "Get",
+            "value": key,
+            "deviceId": device_id,
+            "workId": gen_uuid(),
+            "data": "",
+        })
         return res["returnData"]
 
     def delete_permission(self, device_id):
         self.post("rti/delControlPermission", {"deviceId": device_id})
-
-
-class Client(object):
-    """A higher-level API wrapper that provides a session more easily
-        and allows serialization of state.
-        """
-
-    def __init__(
-        self,
-        gateway: Optional[Gateway] = None,
-        auth: Optional[Auth] = None,
-        session: Optional[Session] = None,
-        country: str = DEFAULT_COUNTRY,
-        language: str = DEFAULT_LANGUAGE,
-    ) -> None:
-        # The three steps required to get access to call the API.
-        self._gateway: Optional[Gateway] = gateway
-        self._auth: Optional[Auth] = auth
-        self._session: Optional[Session] = session
-        self._last_device_update = datetime.now()
-
-        # The last list of devices we got from the server. This is the
-        # raw JSON list data describing the devices.
-        self._devices = None
-
-        # Cached model info data. This is a mapping from URLs to JSON
-        # responses.
-        self._model_info: Dict[str, Any] = {}
-
-        # Locale information used to discover a gateway, if necessary.
-        self._country = country
-        self._language = language
-
-    def _inject_thinq2_device(self):
-        """This is used only for debug"""
-        data_file = os.path.dirname(os.path.realpath(__file__)) + "/deviceV2.txt"
-        with open(data_file, "r") as f:
-            device_v2 = json.load(f)
-        for d in device_v2:
-            self._devices.append(d)
-            _LOGGER.debug("Injected debug device: %s", d)
-
-    def _load_devices(self, force_update: bool = False):
-        if self._session and (self._devices is None or force_update):
-            self._devices = self._session.get_devices()
-            # for debug
-            # self._inject_thinq2_device()
-            # for debug
-
-    @property
-    def gateway(self) -> Gateway:
-        if not self._gateway:
-            self._gateway = Gateway.discover(self._country, self._language)
-        return self._gateway
-
-    @property
-    def auth(self) -> Auth:
-        if not self._auth:
-            assert False, "unauthenticated"
-        return self._auth
-
-    @property
-    def session(self) -> Session:
-        if not self._session:
-            self._session = self.auth.start_session()
-            self._load_devices()
-        return self._session
-
-    @property
-    def hasdevices(self) -> bool:
-        return True if self._devices else False
-
-    @property
-    def devices(self) -> Generator["DeviceInfo", None, None]:
-        """DeviceInfo objects describing the user's devices.
-            """
-        if self._devices is None:
-            self._load_devices()
-        return (DeviceInfo(d) for d in self._devices)
-
-    def refresh_devices(self):
-        call_time = datetime.now()
-        difference = (call_time - self._last_device_update).total_seconds()
-        if difference > MIN_TIME_BETWEEN_UPDATE:
-            self._load_devices(True)
-            self._last_device_update = call_time
-
-    def get_device(self, device_id) -> Optional["DeviceInfo"]:
-        """Look up a DeviceInfo object by device ID.
-            
-        Return None if the device does not exist.
-        """
-        for device in self.devices:
-            if device.id == device_id:
-                return device
-        return None
-
-    @classmethod
-    def load(cls, state: Dict[str, Any]) -> "Client":
-        """Load a client from serialized state.
-            """
-
-        client = cls()
-
-        if "gateway" in state:
-            data = state["gateway"]
-            client._gateway = Gateway(
-                data["auth_base"],
-                data["api_root"],
-                data["api2_root"],
-                data.get("country", DEFAULT_COUNTRY),
-                data.get("language", DEFAULT_LANGUAGE),
-            )
-
-        if "auth" in state:
-            data = state["auth"]
-            client._auth = Auth.load(client._gateway, data)
-
-        if "session" in state:
-            client._session = Session(client.auth, state["session"])
-
-        if "model_info" in state:
-            client._model_info = state["model_info"]
-
-        if "country" in state:
-            client._country = state["country"]
-
-        if "language" in state:
-            client._language = state["language"]
-
-        return client
-
-    def dump(self) -> Dict[str, Any]:
-        """Serialize the client state."""
-
-        out = {
-            "model_info": self._model_info,
-        }
-
-        if self._gateway:
-            out["gateway"] = {
-                "auth_base": self._gateway.auth_base,
-                "api_root": self._gateway.api_root,
-                "api2_root": self._gateway.api2_root,
-                "country": self._gateway.country,
-                "language": self._gateway.language,
-            }
-
-        if self._auth:
-            out["auth"] = {
-                "access_token": self._auth.access_token,
-                "refresh_token": self._auth.refresh_token,
-            }
-
-        if self._session:
-            out["session"] = self._session.session_id
-
-        out["country"] = self._country
-        out["language"] = self._language
-
-        return out
-
-    def refresh(self) -> None:
-        self._auth = self.auth.refresh()
-        self._session = self.auth.start_session()
-        # self._device = None
-        self._load_devices()
-
-    @classmethod
-    def from_token(
-        cls, oauth_url, refresh_token, user_number, country=None, language=None
-    ) -> "Client":
-        """Construct a client using just a refresh token.
-            
-            This allows simpler state storage (e.g., for human-written
-            configuration) but it is a little less efficient because we need
-            to reload the gateway servers and restart the session.
-            """
-
-        client = cls(
-            country=country or DEFAULT_COUNTRY,
-            language=language or DEFAULT_LANGUAGE,
-        )
-        client._auth = Auth(client.gateway, oauth_url, None, refresh_token, user_number)
-        client.refresh()
-        return client
-
-    @classmethod
-    def oauthinfo_from_url(cls, url):
-        """Create an authentication using an OAuth callback URL.
-        """
-        oauth_url, auth_code, user_number = parse_oauth_callback(url)
-        access_token, refresh_token = login(oauth_url, auth_code)
-
-        return {
-            "oauth_url": oauth_url,
-            "user_number": user_number,
-            "access_token": access_token,
-            "refresh_token": refresh_token,
-        }
-
-    def model_info(self, device):
-        """For a DeviceInfo object, get a ModelInfo object describing
-            the model's capabilities.
-            """
-        url = device.model_info_url
-        if url not in self._model_info:
-            _LOGGER.info(
-                "Loading model info for %s. Model: %s, Url: %s",
-                device.name,
-                device.model_name,
-                url,
-            )
-            self._model_info[url] = device.load_model_info()
-        return self._model_info[url]
