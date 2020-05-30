@@ -209,7 +209,7 @@ def lgedm_post(api_root, path, data=None, access_token=None, session_id=None):
                     DATA_ROOT: {'deviceId': data.get('deviceId')}
                 }, headers=headers
             )
-            # Ignore the response, since it's not a breaking error, maybe log a warning
+            # Ignore the response, since it's not a breaking error!
 
     out = res.json()[DATA_ROOT]
 
