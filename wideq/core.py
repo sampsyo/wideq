@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Tuple
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
-GATEWAY_URL = 'https://kic.lgthinq.com:46030/api'
+GATEWAY_URL = 'https://kic.lgthinq.com:46030'
 APP_KEY = 'wideq'
 SECURITY_KEY = 'nuts_securitykey'
 DATA_ROOT = 'lgedmRoot'
@@ -325,7 +325,7 @@ class Gateway(object):
         `country` and `language` are codes, like "US" and "en-US,"
         respectively.
         """
-        gw = lgedm_post(GATEWAY_URL, '/common/gatewayUriList',
+        gw = lgedm_post(GATEWAY_URL, '/api/common/gatewayUriList',
                         {'countryCode': country, 'langCode': language})
         return cls(gw['empUri'], gw['thinqUri'], gw['oauthUri'],
                    country, language)
