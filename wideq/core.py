@@ -103,8 +103,8 @@ def oauth2_signature(message: str, secret: str) -> bytes:
     their UTF-8 equivalents.
     """
 
-    secret_bytes = secret.encode("utf8")
-    hashed = hmac.new(secret_bytes, message.encode("utf8"), hashlib.sha1)
+    secret_bytes = secret.encode('utf8')
+    hashed = hmac.new(secret_bytes, message.encode('utf8'), hashlib.sha1)
     digest = hashed.digest()
     return base64.b64encode(digest)
 
@@ -516,7 +516,7 @@ class Session(object):
         request from an active Session.
         """
 
-        url = urljoin(self.auth.gateway.api_root + "/", path)
+        url = urljoin(self.auth.gateway.api_root + '/', path)
         return lgedm2_post(
             url,
             data,
@@ -529,7 +529,7 @@ class Session(object):
     def get(self, path):
         """Make a GET request to the APIv1 server."""
 
-        url = urljoin(self.auth.gateway.api_root + "/", path)
+        url = urljoin(self.auth.gateway.api_root + '/', path)
         return thinq2_get(
             url,
             self.auth.access_token,
@@ -541,7 +541,7 @@ class Session(object):
     def get2(self, path):
         """Make a GET request to the APIv2 server."""
 
-        url = urljoin(self.auth.gateway.api2_root + "/", path)
+        url = urljoin(self.auth.gateway.api2_root + '/', path)
         return thinq2_get(
             url,
             self.auth.access_token,
@@ -565,13 +565,13 @@ class Session(object):
         monitoring.
         """
 
-        res = self.post("rti/rtiMon", {
-            "cmd": "Mon",
-            "cmdOpt": "Start",
-            "deviceId": device_id,
-            "workId": gen_uuid(),
+        res = self.post('rti/rtiMon', {
+            'cmd': 'Mon',
+            'cmdOpt': 'Start',
+            'deviceId': device_id,
+            'workId': gen_uuid(),
         })
-        return res["workId"]
+        return res['workId']
 
     def monitor_poll(self, device_id, work_id):
         """Get the result of a monitoring task.
@@ -584,8 +584,8 @@ class Session(object):
         action is probably to restart the monitoring task.
         """
 
-        work_list = [{"deviceId": device_id, "workId": work_id}]
-        res = self.post("rti/rtiResult", {"workList": work_list})["workList"]
+        work_list = [{'deviceId': device_id, 'workId': work_id}]
+        res = self.post('rti/rtiResult', {'workList': work_list})['workList']
 
         # When monitoring first starts, it usually takes a few
         # iterations before data becomes available. In the initial
@@ -594,17 +594,17 @@ class Session(object):
             return None
 
         # Check for errors.
-        code = res.get("returnCode")  # returnCode can be missing.
+        code = res.get('returnCode')  # returnCode can be missing.
         if code != "0000":
             raise MonitorError(device_id, code)
 
         # The return data may or may not be present, depending on the
         # monitoring task status.
-        if "returnData" in res:
+        if 'returnData' in res:
             # The main response payload is base64-encoded binary data in
             # the `returnData` field. This sometimes contains JSON data
             # and sometimes other binary data.
-            return base64.b64decode(res["returnData"])
+            return base64.b64decode(res['returnData'])
 
         return None
 
@@ -612,10 +612,10 @@ class Session(object):
         """Stop monitoring a device."""
 
         self.post("rti/rtiMon", {
-            "cmd": "Mon",
-            "cmdOpt": "Stop",
-            "deviceId": device_id,
-            "workId": work_id
+            'cmd': 'Mon',
+            'cmdOpt': 'Stop',
+            'deviceId': device_id,
+            'workId': work_id
         })
 
     def set_device_controls(self, device_id, values):
@@ -624,13 +624,13 @@ class Session(object):
         `values` is a key/value map containing the settings to update.
         """
 
-        return self.post("rti/rtiControl", {
-            "cmd": "Control",
-            "cmdOpt": "Set",
-            "value": values,
-            "deviceId": device_id,
-            "workId": gen_uuid(),
-            "data": "",
+        return self.post('rti/rtiControl', {
+            'cmd': 'Control',
+            'cmdOpt': 'Set',
+            'value': values,
+            'deviceId': device_id,
+            'workId': gen_uuid(),
+            'data': '',
         })
 
     def get_device_config(self, device_id, key, category="Config"):
@@ -641,14 +641,14 @@ class Session(object):
         """
 
         res = self.post("rti/rtiControl", {
-            "cmd": category,
-            "cmdOpt": "Get",
-            "value": key,
-            "deviceId": device_id,
-            "workId": gen_uuid(),
-            "data": "",
+            'cmd': category,
+            'cmdOpt': 'Get',
+            'value': key,
+            'deviceId': device_id,
+            'workId': gen_uuid(),
+            "data": '',
         })
-        return res["returnData"]
+        return res['returnData']
 
     def delete_permission(self, device_id):
         self.post("rti/delControlPermission", {"deviceId": device_id})

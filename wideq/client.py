@@ -75,17 +75,15 @@ class Monitor(object):
 
 class Client(object):
     """A higher-level API wrapper that provides a session more easily
-        and allows serialization of state.
-        """
+    and allows serialization of state.
+    """
 
-    def __init__(
-            self,
-            gateway: Optional[core.Gateway] = None,
-            auth: Optional[core.Auth] = None,
-            session: Optional[core.Session] = None,
-            country: str = core.DEFAULT_COUNTRY,
-            language: str = core.DEFAULT_LANGUAGE,
-    ) -> None:
+    def __init__(self,
+                 gateway: Optional[core.Gateway] = None,
+                 auth: Optional[core.Auth] = None,
+                 session: Optional[core.Session] = None,
+                 country: str = core.DEFAULT_COUNTRY,
+                 language: str = core.DEFAULT_LANGUAGE) -> None:
         # The three steps required to get access to call the API.
         self._gateway: Optional[core.Gateway] = gateway
         self._auth: Optional[core.Auth] = auth
@@ -174,11 +172,11 @@ class Client(object):
     @classmethod
     def load(cls, state: Dict[str, Any]) -> "Client":
         """Load a client from serialized state.
-            """
+        """
 
         client = cls()
 
-        if "gateway" in state:
+        if 'gateway' in state:
             data = state["gateway"]
             client._gateway = core.Gateway(
                 data["auth_base"],
@@ -188,21 +186,21 @@ class Client(object):
                 data.get("language", core.DEFAULT_LANGUAGE),
             )
 
-        if "auth" in state:
+        if 'auth' in state:
             data = state["auth"]
             client._auth = core.Auth.load(client._gateway, data)
 
-        if "session" in state:
-            client._session = core.Session(client.auth, state["session"])
+        if 'session' in state:
+            client._session = core.Session(client.auth, state['session'])
 
-        if "model_info" in state:
-            client._model_info = state["model_info"]
+        if 'model_info' in state:
+            client._model_info = state['model_info']
 
-        if "country" in state:
-            client._country = state["country"]
+        if 'country' in state:
+            client._country = state['country']
 
-        if "language" in state:
-            client._language = state["language"]
+        if 'language' in state:
+            client._language = state['language']
 
         return client
 
@@ -210,7 +208,7 @@ class Client(object):
         """Serialize the client state."""
 
         out = {
-            "model_info": self._model_info,
+            'model_info': self._model_info,
         }
 
         if self._gateway:
@@ -229,10 +227,10 @@ class Client(object):
             }
 
         if self._session:
-            out["session"] = self._session.session_id
+            out['session'] = self._session.session_id
 
-        out["country"] = self._country
-        out["language"] = self._language
+        out['country'] = self._country
+        out['language'] = self._language
 
         return out
 
@@ -243,15 +241,14 @@ class Client(object):
         self._load_devices()
 
     @classmethod
-    def from_token(
-            cls, oauth_url, refresh_token, user_number, country=None, language=None
-    ) -> "Client":
+    def from_token(cls, oauth_url, refresh_token, user_number,
+                   country=None, language=None) -> 'Client':
         """Construct a client using just a refresh token.
 
-            This allows simpler state storage (e.g., for human-written
-            configuration) but it is a little less efficient because we need
-            to reload the gateway servers and restart the session.
-            """
+        This allows simpler state storage (e.g., for human-written
+        configuration) but it is a little less efficient because we need
+        to reload the gateway servers and restart the session.
+        """
 
         client = cls(
             country=country or core.DEFAULT_COUNTRY,
