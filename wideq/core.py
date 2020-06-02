@@ -29,6 +29,7 @@ V2_APP_VER = "3.0.1700"
 
 # new
 V2_GATEWAY_URL = "https://route.lgthinq.com:46030/v1/service/application/gateway-uri"
+V2_AUTH_PATH = "/oauth/1.0/oauth2/token"
 OAUTH_REDIRECT_URI = "https://kr.m.lgaccount.com/login/iabClose"
 
 # orig
@@ -109,19 +110,6 @@ def oauth2_signature(message: str, secret: str) -> bytes:
     return base64.b64encode(digest)
 
 
-def as_list(obj):
-    """Wrap non-lists in lists.
-
-    If `obj` is a list, return it unchanged. Otherwise, return a
-    single-element list containing it.
-    """
-
-    if isinstance(obj, list):
-        return obj
-    else:
-        return [obj]
-
-
 def get_list(obj, key: str) -> List[Dict[str, Any]]:
     """Look up a list using a key from an object.
 
@@ -152,15 +140,13 @@ class APIError(Exception):
 class NotLoggedInError(APIError):
     """The session is not valid or expired."""
 
-    def __init__(self):
-        pass
-
 
 class NotConnectedError(APIError):
     """The service can't contact the specified device."""
 
-    def __init__(self):
-        pass
+
+class InvalidMessageError(APIError):
+    """The service can't contact the specified device."""
 
 
 class TokenError(APIError):
@@ -175,15 +161,9 @@ class FailedRequestError(APIError):
     device.
     """
 
-    def __init__(self):
-        pass
-
 
 class InvalidRequestError(APIError):
     """The server rejected a request as invalid."""
-
-    def __init__(self):
-        pass
 
 
 class MonitorError(APIError):
@@ -196,9 +176,11 @@ class MonitorError(APIError):
         self.code = code
 
 
-API2_ERRORS = {
+API_ERRORS = {
     "0102": NotLoggedInError,
     "0106": NotConnectedError,
+    "0100": FailedRequestError,
+    9000: InvalidRequestError,  # Surprisingly, an integer (not a string).
 }
 
 
@@ -259,8 +241,6 @@ def thinq2_get(
         pass
     # this code to avoid ssl error 'dh key too small'
 
-    LOGGER.debug("thinq2_get before: %s", url)
-
     res = requests.get(
         url,
         headers=thinq2_headers(
@@ -274,15 +254,14 @@ def thinq2_get(
     )
 
     out = res.json()
-    LOGGER.debug("thinq2_get after: %s", out)
 
     if "resultCode" not in out:
-        raise APIError("-1", out)
+        raise InvalidMessageError(out, "")
 
     code = out["resultCode"]
     if code != "0000":
-        if code in API2_ERRORS:
-            raise API2_ERRORS[code]()
+        if code in API_ERRORS:
+            raise API_ERRORS[code](code, "error")
         raise APIError(code, "error")
     return out["result"]
 
@@ -325,8 +304,8 @@ def lgedm2_post(
         code = msg["returnCd"]
         if code != "0000":
             message = msg["returnMsg"]
-            if code in API2_ERRORS:
-                raise API2_ERRORS[code]()
+            if code in API_ERRORS:
+                raise API_ERRORS[code](code, message)
             raise APIError(code, message)
 
     return msg
@@ -345,18 +324,22 @@ def parse_oauth_callback(url):
     """
 
     params = parse_qs(urlparse(url).query)
-    return params["oauth2_backend_url"][0], params["code"][0], params["user_number"][0]
+    return(
+        params["oauth2_backend_url"][0],
+        params["code"][0], params["user_number"][0]
+    )
 
 
 def auth_request(oauth_url, data):
-    """Use an auth code to log into the v2 API and obtain an access token 
+    """Use an auth code to log into the v2 API and obtain an access token
     and refresh token.
     """
-    auth_path = "/oauth/1.0/oauth2/token"
-    url = urljoin(oauth_url, "/oauth/1.0/oauth2/token")
+    url = urljoin(oauth_url, V2_AUTH_PATH)
     timestamp = datetime.utcnow().strftime(DATE_FORMAT)
-    req_url = "{}?{}".format(auth_path, urlencode(data))
-    sig = oauth2_signature("{}\n{}".format(req_url, timestamp), OAUTH_SECRET_KEY)
+    req_url = "{}?{}".format(V2_AUTH_PATH, urlencode(data))
+    sig = oauth2_signature(
+        "{}\n{}".format(req_url, timestamp), OAUTH_SECRET_KEY
+    )
 
     headers = {
         "x-lge-appkey": CLIENT_ID,
@@ -365,21 +348,21 @@ def auth_request(oauth_url, data):
         "Accept": "application/json",
     }
 
-    res = requests.post(url, headers=headers, data=data, timeout=DEFAULT_TIMEOUT)
+    res = requests.post(
+        url, headers=headers, data=data, timeout=DEFAULT_TIMEOUT
+    )
 
     if res.status_code != 200:
         raise TokenError()
 
     res_data = res.json()
-    LOGGER.debug(res_data)
 
     return res_data
 
 
 def login(oauth_url, auth_code):
     """Get a new access_token using an authorization_code
-    
-    May raise a `tokenError`.
+    May raise a `TokenError`.
     """
 
     out = auth_request(
@@ -415,7 +398,9 @@ class Gateway(object):
         self.language = language
 
     @classmethod
-    def discover(cls, country, language):
+    def discover(cls, country, language) -> 'Gateway':
+        """Load information about the hosts to use for API interaction.
+        """
         gw = gateway_info(country, language)
         return cls(gw["empUri"], gw["thinq1Uri"], gw["thinq2Uri"], country, language)
 
@@ -438,6 +423,21 @@ class Gateway(object):
             }
         )
         return "{}?{}".format(url, query)
+
+    def serialize(self) -> Dict[str, str]:
+        return {
+                "auth_base": self.auth_base,
+                "api_root": self.api_root,
+                "api2_root": self.api2_root,
+                "country": self.country,
+                "language": self.language,
+        }
+
+    @classmethod
+    def deserialize(cls, data: Dict[str, Any]) -> 'Gateway':
+        return cls(data['auth_base'], data['api_root'], data['api2_root'],
+                   data.get('country', DEFAULT_COUNTRY),
+                   data.get('language', DEFAULT_LANGUAGE))
 
     def dump(self):
         return {
@@ -484,6 +484,12 @@ class Auth(object):
             self.refresh_token,
             self.user_number,
         )
+
+    def serialize(self) -> Dict[str, str]:
+        return {
+            'access_token': self.access_token,
+            'refresh_token': self.refresh_token,
+        }
 
     def dump(self):
         return {
@@ -555,8 +561,7 @@ class Session(object):
 
         Return a list of dicts with information about the devices.
         """
-        devices = self.get2("service/application/dashboard").get("item", [])
-        return as_list(devices)
+        return get_list(self.get2("service/application/dashboard"), 'item')
 
     def monitor_start(self, device_id):
         """Begin monitoring a device's status.

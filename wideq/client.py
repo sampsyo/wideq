@@ -104,7 +104,9 @@ class Client(object):
 
     def _inject_thinq2_device(self):
         """This is used only for debug"""
-        data_file = os.path.dirname(os.path.realpath(__file__)) + "/deviceV2.txt"
+        data_file = (
+            os.path.dirname(os.path.realpath(__file__)) + "/deviceV2.txt"
+        )
         with open(data_file, "r") as f:
             device_v2 = json.load(f)
         for d in device_v2:
@@ -121,7 +123,9 @@ class Client(object):
     @property
     def gateway(self) -> core.Gateway:
         if not self._gateway:
-            self._gateway = core.Gateway.discover(self._country, self._language)
+            self._gateway = core.Gateway.discover(
+                self._country, self._language
+            )
         return self._gateway
 
     @property
@@ -207,24 +211,15 @@ class Client(object):
     def dump(self) -> Dict[str, Any]:
         """Serialize the client state."""
 
-        out = {
+        out: Dict[str, Any] = {
             'model_info': self._model_info,
         }
 
         if self._gateway:
-            out["gateway"] = {
-                "auth_base": self._gateway.auth_base,
-                "api_root": self._gateway.api_root,
-                "api2_root": self._gateway.api2_root,
-                "country": self._gateway.country,
-                "language": self._gateway.language,
-            }
+            out["gateway"] = self._gateway.serialize()
 
         if self._auth:
-            out["auth"] = {
-                "access_token": self._auth.access_token,
-                "refresh_token": self._auth.refresh_token,
-            }
+            out["auth"] = self._auth.serialize()
 
         if self._session:
             out['session'] = self._session.session_id
@@ -237,7 +232,6 @@ class Client(object):
     def refresh(self) -> None:
         self._auth = self.auth.refresh()
         self._session = self.auth.start_session()
-        # self._device = None
         self._load_devices()
 
     @classmethod
