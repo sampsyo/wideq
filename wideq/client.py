@@ -216,10 +216,10 @@ class Client(object):
         }
 
         if self._gateway:
-            out["gateway"] = self._gateway.serialize()
+            out['gateway'] = self._gateway.serialize()
 
         if self._auth:
-            out["auth"] = self._auth.serialize()
+            out['auth'] = self._auth.serialize()
 
         if self._session:
             out['session'] = self._session.session_id
