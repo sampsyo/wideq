@@ -426,11 +426,11 @@ class Gateway(object):
 
     def serialize(self) -> Dict[str, str]:
         return {
-                "auth_base": self.auth_base,
-                "api_root": self.api_root,
-                "api2_root": self.api2_root,
-                "country": self.country,
-                "language": self.language,
+            'auth_base': self.auth_base,
+            'api_root': self.api_root,
+            'api2_root': self.api2_root,
+            'country': self.country,
+            'language': self.language,
         }
 
     @classmethod
@@ -556,7 +556,7 @@ class Session(object):
             language=self.auth.gateway.language,
         )
 
-    def get_devices(self):
+    def get_devices(self) -> List[Dict[str, Any]]:
         """Get a list of devices associated with the user's account.
 
         Return a list of dicts with information about the devices.
@@ -595,12 +595,12 @@ class Session(object):
         # When monitoring first starts, it usually takes a few
         # iterations before data becomes available. In the initial
         # "warmup" phase, `returnCode` is missing from the response.
-        if "returnCode" not in res:
+        if 'returnCode' not in res:
             return None
 
         # Check for errors.
         code = res.get('returnCode')  # returnCode can be missing.
-        if code != "0000":
+        if code != '0000':
             raise MonitorError(device_id, code)
 
         # The return data may or may not be present, depending on the
@@ -616,11 +616,11 @@ class Session(object):
     def monitor_stop(self, device_id, work_id):
         """Stop monitoring a device."""
 
-        self.post("rti/rtiMon", {
+        self.post('rti/rtiMon', {
             'cmd': 'Mon',
             'cmdOpt': 'Stop',
             'deviceId': device_id,
-            'workId': work_id
+            'workId': work_id,
         })
 
     def set_device_controls(self, device_id, values):
@@ -638,20 +638,20 @@ class Session(object):
             'data': '',
         })
 
-    def get_device_config(self, device_id, key, category="Config"):
+    def get_device_config(self, device_id, key, category='Config'):
         """Get a device configuration option.
 
         The `category` string should probably either be "Config" or
         "Control"; the right choice appears to depend on the key.
         """
 
-        res = self.post("rti/rtiControl", {
+        res = self.post('rti/rtiControl', {
             'cmd': category,
             'cmdOpt': 'Get',
             'value': key,
             'deviceId': device_id,
             'workId': gen_uuid(),
-            "data": '',
+            'data': '',
         })
         return res['returnData']
 

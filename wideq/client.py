@@ -99,8 +99,8 @@ class Client(object):
         self._model_info: Dict[str, Any] = {}
 
         # Locale information used to discover a gateway, if necessary.
-        self._country = country
-        self._language = language
+        self._country: str = country
+        self._language: str = language
 
     def _inject_thinq2_device(self):
         """This is used only for debug"""
@@ -142,26 +142,17 @@ class Client(object):
         return self._session
 
     @property
-    def hasdevices(self) -> bool:
-        return True if self._devices else False
-
-    @property
-    def devices(self) -> Generator["DeviceInfo", None, None]:
+    def devices(self) -> Generator['DeviceInfo', None, None]:
         """DeviceInfo objects describing the user's devices.
-            """
+        """
+
         if self._devices is None:
             self._load_devices()
         return (DeviceInfo(d) for d in self._devices)
 
-    def refresh_devices(self):
-        """Update DeviceInfo objects from Gateway to update snapshot
-            for Thinq2 devices.
-            """
-        call_time = datetime.now()
-        difference = (call_time - self._last_device_update).total_seconds()
-        if difference > MIN_TIME_BETWEEN_UPDATE:
-            self._load_devices(True)
-            self._last_device_update = call_time
+    @property
+    def hasdevices(self) -> bool:
+        return True if self._devices else False
 
     def get_device(self, device_id) -> Optional["DeviceInfo"]:
         """Look up a DeviceInfo object by device ID.
@@ -173,22 +164,25 @@ class Client(object):
                 return device
         return None
 
+    def refresh_devices(self):
+        """Update DeviceInfo objects from Gateway to update snapshot
+            for Thinq2 devices.
+            """
+        call_time = datetime.now()
+        difference = (call_time - self._last_device_update).total_seconds()
+        if difference > MIN_TIME_BETWEEN_UPDATE:
+            self._load_devices(True)
+            self._last_device_update = call_time
+
     @classmethod
-    def load(cls, state: Dict[str, Any]) -> "Client":
+    def load(cls, state: Dict[str, Any]) -> 'Client':
         """Load a client from serialized state.
         """
 
         client = cls()
 
         if 'gateway' in state:
-            data = state["gateway"]
-            client._gateway = core.Gateway(
-                data["auth_base"],
-                data["api_root"],
-                data["api2_root"],
-                data.get("country", core.DEFAULT_COUNTRY),
-                data.get("language", core.DEFAULT_LANGUAGE),
-            )
+            client._gateway = core.Gateway.deserialize(state['gateway'])
 
         if 'auth' in state:
             data = state["auth"]
