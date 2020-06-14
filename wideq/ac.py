@@ -8,8 +8,8 @@ from .core import FailedRequestError
 
 
 class ACJetMode(enum.Enum):
-    """ To turn on the jet mode. This mode 
-    puts your AC into highest cooling or 
+    """ To turn on the jet mode. This mode
+    puts your AC into highest cooling or
     dry or heat mode(for a certain amount of time)
     depending on what you choose
 
@@ -17,8 +17,8 @@ class ACJetMode(enum.Enum):
     1. Vertical swing is set to @100
     2. Temperature gets set to 18 after
     jet mode turns off
-    3. Fan speed is set to HIGH 
-    (@AC_MAIN_WIND_STRENGTH_HIGH_W) 
+    3. Fan speed is set to HIGH
+    (@AC_MAIN_WIND_STRENGTH_HIGH_W)
     after jet mode turns off
     """
 
@@ -31,9 +31,10 @@ class ACJetMode(enum.Enum):
 
 class ACVSwingMode(enum.Enum):
     """The vertical swing mode for an AC/HVAC device.
-    
+
     Blades are numbered vertically from 1 (topmost)
     to 6.
+
     All is 100.
     """
     OFF = "@OFF"
