@@ -9,13 +9,17 @@ from .core import FailedRequestError
 
 class ACJetMode(enum.Enum):
     """ To turn on the jet mode. This mode 
-    puts your AC into highest cooling or dry or heat mode(for a certain amount of time)
+    puts your AC into highest cooling or 
+    dry or heat mode(for a certain amount of time)
     depending on what you choose
 
     This mode Overrides following setting:
         1. Vertical swing is set to @100
-        2. Temperature gets set to 18 after jet mode turns off
-        3. Fan speed is set to HIGH (@AC_MAIN_WIND_STRENGTH_HIGH_W) after jet mode turns off
+        2. Temperature gets set to 18 after
+        jet mode turns off
+        3. Fan speed is set to HIGH 
+        (@AC_MAIN_WIND_STRENGTH_HIGH_W) 
+        after jet mode turns off
     """
 
     OFF = "@OFF"
