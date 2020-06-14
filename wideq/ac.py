@@ -7,6 +7,24 @@ from .util import lookup_enum
 from .core import FailedRequestError
 
 
+class ACJetMode(enum.Enum):
+    """ To turn on the jet mode. This mode 
+    puts your AC into highest cooling or dry or heat mode(for a certain amount of time)
+    depending on what you choose
+
+    This mode Overrides following setting:
+        1. Vertical swing is set to @100
+        2. Temperature gets set to 18 after jet mode turns off
+        3. Fan speed is set to HIGH (@AC_MAIN_WIND_STRENGTH_HIGH_W) after jet mode turns off
+    """
+
+    OFF = "@OFF"
+    COOL_JET = "@COOL_JET"
+    HEAT_JET = "@HEAT_JET"
+    DRY_JET = "@DRY_JET_W"
+    HIM_COOL = "@HIMALAYAS_COOL"
+
+
 class ACVSwingMode(enum.Enum):
     """The vertical swing mode for an AC/HVAC device.
 
@@ -234,6 +252,13 @@ class ACDevice(Device):
         """
 
         return self._get_config('DuctZone')
+
+    def set_jet_mode(self, jet_opt):
+        """Set jet mode to value form `ACJetMode` enum
+        """
+
+        jet_opt_value = self.model.enum_value('Jet', jet_opt.value)
+        self._set_control('Jet', jet_opt_value)
 
     def set_fan_speed(self, speed):
         """Set the fan speed to a value from the `ACFanSpeed` enum.
