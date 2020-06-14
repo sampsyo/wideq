@@ -14,12 +14,12 @@ class ACJetMode(enum.Enum):
     depending on what you choose
 
     This mode Overrides following setting:
-        1. Vertical swing is set to @100
-        2. Temperature gets set to 18 after
-        jet mode turns off
-        3. Fan speed is set to HIGH 
-        (@AC_MAIN_WIND_STRENGTH_HIGH_W) 
-        after jet mode turns off
+    1. Vertical swing is set to @100
+    2. Temperature gets set to 18 after
+    jet mode turns off
+    3. Fan speed is set to HIGH 
+    (@AC_MAIN_WIND_STRENGTH_HIGH_W) 
+    after jet mode turns off
     """
 
     OFF = "@OFF"
@@ -31,10 +31,9 @@ class ACJetMode(enum.Enum):
 
 class ACVSwingMode(enum.Enum):
     """The vertical swing mode for an AC/HVAC device.
-
+    
     Blades are numbered vertically from 1 (topmost)
     to 6.
-
     All is 100.
     """
     OFF = "@OFF"
