@@ -258,7 +258,7 @@ class ACDevice(Device):
         return self._get_config('DuctZone')
 
     def set_jet_mode(self, jet_opt):
-        """Set jet mode to value form `ACJetMode` enum
+        """Set jet mode to a value from the `ACJetMode` enum.
         """
 
         jet_opt_value = self.model.enum_value('Jet', jet_opt.value)
