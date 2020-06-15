@@ -8,7 +8,7 @@ from .core import FailedRequestError
 
 
 class ACJetMode(enum.Enum):
-    """ To turn on the jet mode. This mode
+    """To turn on the jet mode. This mode
     puts your AC into highest cooling or
     dry or heat mode(for a certain amount of time)
     depending on what you choose
