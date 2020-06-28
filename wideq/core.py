@@ -466,7 +466,7 @@ class Auth(object):
 
         return cls(gateway, oauth_url, access_token, refresh_token, user_number)
 
-    def start_session(self):
+    def start_session(self) -> "Session":
         """Start an API session for the logged-in user. Return the
         Session object and a list of the user's devices.
         """
