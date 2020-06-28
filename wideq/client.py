@@ -92,7 +92,7 @@ class Client(object):
 
         # The last list of devices we got from the server. This is the
         # raw JSON list data describing the devices.
-        self._devices = None
+        self._devices: List[Dict[str, Any]] = []
 
         # Cached model info data. This is a mapping from URLs to JSON
         # responses.
