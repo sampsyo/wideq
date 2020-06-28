@@ -1,7 +1,7 @@
 """A low-level, general abstraction for the LG SmartThinQ API.
 """
 import requests
-from urllib3.poolmanager import PoolManager
+from urllib3.poolmanager import PoolManager  # type: ignore
 from requests.adapters import HTTPAdapter
 import ssl
 import base64
