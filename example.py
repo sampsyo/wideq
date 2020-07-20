@@ -131,10 +131,34 @@ def _force_device(client, device_id):
 
 
 def set_temp(client, device_id, temp):
-    """Set the configured temperature for an AC device."""
+    """Set the configured temperature for an AC or refrigerator device."""
 
-    ac = wideq.ACDevice(client, _force_device(client, device_id))
-    ac.set_fahrenheit(int(temp))
+    device = client.get_device(device_id)
+
+    if device.type == wideq.client.DeviceType.AC:
+        ac = wideq.ACDevice(client, _force_device(client, device_id))
+        ac.set_fahrenheit(int(temp))
+    elif device.type == wideq.client.DeviceType.REFRIGERATOR:
+        refrigerator = wideq.RefrigeratorDevice(
+            client, _force_device(client, device_id))
+        refrigerator.set_temp_refrigerator_c(int(temp))
+    else:
+        raise UserError(
+            'set-temp only suported for AC or refrigerator devices')
+
+
+def set_temp_freezer(client, device_id, temp):
+    """Set the configured freezer temperature for a refrigerator device."""
+
+    device = client.get_device(device_id)
+
+    if device.type == wideq.client.DeviceType.REFRIGERATOR:
+        refrigerator = wideq.RefrigeratorDevice(
+            client, _force_device(client, device_id))
+        refrigerator.set_temp_freezer_c(int(temp))
+    else:
+        raise UserError(
+            'set-temp-freezer only suported for refrigerator devices')
 
 
 def turn(client, device_id, on_off):
@@ -163,6 +187,7 @@ EXAMPLE_COMMANDS = {
     'mon': mon,
     'ac-mon': ac_mon,
     'set-temp': set_temp,
+    'set-temp-freezer': set_temp_freezer,
     'turn': turn,
     'ac-config': ac_config,
 }
