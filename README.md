@@ -4,6 +4,8 @@
 WideQ
 =====
 
+:warning: **New users of LG SmartThinq**: This library only works with v1 of the LG SmartThinq API. Work is currently underway to support the v2 API. If you recently created a LG SmartThinq account, this library will likely return 0 devices when you execute the `ls` command.
+
 A library for interacting with the "LG SmartThinq" system, which can control heat pumps and such. I reverse-engineered the API from their mobile app.
 
 To try out the API, there is a simple command-line tool included here, called `example.py`.
