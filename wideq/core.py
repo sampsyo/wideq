@@ -174,6 +174,7 @@ API_ERRORS = {
     "0106": NotConnectedError,
     "0100": FailedRequestError,
     9000: InvalidRequestError,  # Surprisingly, an integer (not a string).
+    9003: NotLoggedInError,  # Session Creation FailureError
 }
 
 
