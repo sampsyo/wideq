@@ -432,7 +432,15 @@ class Device(object):
             self.device.id,
             key,
         )
-        return json.loads(base64.b64decode(data).decode('utf8'))
+        data = base64.b64decode(data).decode('utf8')
+        try:
+            return json.loads(data)
+        except json.decoder.JSONDecodeError:
+            LOGGER.warning(
+                'JSONDecodeError malformed json (%s)', data)
+            # Added fix to correct malformed JSON!
+            # see https://github.com/sampsyo/wideq/issues/64
+            return json.loads(data.replace('{[', '[').replace(']}', ']'))
 
     def _get_control(self, key):
         """Look up a device's control value."""
