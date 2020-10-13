@@ -168,6 +168,15 @@ class MonitorError(APIError):
         self.device_id = device_id
         self.code = code
 
+class JsonError(APIError):
+    """JSON Decode error
+    The received json value is malformed
+    """
+
+    def __init__(self, device_id, json):
+        self.device_id = device_id
+        self.json = json
+
 
 API_ERRORS = {
     "0102": NotLoggedInError,

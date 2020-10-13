@@ -6,6 +6,7 @@ import enum
 import logging
 import requests
 import base64
+import re
 from collections import namedtuple
 from typing import Any, Dict, Generator, List, Optional
 
@@ -436,11 +437,12 @@ class Device(object):
         try:
             return json.loads(data)
         except json.decoder.JSONDecodeError:
-            LOGGER.warning(
-                'JSONDecodeError malformed json (%s)', data)
-            # Added fix to correct malformed JSON!
-            # see https://github.com/sampsyo/wideq/issues/64
-            return json.loads(data.replace('{[', '[').replace(']}', ']'))
+            try:
+                # malformed JSON may contains unwanted [bracket]
+                LOGGER.debug('attempting to fix JSON format')
+                return json.loads( re.sub(r'^\{(.*?)\}$', r'\1', data))
+            except json.decoder.JSONDecodeError:
+                raise core.JsonError(self.device.id, data)
 
     def _get_control(self, key):
         """Look up a device's control value."""
