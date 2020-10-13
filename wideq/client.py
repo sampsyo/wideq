@@ -440,7 +440,7 @@ class Device(object):
             try:
                 # malformed JSON may contains unwanted [bracket]
                 LOGGER.debug('attempting to fix JSON format')
-                return json.loads( re.sub(r'^\{(.*?)\}$', r'\1', data))
+                return json.loads(re.sub(r'^\{(.*?)\}$', r'\1', data))
             except json.decoder.JSONDecodeError:
                 raise core.JsonError(self.device.id, data)
 

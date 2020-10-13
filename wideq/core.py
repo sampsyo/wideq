@@ -168,6 +168,7 @@ class MonitorError(APIError):
         self.device_id = device_id
         self.code = code
 
+
 class JsonError(APIError):
     """JSON Decode error
     The received json value is malformed
