@@ -437,12 +437,13 @@ class Device(object):
         try:
             return json.loads(data)
         except json.decoder.JSONDecodeError:
+            # Sometimes, the service returns JSON wrapped in an extra
+            # pair of curly braces. Try removing them and re-parsing.
+            LOGGER.debug('attempting to fix JSON format')
             try:
-                # malformed JSON may contains unwanted [bracket]
-                LOGGER.debug('attempting to fix JSON format')
                 return json.loads(re.sub(r'^\{(.*?)\}$', r'\1', data))
             except json.decoder.JSONDecodeError:
-                raise core.JsonError(self.device.id, data)
+                raise core.MalformedResponseError(data)
 
     def _get_control(self, key):
         """Look up a device's control value."""

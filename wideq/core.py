@@ -169,14 +169,11 @@ class MonitorError(APIError):
         self.code = code
 
 
-class JsonError(APIError):
-    """JSON Decode error
-    The received json value is malformed
-    """
+class MalformedResponseError(APIError):
+    """The server produced malformed data, such as invalid JSON."""
 
-    def __init__(self, device_id, json):
-        self.device_id = device_id
-        self.json = json
+    def __init__(self, data):
+        self.data = data
 
 
 API_ERRORS = {
