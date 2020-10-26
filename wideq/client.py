@@ -265,7 +265,7 @@ class DeviceInfo(object):
     DeviceType.DRYER : DryerDevice,
     DeviceType.WASHER : WasherDevice,
     """
-    mapping = dict()
+    mapping : dict[DeviceType, Device] = {}
 
     def __init__(self, data: Dict[str, Any]) -> None:
         self.data = data
@@ -296,9 +296,9 @@ class DeviceInfo(object):
         """Load JSON data describing the model's capabilities.
         """
         return requests.get(self.model_info_url).json()
-    
+
     def load_object(self):
-        """Load the registered subclasse Device object according to his type        
+        """Load the registered subclasse Device object according to his type
         """
         if self.type in DeviceInfo.mapping:
             return DeviceInfo.mapping.get(self.type)
