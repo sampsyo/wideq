@@ -257,6 +257,16 @@ class DeviceInfo(object):
     This is populated from a JSON dictionary provided by the API.
     """
 
+    """
+    Each subclasse of Device need to be registered here :
+    DeviceType.AC: ACDevice,
+    DeviceType.KIMCHI_REFRIGERATOR: RefrigeratorDevice,
+    DeviceType.DISHWASHER: DishWasherDevice,
+    DeviceType.DRYER : DryerDevice,
+    DeviceType.WASHER : WasherDevice,
+    """
+    mapping = dict()
+
     def __init__(self, data: Dict[str, Any]) -> None:
         self.data = data
 
@@ -286,6 +296,13 @@ class DeviceInfo(object):
         """Load JSON data describing the model's capabilities.
         """
         return requests.get(self.model_info_url).json()
+    
+    def load_object(self):
+        """Load the registered subclasse Device object according to his type        
+        """
+        if self.type in DeviceInfo.mapping:
+            return DeviceInfo.mapping.get(self.type)
+        return Device
 
 
 BitValue = namedtuple('BitValue', ['options'])

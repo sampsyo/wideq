@@ -1,7 +1,7 @@
 import enum
 from typing import Optional
 
-from .client import Device, _UNKNOWN
+from .client import Device, _UNKNOWN, DeviceInfo, DeviceType
 from .util import lookup_enum, lookup_reference
 
 
@@ -182,3 +182,7 @@ class DryerStatus(object):
     def error(self) -> str:
         """Get the current error."""
         return lookup_reference('Error', self.data, self.dryer)
+
+
+# register device on the global mapping
+DeviceInfo.mapping[DeviceType.DRYER] = DryerDevice

@@ -2,7 +2,7 @@
 """
 import enum
 
-from .client import Device
+from .client import Device, DeviceInfo, DeviceType
 from .util import lookup_enum
 from .core import FailedRequestError
 
@@ -422,3 +422,10 @@ class ACStatus(object):
     def is_on(self):
         op = ACOp(lookup_enum('Operation', self.data, self.ac))
         return op != ACOp.OFF
+
+    def __str__(self):
+        return "ACStatus(%r %r)" % (self.ac, self.data)
+
+
+# register device on the global mapping
+DeviceInfo.mapping[DeviceType.AC] = ACDevice

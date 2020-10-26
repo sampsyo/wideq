@@ -1,7 +1,7 @@
 import enum
 from typing import Optional
 
-from .client import Device
+from .client import Device, DeviceInfo, DeviceType
 from .util import lookup_enum
 
 
@@ -138,3 +138,8 @@ class RefrigeratorStatus(object):
     @property
     def water_filter_used_month(self):
         return self.data['WaterFilterUsedMonth']
+
+
+# register device on the global mapping
+DeviceInfo.mapping[DeviceType.KIMCHI_REFRIGERATOR] = RefrigeratorDevice
+DeviceInfo.mapping[DeviceType.REFRIGERATOR] = RefrigeratorDevice
