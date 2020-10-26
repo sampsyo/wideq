@@ -265,7 +265,7 @@ class DeviceInfo(object):
     DeviceType.DRYER : DryerDevice,
     DeviceType.WASHER : WasherDevice,
     """
-    mapping: typing.Dict[DeviceType, object] = {}
+    mapping: Dict[DeviceType, object] = {}
 
     def __init__(self, data: Dict[str, Any]) -> None:
         self.data = data
