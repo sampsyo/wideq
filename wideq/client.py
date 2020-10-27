@@ -154,7 +154,7 @@ class Client(object):
         if deviceInfo.type in classes:
             return classes.get(deviceInfo.type)(self, deviceInfo)
         LOGGER.debug('No specific subclass for deviceType %s, using default',
-                    deviceInfo.type)
+                     deviceInfo.type)
         return Device(self, deviceInfo)
 
     @classmethod
