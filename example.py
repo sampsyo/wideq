@@ -77,12 +77,10 @@ def ac_mon(client, device_id):
     its status such as its temperature and operation mode.
     """
 
-    device = client.get_device(device_id)
-    if device.type != wideq.DeviceType.AC:
+    ac = client.get_device_class(device_id)
+    if not isinstance(ac, 'ACDevice'):
         print('This is not an AC device.')
         return
-
-    ac = wideq.ACDevice(client, device)
 
     try:
         ac.monitor_start()

@@ -12,6 +12,7 @@ from typing import Any, Dict, Generator, List, Optional
 
 from . import core
 
+
 #: Represents an unknown enum value.
 _UNKNOWN = 'Unknown'
 LOGGER = logging.getLogger("wideq.client")
@@ -138,6 +139,24 @@ class Client(object):
                 return device
         return None
 
+    def get_device_class(self, device_id):
+        """Look up a subclass of Device object by device ID.
+
+        Return a Device instance if no subclass exists for the device type.
+        Return None if the device does not exist.
+        """
+        from . import util
+        
+        deviceInfo = self.get_device(device_id)
+        if deviceInfo == None:
+            return None
+        classes = util.device_classes()
+        if deviceInfo.type in classes:
+            return classes.get(deviceInfo.type)(self, deviceInfo)
+        LOGGER.debug('No specific subclass for deviceType %s, using default', deviceInfo.type)
+        return Device(self, deviceInfo)
+            
+    
     @classmethod
     def load(cls, state: Dict[str, Any]) -> 'Client':
         """Load a client from serialized state.
@@ -257,16 +276,6 @@ class DeviceInfo(object):
     This is populated from a JSON dictionary provided by the API.
     """
 
-    """
-    Each subclasse of Device need to be registered here :
-    DeviceType.AC: ACDevice,
-    DeviceType.KIMCHI_REFRIGERATOR: RefrigeratorDevice,
-    DeviceType.DISHWASHER: DishWasherDevice,
-    DeviceType.DRYER : DryerDevice,
-    DeviceType.WASHER : WasherDevice,
-    """
-    mapping: Dict[DeviceType, object] = {}
-
     def __init__(self, data: Dict[str, Any]) -> None:
         self.data = data
 
@@ -296,13 +305,6 @@ class DeviceInfo(object):
         """Load JSON data describing the model's capabilities.
         """
         return requests.get(self.model_info_url).json()
-
-    def load_object(self):
-        """Load the registered subclasse Device object according to his type
-        """
-        if self.type in DeviceInfo.mapping:
-            return DeviceInfo.mapping.get(self.type)
-        return Device
 
 
 BitValue = namedtuple('BitValue', ['options'])
