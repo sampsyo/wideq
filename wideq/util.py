@@ -45,6 +45,6 @@ def device_classes():
         DeviceType.KIMCHI_REFRIGERATOR: RefrigeratorDevice,
         DeviceType.REFRIGERATOR: RefrigeratorDevice,
         DeviceType.DISHWASHER: DishWasherDevice,
-        DeviceType.DRYER : DryerDevice,
-        DeviceType.WASHER : WasherDevice,
+        DeviceType.DRYER: DryerDevice,
+        DeviceType.WASHER: WasherDevice,
     }

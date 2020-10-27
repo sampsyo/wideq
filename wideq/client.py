@@ -146,17 +146,17 @@ class Client(object):
         Return None if the device does not exist.
         """
         from . import util
-        
+
         deviceInfo = self.get_device(device_id)
-        if deviceInfo == None:
+        if not deviceInfo:
             return None
         classes = util.device_classes()
         if deviceInfo.type in classes:
             return classes.get(deviceInfo.type)(self, deviceInfo)
-        LOGGER.debug('No specific subclass for deviceType %s, using default', deviceInfo.type)
+        LOGGER.debug('No specific subclass for deviceType %s, using default',
+                    deviceInfo.type)
         return Device(self, deviceInfo)
-            
-    
+
     @classmethod
     def load(cls, state: Dict[str, Any]) -> 'Client':
         """Load a client from serialized state.
