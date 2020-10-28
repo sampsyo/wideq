@@ -1,6 +1,6 @@
 from typing import TypeVar
 
-from .client import Device
+from .client import Device, DeviceType
 
 
 T = TypeVar('T', bound=Device)
@@ -29,3 +29,22 @@ def lookup_reference(attr: str, data: dict, device: T) -> str:
     if value is None:
         return 'Off'
     return value
+
+
+def device_classes():
+    """The mapping of every Device subclass related to the DeviceType enum
+    """
+    from .ac import ACDevice
+    from .dryer import DryerDevice
+    from .dishwasher import DishWasherDevice
+    from .washer import WasherDevice
+    from .refrigerator import RefrigeratorDevice
+
+    return {
+        DeviceType.AC: ACDevice,
+        DeviceType.KIMCHI_REFRIGERATOR: RefrigeratorDevice,
+        DeviceType.REFRIGERATOR: RefrigeratorDevice,
+        DeviceType.DISHWASHER: DishWasherDevice,
+        DeviceType.DRYER: DryerDevice,
+        DeviceType.WASHER: WasherDevice,
+    }

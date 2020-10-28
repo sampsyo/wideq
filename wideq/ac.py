@@ -422,3 +422,6 @@ class ACStatus(object):
     def is_on(self):
         op = ACOp(lookup_enum('Operation', self.data, self.ac))
         return op != ACOp.OFF
+
+    def __str__(self):
+        return "ACStatus(%r %r)" % (self.ac, self.data)
