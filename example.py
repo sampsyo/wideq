@@ -35,7 +35,7 @@ def ls(client):
 
 
 def gen_mon(client, device_id):
-    """Monitor any other device but AC device, 
+    """Monitor any other device but AC device,
     displaying generic information about its status.
     """
 
@@ -113,7 +113,7 @@ def mon(client, device_id):
     status.
     """
 
-    device_class = client.get_device_class(device_id)
+    device_class = client.get_device_obj(device_id)
     if isinstance(device_class, wideq.ACDevice):
         ac_mon(device_class)
     else:
