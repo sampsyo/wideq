@@ -34,9 +34,9 @@ def ls(client):
         print('{0.id}: {0.name} ({0.type.name} {0.model_id})'.format(device))
 
 
-def mon(client, device_id):
-    """Monitor any device, displaying generic information about its
-    status.
+def gen_mon(client, device_id):
+    """Monitor any other device but AC device, 
+    displaying generic information about its status.
     """
 
     device = client.get_device(device_id)
@@ -72,15 +72,10 @@ def mon(client, device_id):
             pass
 
 
-def ac_mon(client, device_id):
+def ac_mon(ac):
     """Monitor an AC/HVAC device, showing higher-level information about
     its status such as its temperature and operation mode.
     """
-
-    ac = client.get_device_class(device_id)
-    if not isinstance(ac, 'ACDevice'):
-        print('This is not an AC device.')
-        return
 
     try:
         ac.monitor_start()
@@ -104,11 +99,25 @@ def ac_mon(client, device_id):
                         'on' if state.is_on else 'off'
                     )
                 )
+            else:
+                print('no state. Wait 1 more second.')
 
     except KeyboardInterrupt:
         pass
     finally:
         ac.monitor_stop()
+
+
+def mon(client, device_id):
+    """Monitor any device, displaying generic information about its
+    status.
+    """
+
+    device_class = client.get_device_class(device_id)
+    if isinstance(device_class, wideq.ACDevice):
+        ac_mon(device_class)
+    else:
+        gen_mon(client, device_id)
 
 
 class UserError(Exception):
@@ -183,7 +192,6 @@ def ac_config(client, device_id):
 EXAMPLE_COMMANDS = {
     'ls': ls,
     'mon': mon,
-    'ac-mon': ac_mon,
     'set-temp': set_temp,
     'set-temp-freezer': set_temp_freezer,
     'turn': turn,
