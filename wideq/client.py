@@ -10,7 +10,7 @@ import re
 from collections import namedtuple
 from typing import Any, Dict, Generator, List, Optional
 
-from . import core, util
+from . import core
 
 
 #: Represents an unknown enum value.
@@ -145,6 +145,7 @@ class Client(object):
         Return a Device instance if no subclass exists for the device type.
         Return None if the device does not exist.
         """
+    from . import util
 
         device_info = self.get_device(device_id)
         if not device_info:
