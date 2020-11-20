@@ -6,3 +6,5 @@ __pycache__
 .vscode/
 # Ignore Mac system files
 .DS_Store
+# Ignore devcontainer for now (should this go in source control?)
+.devcontainer

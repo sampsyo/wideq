@@ -1,6 +1,7 @@
 """A low-level, general abstraction for the LG SmartThinQ API.
 """
 import base64
+from enum import Enum
 import uuid
 from urllib.parse import urljoin, urlencode, urlparse, parse_qs
 import hashlib
@@ -12,17 +13,38 @@ from typing import Any, Dict, List, Tuple
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
-GATEWAY_URL = "https://kic.lgthinq.com:46030/api/common/gatewayUriList"
-APP_KEY = "wideq"
+GATEWAY_URL = (
+    "https://route.lgthinq.com:46030/v1/service/application/gateway-uri"
+)
 SECURITY_KEY = "nuts_securitykey"
-DATA_ROOT = "lgedmRoot"
+APP_KEY = "wideq"
+DATA_ROOT = "result"
+POST_DATA_ROOT = "lgedmRoot"
+RETURN_CODE_ROOT = "resultCode"
+RETURN_MESSAGE_ROOT = "returnMsg"
 SVC_CODE = "SVC202"
-CLIENT_ID = "LGAO221A02"
 OAUTH_SECRET_KEY = "c053c2a6ddeb7ad97cb0eed0dcb31cf8"
 OAUTH_CLIENT_KEY = "LGAO221A02"
 DATE_FORMAT = "%a, %d %b %Y %H:%M:%S +0000"
 DEFAULT_COUNTRY = "US"
 DEFAULT_LANGUAGE = "en-US"
+
+# v2
+API_KEY = "VGhpblEyLjAgU0VSVklDRQ=="
+
+# the client id is a SHA512 hash of the phone MFR,MODEL,SERIAL,
+# and the build id of the thinq app it can also just be a random
+# string, we use the same client id used for oauth
+CLIENT_ID = OAUTH_CLIENT_KEY
+MESSAGE_ID = "wideq"
+SVC_PHASE = "OP"
+APP_LEVEL = "PRD"
+APP_OS = "ANDROID"
+APP_TYPE = "NUTS"
+APP_VER = "3.5.1200"
+
+
+OAUTH_REDIRECT_URI = "https://kr.m.lgaccount.com/login/iabClose"
 
 RETRY_COUNT = 5  # Anecdotally this seems sufficient.
 RETRY_FACTOR = 0.5
@@ -129,7 +151,7 @@ def get_list(obj, key: str) -> List[Dict[str, Any]]:
 class APIError(Exception):
     """An error reported by the API."""
 
-    def __init__(self, code, message):
+    def __init__(self, code, message=None):
         self.code = code
         self.message = message
 
@@ -159,6 +181,10 @@ class InvalidRequestError(APIError):
     """The server rejected a request as invalid."""
 
 
+class DeviceNotFoundError:
+    """The device couldn't be found."""
+
+
 class MonitorError(APIError):
     """Monitoring a device failed, possibly because the monitoring
     session failed and needs to be restarted.
@@ -185,7 +211,21 @@ API_ERRORS = {
 }
 
 
-def lgedm_post(url, data=None, access_token=None, session_id=None):
+class RequestMethod(Enum):
+    GET = "get"
+    POST = "post"
+
+
+def thinq_request(
+    method,
+    url,
+    data=None,
+    access_token=None,
+    session_id=None,
+    user_number=None,
+    country=DEFAULT_COUNTRY,
+    language=DEFAULT_LANGUAGE,
+):
     """Make an HTTP request in the format used by the API servers.
 
     In this format, the request POST data sent as JSON under a special
@@ -197,30 +237,45 @@ def lgedm_post(url, data=None, access_token=None, session_id=None):
     the gateway server data or to start a session.
     """
     headers = {
-        "x-thinq-application-key": APP_KEY,
-        "x-thinq-security-key": SECURITY_KEY,
         "Accept": "application/json",
+        "x-api-key": API_KEY,
+        "x-client-id": CLIENT_ID,
+        "x-country-code": country,
+        "x-language-code": language,
+        "x-message-id": MESSAGE_ID,
+        "x-service-code": SVC_CODE,
+        "x-service-phase": SVC_PHASE,
+        "x-thinq-app-level": APP_LEVEL,
+        "x-thinq-app-os": APP_OS,
+        "x-thinq-app-type": APP_TYPE,
+        "x-thinq-app-ver": APP_VER,
     }
+
     if access_token:
-        headers["x-thinq-token"] = access_token
-    if session_id:
-        headers["x-thinq-jsessionId"] = session_id
+        headers["x-emp-token"] = access_token
+    if user_number:
+        headers["x-user-no"] = user_number
 
     with retry_session() as session:
-        res = session.post(url, json={DATA_ROOT: data}, headers=headers)
-    out = res.json()[DATA_ROOT]
+        if method == RequestMethod.POST:
+            res = session.post(url, json=data, headers=headers)
+        elif method == RequestMethod.GET:
+            res = session.get(url, headers=headers)
+        else:
+            raise ValueError("Unsupported request method")
+
+    out = res.json()
 
     # Check for API errors.
-    if "returnCd" in out:
-        code = out["returnCd"]
+    if RETURN_CODE_ROOT in out:
+        code = out[RETURN_CODE_ROOT]
         if code != "0000":
-            message = out["returnMsg"]
             if code in API_ERRORS:
-                raise API_ERRORS[code](code, message)
+                raise API_ERRORS[code](code)
             else:
-                raise APIError(code, message)
+                raise APIError(code)
 
-    return out
+    return out[DATA_ROOT]
 
 
 def oauth_url(auth_base, country, language):
@@ -228,18 +283,20 @@ def oauth_url(auth_base, country, language):
     authenticated session.
     """
 
-    url = urljoin(auth_base, "login/sign_in")
+    url = urljoin(auth_base, "spx/login/signIn")
     query = urlencode(
         {
             "country": country,
             "language": language,
-            "svcCode": SVC_CODE,
-            "authSvr": "oauth2",
+            "svc_list": SVC_CODE,
             "client_id": CLIENT_ID,
             "division": "ha",
-            "grant_type": "password",
+            "redirect_uri": OAUTH_REDIRECT_URI,
+            "state": uuid.uuid1().hex,
+            "show_thirdparty_login": "AMZ,FBK",
         }
     )
+
     return "{}?{}".format(url, query)
 
 
@@ -250,35 +307,37 @@ def parse_oauth_callback(url):
     """
 
     params = parse_qs(urlparse(url).query)
-    return params["access_token"][0], params["refresh_token"][0]
+    return (
+        params["oauth2_backend_url"][0],
+        params["code"][0],
+        params["user_number"][0],
+    )
 
 
-def login(api_root, access_token, country, language):
-    """Use an access token to log into the API and obtain a session and
-    return information about the session.
-    """
-
-    url = urljoin(api_root + "/", "member/login")
-    data = {
-        "countryCode": country,
-        "langCode": language,
-        "loginType": "EMP",
-        "token": access_token,
-    }
-    return lgedm_post(url, data)
+class OAuthGrant(Enum):
+    REFRESH_TOKEN = "refresh_token"
+    AUTHORIZATION_CODE = "authorization_code"
 
 
-def refresh_auth(oauth_root, refresh_token):
-    """Get a new access_token using a refresh_token.
+def oauth_request(grant, oauth_root, token):
+    """Make an oauth_request with a specific grant type
 
     May raise a `TokenError`.
     """
 
-    token_url = urljoin(oauth_root, "/oauth2/token")
-    data = {
-        "grant_type": "refresh_token",
-        "refresh_token": refresh_token,
-    }
+    oauth_path = "/oauth/1.0/oauth2/token"
+    token_url = urljoin(oauth_root, oauth_path)
+    data = {}
+
+    if grant == OAuthGrant.REFRESH_TOKEN:
+        data["grant_type"] = "refresh_token"
+        data["refresh_token"] = token
+    elif grant == OAuthGrant.AUTHORIZATION_CODE:
+        data["code"] = token
+        data["grant_type"] = "authorization_code"
+        data["redirect_uri"] = OAUTH_REDIRECT_URI
+    else:
+        raise ValueError("Unsupported grant")
 
     # The timestamp for labeling OAuth requests can be obtained
     # through a request to the date/time endpoint:
@@ -289,17 +348,15 @@ def refresh_auth(oauth_root, refresh_token):
     # The signature for the requests is on a string consisting of two
     # parts: (1) a fake request URL containing the refresh token, and (2)
     # the timestamp.
-    req_url = (
-        "/oauth2/token?grant_type=refresh_token&refresh_token=" + refresh_token
-    )
+    req_url = "{}?{}".format(oauth_path, urlencode(data))
     sig = oauth2_signature(
         "{}\n{}".format(req_url, timestamp), OAUTH_SECRET_KEY
     )
 
     headers = {
-        "lgemp-x-app-key": OAUTH_CLIENT_KEY,
-        "lgemp-x-signature": sig,
-        "lgemp-x-date": timestamp,
+        "x-lge-appkey": CLIENT_ID,
+        "x-lge-oauth-signature": sig,
+        "x-lge-oauth-date": timestamp,
         "Accept": "application/json",
     }
 
@@ -307,16 +364,16 @@ def refresh_auth(oauth_root, refresh_token):
         res = session.post(token_url, data=data, headers=headers)
     res_data = res.json()
 
-    if res_data["status"] != 1:
+    if res.status_code != 200:
         raise TokenError()
-    return res_data["access_token"]
+
+    return res_data
 
 
 class Gateway(object):
-    def __init__(self, auth_base, api_root, oauth_root, country, language):
+    def __init__(self, auth_base, api_root, country, language):
         self.auth_base = auth_base
         self.api_root = api_root
-        self.oauth_root = oauth_root
         self.country = country
         self.language = language
 
@@ -327,12 +384,12 @@ class Gateway(object):
         `country` and `language` are codes, like "US" and "en-US,"
         respectively.
         """
-        gw = lgedm_post(
-            GATEWAY_URL, {"countryCode": country, "langCode": language}
+        gw = thinq_request(
+            RequestMethod.GET,
+            GATEWAY_URL,
+            {"countryCode": country, "langCode": language},
         )
-        return cls(
-            gw["empUri"], gw["thinqUri"], gw["oauthUri"], country, language
-        )
+        return cls(gw["empUri"], gw["thinq2Uri"], country, language)
 
     def oauth_url(self):
         return oauth_url(self.auth_base, self.country, self.language)
@@ -341,7 +398,6 @@ class Gateway(object):
         return {
             "auth_base": self.auth_base,
             "api_root": self.api_root,
-            "oauth_root": self.oauth_root,
             "country": self.country,
             "language": self.language,
         }
@@ -351,56 +407,68 @@ class Gateway(object):
         return cls(
             data["auth_base"],
             data["api_root"],
-            data["oauth_root"],
             data.get("country", DEFAULT_COUNTRY),
             data.get("language", DEFAULT_LANGUAGE),
         )
 
 
 class Auth(object):
-    def __init__(self, gateway, access_token, refresh_token):
+    def __init__(
+        self, gateway, access_token, refresh_token, user_number, oauth_root
+    ):
         self.gateway = gateway
         self.access_token = access_token
         self.refresh_token = refresh_token
+        self.user_number = user_number
+        self.oauth_root = oauth_root
 
     @classmethod
     def from_url(cls, gateway, url):
         """Create an authentication using an OAuth callback URL."""
 
-        access_token, refresh_token = parse_oauth_callback(url)
-        return cls(gateway, access_token, refresh_token)
+        oauth_root, auth_code, user_number = parse_oauth_callback(url)
+        out = oauth_request(
+            OAuthGrant.AUTHORIZATION_CODE, oauth_root, auth_code
+        )
+        return cls(
+            gateway,
+            out["access_token"],
+            out["refresh_token"],
+            user_number,
+            oauth_root,
+        )
 
     def start_session(self) -> Tuple["Session", List[Dict[str, Any]]]:
         """Start an API session for the logged-in user. Return the
         Session object and a list of the user's devices.
         """
-
-        session_info = login(
-            self.gateway.api_root,
-            self.access_token,
-            self.gateway.country,
-            self.gateway.language,
-        )
-        session_id = session_info["jsessionId"]
-        return Session(self, session_id), get_list(session_info, "item")
+        return Session(self), []
 
     def refresh(self):
         """Refresh the authentication, returning a new Auth object."""
 
-        new_access_token = refresh_auth(
-            self.gateway.oauth_root, self.refresh_token
+        new_access_token = oauth_request(
+            OAuthGrant.REFRESH_TOKEN, self.oauth_root, self.refresh_token
+        )["access_token"]
+        return Auth(
+            self.gateway,
+            new_access_token,
+            self.refresh_token,
+            self.user_number,
+            self.oauth_root,
         )
-        return Auth(self.gateway, new_access_token, self.refresh_token)
 
     def serialize(self) -> Dict[str, str]:
         return {
             "access_token": self.access_token,
             "refresh_token": self.refresh_token,
+            "user_number": self.user_number,
+            "oauth_root": self.oauth_root,
         }
 
 
 class Session(object):
-    def __init__(self, auth, session_id) -> None:
+    def __init__(self, auth, session_id=None) -> None:
         self.auth = auth
         self.session_id = session_id
 
@@ -412,7 +480,30 @@ class Session(object):
         """
 
         url = urljoin(self.auth.gateway.api_root + "/", path)
-        return lgedm_post(url, data, self.auth.access_token, self.session_id)
+        return thinq_request(
+            RequestMethod.POST,
+            url,
+            data,
+            self.auth.access_token,
+            user_number=self.auth.user_number,
+        )
+
+    def get(self, path):
+        """Make a GET request to the API server.
+
+        This is like `lgedm_get`, but it pulls the context for the
+        request from an active Session.
+        """
+
+        url = urljoin(self.auth.gateway.api_root + "/", path)
+        return thinq_request(
+            RequestMethod.GET,
+            url,
+            access_token=self.auth.access_token,
+            user_number=self.auth.user_number,
+            country=self.auth.gateway.country,
+            language=self.auth.gateway.language,
+        )
 
     def get_devices(self) -> List[Dict[str, Any]]:
         """Get a list of devices associated with the user's account.
@@ -420,7 +511,7 @@ class Session(object):
         Return a list of dicts with information about the devices.
         """
 
-        return get_list(self.post("device/deviceList"), "item")
+        return get_list(self.get("service/application/dashboard"), "item")
 
     def monitor_start(self, device_id):
         """Begin monitoring a device's status.
@@ -488,40 +579,13 @@ class Session(object):
             },
         )
 
-    def set_device_controls(self, device_id, values):
+    def device_control(self, device_id, data):
         """Control a device's settings.
 
         `values` is a key/value map containing the settings to update.
         """
 
-        return self.post(
-            "rti/rtiControl",
-            {
-                "cmd": "Control",
-                "cmdOpt": "Set",
-                "value": values,
-                "deviceId": device_id,
-                "workId": gen_uuid(),
-                "data": "",
-            },
-        )
+        controlPath = "service/devices/{}/control-sync".format(device_id)
 
-    def get_device_config(self, device_id, key, category="Config"):
-        """Get a device configuration option.
-
-        The `category` string should probably either be "Config" or
-        "Control"; the right choice appears to depend on the key.
-        """
-
-        res = self.post(
-            "rti/rtiControl",
-            {
-                "cmd": category,
-                "cmdOpt": "Get",
-                "value": key,
-                "deviceId": device_id,
-                "workId": gen_uuid(),
-                "data": "",
-            },
-        )
-        return res["returnData"]
+        res = self.post(controlPath, data)
+        return res

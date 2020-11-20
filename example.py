@@ -9,6 +9,7 @@ import re
 import os.path
 import logging
 from typing import List
+from pprint import pprint
 
 STATE_FILE = "wideq_state.json"
 LOGGER = logging.getLogger("wideq.example")
@@ -34,6 +35,13 @@ def ls(client):
         print("{0.id}: {0.name} ({0.type.name} {0.model_id})".format(device))
 
 
+def info(client, device_id):
+    """Dump info on a device."""
+
+    device = client.get_device(device_id)
+    pprint(vars(device), indent=4, width=1)
+
+
 def gen_mon(client, device_id):
     """Monitor any other device but AC device,
     displaying generic information about its status.
@@ -51,9 +59,11 @@ def gen_mon(client, device_id):
                 if data:
                     try:
                         res = model.decode_monitor(data)
+                        print(res)
                     except ValueError:
                         print("status data: {!r}".format(data))
-                    else:
+                """
+                else:
                         for key, value in res.items():
                             try:
                                 desc = model.value(key)
@@ -66,13 +76,9 @@ def gen_mon(client, device_id):
                                     )
                                 )
                             elif isinstance(desc, wideq.RangeValue):
-                                print(
-                                    "- {0}: {1} ({2.min}-{2.max})".format(
-                                        key,
-                                        value,
-                                        desc,
-                                    )
-                                )
+                                print('- {0}: {1} ({2.min}-{2.max})'.format(
+                                    key, value, desc,
+                                )) """
 
         except KeyboardInterrupt:
             pass
@@ -204,6 +210,7 @@ EXAMPLE_COMMANDS = {
     "set-temp-freezer": set_temp_freezer,
     "turn": turn,
     "ac-config": ac_config,
+    "info": info,
 }
 
 

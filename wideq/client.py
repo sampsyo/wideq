@@ -1,6 +1,7 @@
 """A high-level, convenient abstraction for interacting with the LG
 SmartThinQ API for most use cases.
 """
+from io import UnsupportedOperation
 import json
 import enum
 import logging
@@ -31,23 +32,29 @@ class Monitor(object):
         self.device_id = device_id
 
     def start(self) -> None:
-        self.work_id = self.session.monitor_start(self.device_id)
+        """Nothing to do for v2"""
+        # self.work_id = self.session.monitor_start(self.device_id)
 
     def stop(self) -> None:
-        self.session.monitor_stop(self.device_id, self.work_id)
+        """Nothing to do for v2"""
+        # self.session.monitor_stop(self.device_id, self.work_id)
 
-    def poll(self) -> Optional[bytes]:
+    def poll(self) -> Dict[str, Any]:
         """Get the current status data (a bytestring) or None if the
         device is not yet ready.
         """
+        # return self.session.monitor_poll(self.device_id, self.work_id)
+        # in v2, the data is available only in the snapshot,
+        # getting better info without querying all devices seems to require
+        # mqtt
+        devices = self.session.get_devices()
+        for device in (DeviceInfo(d) for d in devices):
+            if device.id == self.device_id:
+                pollDevice = device
+        if pollDevice is None:
+            raise core.DeviceNotFoundError()
 
-        try:
-            return self.session.monitor_poll(self.device_id, self.work_id)
-        except core.MonitorError:
-            # Try to restart the task.
-            self.stop()
-            self.start()
-            return None
+        return pollDevice.data["snapshot"]
 
     @staticmethod
     def decode_json(data: bytes) -> Dict[str, Any]:
@@ -60,8 +67,7 @@ class Monitor(object):
         decoded status result (or None if status is not available).
         """
 
-        data = self.poll()
-        return self.decode_json(data) if data else None
+        return self.poll()
 
     def __enter__(self) -> "Monitor":
         self.start()
@@ -172,7 +178,11 @@ class Client(object):
         if "auth" in state:
             data = state["auth"]
             client._auth = core.Auth(
-                client.gateway, data["access_token"], data["refresh_token"]
+                client.gateway,
+                data["access_token"],
+                data["refresh_token"],
+                data["user_number"],
+                data["oauth_root"],
             )
 
         if "session" in state:
@@ -225,13 +235,9 @@ class Client(object):
         to reload the gateway servers and restart the session.
         """
 
-        client = cls(
-            country=country or core.DEFAULT_COUNTRY,
-            language=language or core.DEFAULT_LANGUAGE,
-        )
-        client._auth = core.Auth(client.gateway, None, refresh_token)
-        client.refresh()
-        return client
+        # This operation is no longer supported in v2, the
+        # user no is required.
+        raise UnsupportedOperation("User number required in v2")
 
     def model_info(self, device: "DeviceInfo") -> "ModelInfo":
         """For a DeviceInfo object, get a ModelInfo object describing
@@ -284,7 +290,7 @@ class DeviceInfo(object):
 
     @property
     def model_id(self) -> str:
-        return self.data["modelNm"]
+        return self.data["modelName"]
 
     @property
     def id(self) -> str:
@@ -292,7 +298,7 @@ class DeviceInfo(object):
 
     @property
     def model_info_url(self) -> str:
-        return self.data["modelJsonUrl"]
+        return self.data["modelJsonUri"]
 
     @property
     def name(self) -> str:
@@ -306,7 +312,7 @@ class DeviceInfo(object):
 
     def load_model_info(self):
         """Load JSON data describing the model's capabilities."""
-        return requests.get(self.model_info_url).json()
+        return requests.get(self.model_info_url, verify=False).json()
 
 
 BitValue = namedtuple("BitValue", ["options"])
@@ -333,21 +339,21 @@ class ModelInfo(object):
         :raises ValueError: If an unsupported type is encountered.
         """
         d = self.data["Value"][name]
-        if d["type"] in ("Enum", "enum"):
-            return EnumValue(d["option"])
-        elif d["type"] == "Range":
+        if d["data_type"] in ("Enum", "enum"):
+            return EnumValue(d["value_mapping"])
+        elif d["data_type"] == "Range":
             return RangeValue(
                 d["option"]["min"],
                 d["option"]["max"],
                 d["option"].get("step", 1),
             )
-        elif d["type"].lower() == "bit":
+        elif d["data_type"].lower() == "bit":
             bit_values = {opt["startbit"]: opt["value"] for opt in d["option"]}
             return BitValue(bit_values)
-        elif d["type"].lower() == "reference":
+        elif d["data_type"].lower() == "reference":
             ref = d["option"][0]
             return ReferenceValue(self.data[ref])
-        elif d["type"].lower() == "string":
+        elif d["data_type"].lower() == "string":
             return StringValue(d.get("_comment", ""))
         else:
             raise ValueError(
@@ -368,17 +374,17 @@ class ModelInfo(object):
     def enum_name(self, key, value):
         """Look up the friendly enum name for an encoded value."""
         options = self.value(key).options
-        if value not in options:
+        if str(int(value)) not in options:
             LOGGER.warning(
                 "Value `%s` for key `%s` not in options: %s. Values from API: "
                 "%s",
-                value,
+                str(int(value)),
                 key,
                 options,
-                self.data["Value"][key]["option"],
+                self.data["Value"][key]["value_mapping"],
             )
             return _UNKNOWN
-        return options[value]
+        return options[str(int(value))]
 
     def reference_name(self, key: str, value: Any) -> Optional[str]:
         """Look up the friendly name for an encoded reference value.
@@ -418,10 +424,11 @@ class ModelInfo(object):
 
     def decode_monitor(self, data):
         """Decode  status data."""
-        if self.binary_monitor_data:
-            return self.decode_monitor_binary(data)
-        else:
-            return self.decode_monitor_json(data)
+        return data
+        # if self.binary_monitor_data:
+        #    return self.decode_monitor_binary(data)
+        # else:
+        #    return self.decode_monitor_json(data)
 
 
 class Device(object):
@@ -440,21 +447,36 @@ class Device(object):
         self.device = device
         self.model: ModelInfo = client.model_info(device)
 
-    def _set_control(self, key, value):
+    def _get_deviceinfo_from_snapshot(self):
+        # probably should cache the snapshot somehow
+        devices = self.client.session.get_devices()
+        for device in (DeviceInfo(d) for d in devices):
+            if device.id == self.device.id:
+                pollDevice = device
+        if pollDevice is None:
+            raise core.DeviceNotFoundError()
+        return pollDevice.data["snapshot"]
+
+    def _set_control(self, key, value, command="Set", ctrlKey="basicCtrl"):
         """Set a device's control for `key` to `value`."""
-        self.client.session.set_device_controls(
+        self.client.session.device_control(
             self.device.id,
-            {key: value},
+            {
+                "ctrlKey": ctrlKey,
+                "command": command,
+                "dataKey": key,
+                "dataValue": value,
+            },
         )
 
-    def _get_config(self, key):
+    def _get_config(self, key, ctrlKey="basicCtrl"):
         """Look up a device's configuration for a given value.
 
         The response is parsed as base64-encoded JSON.
         """
-        data = self.client.session.get_device_config(
+        data = self.client.session.device_control(
             self.device.id,
-            key,
+            {"ctrlKey": ctrlKey, "command": "Get", "dataKey": key},
         )
         data = base64.b64decode(data).decode("utf8")
         try:
@@ -470,15 +492,9 @@ class Device(object):
 
     def _get_control(self, key):
         """Look up a device's control value."""
-        data = self.client.session.get_device_config(
-            self.device.id,
-            key,
-            "Control",
-        )
-
-        # The response comes in a funky key/value format: "(key:value)".
-        _, value = data[1:-1].split(":")
-        return value
+        # unsupported api in v2- use snapshot or mqtt
+        # currently just returns empty value
+        return ""
 
     def monitor_start(self):
         """Start monitoring the device's status."""
