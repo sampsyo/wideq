@@ -293,7 +293,7 @@ class DeviceInfo(object):
 
     @property
     def name(self) -> str:
-        return self.data['alias']
+        return str(self.data['alias'])
 
     @property
     def type(self) -> DeviceType:
