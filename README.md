@@ -30,6 +30,11 @@ You can also specify one of several other commands:
 * `turn <ID> <ONOFF>`: Turn an AC device on or off. Use "on" or "off" as the second argument.
 * `ac-config <ID>`: Print out some configuration information about an AC device.
 
+Development
+-------
+To ensure consistent formatting across pull requests, install the precommit hooks to auto format your code using `pre-commit install`.
+
+The code will be auto-formatted by `black` to ensure consistent style.
 
 Credits
 -------

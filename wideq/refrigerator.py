@@ -38,18 +38,16 @@ class RefrigeratorDevice(Device):
     """A higher-level interface for a refrigerator."""
 
     def set_temp_refrigerator_c(self, temp):
-        """Set the refrigerator temperature in Celsius.
-        """
-        value = self.model.enum_value('TempRefrigerator', str(temp))
-        self._set_control('RETM', value)
+        """Set the refrigerator temperature in Celsius."""
+        value = self.model.enum_value("TempRefrigerator", str(temp))
+        self._set_control("RETM", value)
 
     def set_temp_freezer_c(self, temp):
-        """Set the freezer temperature in Celsius.
-        """
-        value = self.model.enum_value('TempFreezer', str(temp))
-        self._set_control('REFT', value)
+        """Set the freezer temperature in Celsius."""
+        value = self.model.enum_value("TempFreezer", str(temp))
+        self._set_control("REFT", value)
 
-    def poll(self) -> Optional['RefrigeratorStatus']:
+    def poll(self) -> Optional["RefrigeratorStatus"]:
         """Poll the device's current state.
 
         Monitoring must be started first with `monitor_start`.
@@ -58,7 +56,7 @@ class RefrigeratorDevice(Device):
             status is not yet available.
         """
         # Abort if monitoring has not started yet.
-        if not hasattr(self, 'mon'):
+        if not hasattr(self, "mon"):
             return None
 
         data = self.mon.poll()
@@ -82,59 +80,59 @@ class RefrigeratorStatus(object):
 
     @property
     def temp_refrigerator_c(self):
-        temp = lookup_enum('TempRefrigerator', self.data, self.refrigerator)
+        temp = lookup_enum("TempRefrigerator", self.data, self.refrigerator)
         return int(temp)
 
     @property
     def temp_freezer_c(self):
-        temp = lookup_enum('TempFreezer', self.data, self.refrigerator)
+        temp = lookup_enum("TempFreezer", self.data, self.refrigerator)
         return int(temp)
 
     @property
     def ice_plus_status(self):
-        status = lookup_enum('IcePlus', self.data, self.refrigerator)
+        status = lookup_enum("IcePlus", self.data, self.refrigerator)
         return IcePlus(status)
 
     @property
     def fresh_air_filter_status(self):
-        status = lookup_enum('FreshAirFilter', self.data, self.refrigerator)
+        status = lookup_enum("FreshAirFilter", self.data, self.refrigerator)
         return FreshAirFilter(status)
 
     @property
     def energy_saving_mode(self):
-        mode = lookup_enum('SmartSavingMode', self.data, self.refrigerator)
+        mode = lookup_enum("SmartSavingMode", self.data, self.refrigerator)
         return SmartSavingMode(mode)
 
     @property
     def door_opened(self):
-        state = lookup_enum('DoorOpenState', self.data, self.refrigerator)
+        state = lookup_enum("DoorOpenState", self.data, self.refrigerator)
         return state == "OPEN"
 
     @property
     def temp_unit(self):
-        return lookup_enum('TempUnit', self.data, self.refrigerator)
+        return lookup_enum("TempUnit", self.data, self.refrigerator)
 
     @property
     def energy_saving_enabled(self):
         mode = lookup_enum(
-            'SmartSavingModeStatus', self.data, self.refrigerator
+            "SmartSavingModeStatus", self.data, self.refrigerator
         )
-        return mode == 'ON'
+        return mode == "ON"
 
     @property
     def locked(self):
-        status = lookup_enum('LockingStatus', self.data, self.refrigerator)
+        status = lookup_enum("LockingStatus", self.data, self.refrigerator)
         return status == "LOCK"
 
     @property
     def active_saving_status(self):
-        return self.data['ActiveSavingStatus']
+        return self.data["ActiveSavingStatus"]
 
     @property
     def eco_enabled(self):
-        eco = lookup_enum('EcoFriendly', self.data, self.refrigerator)
+        eco = lookup_enum("EcoFriendly", self.data, self.refrigerator)
         return eco == "@CP_ON_EN_W"
 
     @property
     def water_filter_used_month(self):
-        return self.data['WaterFilterUsedMonth']
+        return self.data["WaterFilterUsedMonth"]
