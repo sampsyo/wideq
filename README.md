@@ -30,6 +30,12 @@ You can also specify one of several other commands:
 * `turn <ID> <ONOFF>`: Turn an AC device on or off. Use "on" or "off" as the second argument.
 * `ac-config <ID>`: Print out some configuration information about an AC device.
 
+Development
+-----------
+
+This project uses the [Black][] code formatting tool. Before submitting pull requests, please run Black to ensure consistent formatting.
+
+If you like, you can install a git hook to automatically run Black and flake8 every time you commit. Install the [pre-commit][] tool and type `pre-commit install` to use it.
 
 Credits
 -------
@@ -41,3 +47,5 @@ I also made a [Home Assistant component][hass-smartthinq] that uses wideq.
 [hass-smartthinq]: https://github.com/sampsyo/hass-smartthinq
 [adrian]: https://github.com/sampsyo
 [mit]: https://opensource.org/licenses/MIT
+[black]: https://github.com/psf/black
+[pre-commit]: https://pre-commit.com/

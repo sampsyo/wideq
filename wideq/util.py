@@ -3,7 +3,7 @@ from typing import TypeVar
 from .client import Device, DeviceType
 
 
-T = TypeVar('T', bound=Device)
+T = TypeVar("T", bound=Device)
 
 
 def lookup_enum(attr: str, data: dict, device: T):
@@ -27,13 +27,12 @@ def lookup_reference(attr: str, data: dict, device: T) -> str:
     """
     value = device.model.reference_name(attr, data[attr])
     if value is None:
-        return 'Off'
+        return "Off"
     return value
 
 
 def device_classes():
-    """The mapping of every Device subclass related to the DeviceType enum
-    """
+    """The mapping of every Device subclass related to the DeviceType enum"""
     from .ac import ACDevice
     from .dryer import DryerDevice
     from .dishwasher import DishWasherDevice
