@@ -319,7 +319,8 @@ class ACDevice(Device):
             value = self._get_config('OutTotalInstantPower')
             return value['OutTotalInstantPower']
         except InvalidRequestError:
-            return 0  # Device does not support instant power usage of the outdoor unit
+             # Device does not support outdoor unit instant power usage
+            return 0 
 
     def get_power(self):
         """Get the instant power usage in watts of the whole unit"""
@@ -328,7 +329,8 @@ class ACDevice(Device):
             value = self._get_config('InOutInstantPower')
             return value['InOutInstantPower']
         except InvalidRequestError:
-            return 0  # Device does not support instant power usage of the whole unit
+            # Device does not support whole unit instant power usage
+            return 0
 
     def get_light(self):
         """Get a Boolean indicating whether the display light is on."""
