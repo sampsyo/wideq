@@ -319,8 +319,8 @@ class ACDevice(Device):
             value = self._get_config('OutTotalInstantPower')
             return value['OutTotalInstantPower']
         except InvalidRequestError:
-             # Device does not support outdoor unit instant power usage
-            return 0 
+            # Device does not support outdoor unit instant power usage
+            return 0
 
     def get_power(self):
         """Get the instant power usage in watts of the whole unit"""
