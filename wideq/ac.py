@@ -4,7 +4,7 @@ import enum
 
 from .client import Device
 from .util import lookup_enum
-from .core import FailedRequestError
+from .core import FailedRequestError, InvalidRequestError
 
 
 class ACJetMode(enum.Enum):
@@ -315,14 +315,22 @@ class ACDevice(Device):
     def get_outdoor_power(self):
         """Get instant power usage in watts of the outdoor unit"""
 
-        value = self._get_config('OutTotalInstantPower')
-        return value['OutTotalInstantPower']
+        try:
+            value = self._get_config('OutTotalInstantPower')
+            return value['OutTotalInstantPower']
+        except InvalidRequestError:
+            # Device does not support outdoor unit instant power usage
+            return 0
 
     def get_power(self):
         """Get the instant power usage in watts of the whole unit"""
 
-        value = self._get_config('InOutInstantPower')
-        return value['InOutInstantPower']
+        try:
+            value = self._get_config('InOutInstantPower')
+            return value['InOutInstantPower']
+        except InvalidRequestError:
+            # Device does not support whole unit instant power usage
+            return 0
 
     def get_light(self):
         """Get a Boolean indicating whether the display light is on."""
