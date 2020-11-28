@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Tuple
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
-GATEWAY_URL = 'https://kic.lgthinq.com:46030/api/common/gatewayUriList'
+GATEWAY_URL = 'https://kic.lgthinq.com:46030'
 APP_KEY = 'wideq'
 SECURITY_KEY = 'nuts_securitykey'
 DATA_ROOT = 'lgedmRoot'
@@ -185,7 +185,7 @@ API_ERRORS = {
 }
 
 
-def lgedm_post(url, data=None, access_token=None, session_id=None):
+def lgedm_post(api_root, path, data=None, access_token=None, session_id=None):
     """Make an HTTP request in the format used by the API servers.
 
     In this format, the request POST data sent as JSON under a special
@@ -207,7 +207,18 @@ def lgedm_post(url, data=None, access_token=None, session_id=None):
         headers['x-thinq-jsessionId'] = session_id
 
     with retry_session() as session:
-        res = session.post(url, json={DATA_ROOT: data}, headers=headers)
+        res = session.post(urljoin(api_root + '/', path),
+                           json={DATA_ROOT: data}, headers=headers)
+
+        if "rtiControl" in path:
+            session.post(
+                urljoin(api_root + '/', 'rti/delControlPermission'),
+                json={
+                    DATA_ROOT: {'deviceId': data.get('deviceId')}
+                }, headers=headers
+            )
+            # Ignore the response, since it's not a breaking error!
+
     out = res.json()[DATA_ROOT]
 
     # Check for API errors.
@@ -256,14 +267,13 @@ def login(api_root, access_token, country, language):
     return information about the session.
     """
 
-    url = urljoin(api_root + '/', 'member/login')
     data = {
         'countryCode': country,
         'langCode': language,
         'loginType': 'EMP',
         'token': access_token,
     }
-    return lgedm_post(url, data)
+    return lgedm_post(api_root, 'member/login', data)
 
 
 def refresh_auth(oauth_root, refresh_token):
@@ -323,7 +333,7 @@ class Gateway(object):
         `country` and `language` are codes, like "US" and "en-US,"
         respectively.
         """
-        gw = lgedm_post(GATEWAY_URL,
+        gw = lgedm_post(GATEWAY_URL, '/api/common/gatewayUriList',
                         {'countryCode': country, 'langCode': language})
         return cls(gw['empUri'], gw['thinqUri'], gw['oauthUri'],
                    country, language)
@@ -398,8 +408,8 @@ class Session(object):
         request from an active Session.
         """
 
-        url = urljoin(self.auth.gateway.api_root + '/', path)
-        return lgedm_post(url, data, self.auth.access_token, self.session_id)
+        return lgedm_post(self.auth.gateway.api_root, path, data,
+                          self.auth.access_token, self.session_id)
 
     def get_devices(self) -> List[Dict[str, Any]]:
         """Get a list of devices associated with the user's account.
