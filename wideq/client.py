@@ -304,6 +304,12 @@ class DeviceInfo(object):
     def name(self) -> str:
         return str(self.data["alias"])
 
+    # TODO: change to enum once we know the string for v1.
+    # Probably it's "thinq" or "thinq1"
+    @property
+    def platform_type(self) -> str:
+        return self.data["platformType"]
+
     @property
     def type(self) -> DeviceType:
         """The kind of device, as a `DeviceType` value."""

@@ -32,7 +32,7 @@ def ls(client):
     """List the user's devices."""
 
     for device in client.devices:
-        print("{0.id}: {0.name} ({0.type.name} {0.model_id})".format(device))
+        print("{0.id}: {0.name} ({0.type.name} {0.model_id} / {0.platform_type})".format(device))
 
 
 def info(client, device_id):
