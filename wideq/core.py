@@ -224,7 +224,7 @@ def thinq_request(
     session_id=None,
     user_number=None,
     country=DEFAULT_COUNTRY,
-    language=DEFAULT_LANGUAGE,
+    language=DEFAULT_LANGUAGE
 ):
     """Make an HTTP request in the format used by the API servers.
 
@@ -486,6 +486,8 @@ class Session(object):
             data,
             self.auth.access_token,
             user_number=self.auth.user_number,
+            country=self.auth.gateway.country,
+            language=self.auth.gateway.language
         )
 
     def get(self, path):
