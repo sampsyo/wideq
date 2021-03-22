@@ -392,7 +392,6 @@ class Gateway(object):
             country=country,
             language=language,
         )
-        print(json.dumps(gw))
         return cls(gw["empUri"], gw["thinq2Uri"], country, language)
 
     def oauth_url(self):
