@@ -8,13 +8,13 @@ class SimpleTest(unittest.TestCase):
     @responses.activate
     def test_gateway_en_US(self):
         responses.add(
-            responses.POST,
-            "https://kic.lgthinq.com:46030/api/common/gatewayUriList",
+            responses.GET,
+            "https://route.lgthinq.com:46030/v1/service/application/gateway-uri",
             json={
-                "lgedmRoot": {
-                    "thinqUri": "https://aic.lgthinq.com:46030/api",
+                "result": {
+                    "thinq1Uri": "https://aic.lgthinq.com:46030/api",
+                    "thinq2Uri": "https://aic-service.lgthinq.com:46030/v1",
                     "empUri": "https://us.m.lgaccount.com",
-                    "oauthUri": "https://us.lgeapi.com",
                     "countryCode": "US",
                     "langCode": "en-US",
                 }
@@ -28,20 +28,21 @@ class SimpleTest(unittest.TestCase):
             gatewayInstance.auth_base, "https://us.m.lgaccount.com"
         )
         self.assertEqual(
-            gatewayInstance.api_root, "https://aic.lgthinq.com:46030/api"
+            gatewayInstance.api_root,
+            "https://aic-service.lgthinq.com:46030/v1",
         )
-        self.assertEqual(gatewayInstance.oauth_root, "https://us.lgeapi.com")
 
     @responses.activate
     def test_gateway_en_NO(self):
         responses.add(
-            responses.POST,
-            "https://kic.lgthinq.com:46030/api/common/gatewayUriList",
+            responses.GET,
+            "https://route.lgthinq.com:46030/v1/service/application/gateway-uri",
             json={
-                "lgedmRoot": {
+                "result": {
                     "countryCode": "NO",
                     "langCode": "en-NO",
-                    "thinqUri": "https://eic.lgthinq.com:46030/api",
+                    "thinq1Uri": "https://eic.lgthinq.com:46030/api",
+                    "thinq2Uri": "https://eic-service.lgthinq.com:46030/v1",
                     "empUri": "https://no.m.lgaccount.com",
                     "oauthUri": "https://no.lgeapi.com",
                 }
@@ -55,6 +56,6 @@ class SimpleTest(unittest.TestCase):
             gatewayInstance.auth_base, "https://no.m.lgaccount.com"
         )
         self.assertEqual(
-            gatewayInstance.api_root, "https://eic.lgthinq.com:46030/api"
+            gatewayInstance.api_root,
+            "https://eic-service.lgthinq.com:46030/v1",
         )
-        self.assertEqual(gatewayInstance.oauth_root, "https://no.lgeapi.com")

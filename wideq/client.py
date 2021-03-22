@@ -345,26 +345,28 @@ class ModelInfo(object):
         :raises ValueError: If an unsupported type is encountered.
         """
         d = self.data["Value"][name]
-        if d["data_type"] in ("Enum", "enum"):
-            return EnumValue(d["value_mapping"])
-        elif d["data_type"] == "Range":
+        if d.get("data_type", d.get("type")) in ("Enum", "enum"):
+            return EnumValue(d.get("value_mapping", d.get("option")))
+        elif d.get("data_type", d.get("type")) == "Range":
             return RangeValue(
-                d["option"]["min"],
-                d["option"]["max"],
-                d["option"].get("step", 1),
+                d.get("option", d.get("value_validation"))["min"],
+                d.get("option", d.get("value_validation"))["max"],
+                d.get("option", d.get("value_validation")).get("step", 1),
             )
-        elif d["data_type"].lower() == "bit":
-            bit_values = {opt["startbit"]: opt["value"] for opt in d["option"]}
+        elif d.get("data_type", d.get("type")).lower() == "bit":
+            bit_values = {
+                opt["startbit"]: opt["value"]
+                for opt in d.get("option", d.get("value_validation"))
+            }
             return BitValue(bit_values)
-        elif d["data_type"].lower() == "reference":
-            ref = d["option"][0]
+        elif d.get("data_type", d.get("type")).lower() == "reference":
+            ref = d.get("option", d.get("value_validation"))[0]
             return ReferenceValue(self.data[ref])
-        elif d["data_type"].lower() == "string":
+        elif d.get("data_type", d.get("type")).lower() == "string":
             return StringValue(d.get("_comment", ""))
         else:
             raise ValueError(
-                f"unsupported value name: '{name}'"
-                f" type: '{str(d['type'])}' data: '{str(d)}'"
+                f"unsupported value name: '{name}'" f"data: '{str(d)}'"
             )
 
     def default(self, name):
@@ -387,7 +389,7 @@ class ModelInfo(object):
                 str(int(value)),
                 key,
                 options,
-                self.data["Value"][key]["value_mapping"],
+                value.get("value_mapping", value.get("option")),
             )
             return _UNKNOWN
         return options[str(int(value))]

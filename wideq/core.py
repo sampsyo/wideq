@@ -9,6 +9,7 @@ import hmac
 import datetime
 import requests
 import logging
+import json
 from typing import Any, Dict, List, Tuple
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
@@ -224,7 +225,7 @@ def thinq_request(
     session_id=None,
     user_number=None,
     country=DEFAULT_COUNTRY,
-    language=DEFAULT_LANGUAGE
+    language=DEFAULT_LANGUAGE,
 ):
     """Make an HTTP request in the format used by the API servers.
 
@@ -388,7 +389,10 @@ class Gateway(object):
             RequestMethod.GET,
             GATEWAY_URL,
             {"countryCode": country, "langCode": language},
+            country=country,
+            language=language,
         )
+        print(json.dumps(gw))
         return cls(gw["empUri"], gw["thinq2Uri"], country, language)
 
     def oauth_url(self):
@@ -484,10 +488,10 @@ class Session(object):
             RequestMethod.POST,
             url,
             data,
-            self.auth.access_token,
+            access_token=self.auth.access_token,
             user_number=self.auth.user_number,
             country=self.auth.gateway.country,
-            language=self.auth.gateway.language
+            language=self.auth.gateway.language,
         )
 
     def get(self, path):
