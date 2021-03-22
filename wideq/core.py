@@ -9,7 +9,6 @@ import hmac
 import datetime
 import requests
 import logging
-import json
 from typing import Any, Dict, List, Tuple
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
