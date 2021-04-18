@@ -176,6 +176,12 @@ class FailedRequestError(APIError):
     device.
     """
 
+class InvalidCredentialError(APIError):
+    """The server rejected connection."""
+
+    def __init__(self):
+        pass
+
 
 class InvalidRequestError(APIError):
     """The server rejected a request as invalid."""
@@ -206,6 +212,7 @@ API_ERRORS = {
     "0102": NotLoggedInError,
     "0106": NotConnectedError,
     "0100": FailedRequestError,
+    "0110": InvalidCredentialError,
     9000: InvalidRequestError,  # Surprisingly, an integer (not a string).
     9003: NotLoggedInError,  # Session Creation FailureError
 }
