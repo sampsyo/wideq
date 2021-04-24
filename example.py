@@ -191,16 +191,16 @@ def turn(client, device_id, on_off):
 
 def ac_config(client, device_id):
     ac = wideq.ACDevice(client, _force_device(client, device_id))
-    print(ac.supported_operations)
-    print(ac.supported_on_operation)
-    print(ac.get_filter_state())
-    print(ac.get_mfilter_state())
-    print(ac.get_energy_target())
-    print(ac.get_power(), " watts")
-    print(ac.get_outdoor_power(), " watts")
-    print(ac.get_volume())
-    print(ac.get_light())
-    print(ac.get_zones())
+    print(f"supported_operations: {ac.supported_operations}")
+    print(f"supported_on_operation: {ac.supported_on_operation}")
+    print(f"get_filter_state: {ac.get_filter_state()}")
+    print(f"get_mfilter_state: {ac.get_mfilter_state()}")
+    print(f"get_energy_target: {ac.get_energy_target()}")
+    print(f"get_power: {ac.get_power(), 'watts'}")
+    print(f"get_outdoor_power: {ac.get_outdoor_power(), 'watts'}")
+    print(f"get_volume: {ac.get_volume()}")
+    print(f"get_light: {ac.get_light()}")
+    print(f"get_zones: {ac.get_zones()}")
 
 
 EXAMPLE_COMMANDS = {

@@ -176,6 +176,12 @@ class FailedRequestError(APIError):
     device.
     """
 
+class InvalidCredentialError(APIError):
+    """The server rejected connection."""
+
+    def __init__(self):
+        pass
+
 
 class InvalidRequestError(APIError):
     """The server rejected a request as invalid."""
@@ -206,6 +212,7 @@ API_ERRORS = {
     "0102": NotLoggedInError,
     "0106": NotConnectedError,
     "0100": FailedRequestError,
+    "0110": InvalidCredentialError,
     9000: InvalidRequestError,  # Surprisingly, an integer (not a string).
     9003: NotLoggedInError,  # Session Creation FailureError
 }
@@ -224,7 +231,7 @@ def thinq_request(
     session_id=None,
     user_number=None,
     country=DEFAULT_COUNTRY,
-    language=DEFAULT_LANGUAGE
+    language=DEFAULT_LANGUAGE,
 ):
     """Make an HTTP request in the format used by the API servers.
 
@@ -388,6 +395,8 @@ class Gateway(object):
             RequestMethod.GET,
             GATEWAY_URL,
             {"countryCode": country, "langCode": language},
+            country=country,
+            language=language,
         )
         return cls(gw["empUri"], gw["thinq2Uri"], country, language)
 
@@ -484,10 +493,10 @@ class Session(object):
             RequestMethod.POST,
             url,
             data,
-            self.auth.access_token,
+            access_token=self.auth.access_token,
             user_number=self.auth.user_number,
             country=self.auth.gateway.country,
-            language=self.auth.gateway.language
+            language=self.auth.gateway.language,
         )
 
     def get(self, path):
