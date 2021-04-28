@@ -176,6 +176,7 @@ class FailedRequestError(APIError):
     device.
     """
 
+
 class InvalidCredentialError(APIError):
     """The server rejected connection."""
 
