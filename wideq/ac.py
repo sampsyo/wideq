@@ -155,6 +155,7 @@ class ACOp(enum.Enum):
     """Whether a device is on or off."""
 
     OFF = "@AC_MAIN_OPERATION_OFF_W"
+    ON = "@AC_MAIN_OPERATION_ON_W"  # (single) on
     RIGHT_ON = "@AC_MAIN_OPERATION_RIGHT_ON_W"  # Right fan only.
     LEFT_ON = "@AC_MAIN_OPERATION_LEFT_ON_W"  # Left fan only.
     ALL_ON = "@AC_MAIN_OPERATION_ALL_ON_W"  # Both fans (or only fan) on.
@@ -202,7 +203,7 @@ class ACDevice(Device):
     def supported_operations(self):
         """Get a list of the ACOp Operations the device supports."""
 
-        mapping = self.model.value("Operation").options
+        mapping = self.model.value("airState.operation").options
         return [ACOp(o) for i, o in mapping.items()]
 
     @property
@@ -239,7 +240,7 @@ class ACDevice(Device):
     def set_celsius(self, c):
         """Set the device's target temperature in Celsius degrees."""
 
-        self._set_control("TempCfg", c)
+        self._set_control("airState.tempState.target", c)
 
     def set_fahrenheit(self, f):
         """Set the device's target temperature in Fahrenheit degrees."""
@@ -276,86 +277,80 @@ class ACDevice(Device):
         `set_zones`.
         """
 
-        return self._get_config("DuctZone")
+        # don't have api data for v2 zones, not sure about format
+        return []
 
     def set_jet_mode(self, jet_opt):
         """Set jet mode to a value from the `ACJetMode` enum."""
 
-        jet_opt_value = self.model.enum_value("Jet", jet_opt.value)
-        self._set_control("Jet", jet_opt_value)
+        jet_opt_value = self.model.enum_value(
+            "airState.wMode.jet", jet_opt.value
+        )
+        self._set_control("airState.wMode.jet", jet_opt_value)
 
     def set_fan_speed(self, speed):
         """Set the fan speed to a value from the `ACFanSpeed` enum."""
 
-        speed_value = self.model.enum_value("WindStrength", speed.value)
-        self._set_control("WindStrength", speed_value)
+        speed_value = self.model.enum_value(
+            "airState.windStrength", speed.value
+        )
+        self._set_control("airState.windStrength", speed_value)
 
     def set_horz_swing(self, swing):
         """Set the horizontal swing to a value from the `ACHSwingMode` enum."""
 
-        swing_value = self.model.enum_value("WDirHStep", swing.value)
-        self._set_control("WDirHStep", swing_value)
+        swing_value = self.model.enum_value("airState.wDir.hStep", swing.value)
+        self._set_control("airState.wDir.hStep", swing_value)
 
     def set_vert_swing(self, swing):
         """Set the vertical swing to a value from the `ACVSwingMode` enum."""
 
-        swing_value = self.model.enum_value("WDirVStep", swing.value)
-        self._set_control("WDirVStep", swing_value)
+        swing_value = self.model.enum_value("airState.wDir.vStep", swing.value)
+        self._set_control("airState.wDir.vStep", swing_value)
 
     def set_mode(self, mode):
         """Set the device's operating mode to an `OpMode` value."""
 
-        mode_value = self.model.enum_value("OpMode", mode.value)
-        self._set_control("OpMode", mode_value)
+        mode_value = self.model.enum_value("airState.opMode", mode.value)
+        self._set_control("airState.opMode", mode_value)
 
     def set_on(self, is_on):
         """Turn on or off the device (according to a boolean)."""
 
         op = self.supported_on_operation if is_on else ACOp.OFF
-        op_value = self.model.enum_value("Operation", op.value)
-        self._set_control("Operation", op_value)
+        op_value = self.model.enum_value("airState.operation", op.value)
+        self._set_control("airState.operation", op_value, command="Operation")
 
     def get_filter_state(self):
         """Get information about the filter."""
 
-        return self._get_config("Filter")
+        return self.get_status().filter_state
 
     def get_mfilter_state(self):
         """Get information about the "MFilter" (not sure what this is)."""
 
-        return self._get_config("MFilter")
+        return self.get_status().filter_state_max_time
 
     def get_energy_target(self):
         """Get the configured energy target data."""
 
-        return self._get_config("EnergyDesiredValue")
+        return self.get_status().energy_on_current
 
     def get_outdoor_power(self):
         """Get instant power usage in watts of the outdoor unit"""
 
-        try:
-            value = self._get_config("OutTotalInstantPower")
-            return value["OutTotalInstantPower"]
-        except InvalidRequestError:
-            # Device does not support outdoor unit instant power usage
-            return 0
+        return self.get_status().energy_on_current
 
     def get_power(self):
         """Get the instant power usage in watts of the whole unit"""
 
-        try:
-            value = self._get_config("InOutInstantPower")
-            return value["InOutInstantPower"]
-        except InvalidRequestError:
-            # Device does not support whole unit instant power usage
-            return 0
+        return self.get_status().energy_on_current
 
     def get_light(self):
         """Get a Boolean indicating whether the display light is on."""
 
         try:
-            value = self._get_control("DisplayControl")
-            return value == "0"  # Seems backwards, but isn't.
+            return self.get_status().light
         except FailedRequestError:
             # Device does not support reporting display light status.
             # Since it's probably not changeable the it must be on.
@@ -363,12 +358,14 @@ class ACDevice(Device):
 
     def get_volume(self):
         """Get the speaker volume level."""
+        return 0  # Device does not support volume control.
 
-        try:
-            value = self._get_control("SpkVolume")
-            return int(value)
-        except FailedRequestError:
-            return 0  # Device does not support volume control.
+    def get_status(self):
+        """Get status information
+        This method retrieves the entire device snapshot....
+        """
+        res = self._get_deviceinfo_from_snapshot()
+        return ACStatus(self, res)
 
     def poll(self):
         """Poll the device's current state.
@@ -413,7 +410,7 @@ class ACStatus(object):
 
     @property
     def temp_cur_c(self):
-        return self._str_to_num(self.data["TempCur"])
+        return self._str_to_num(self.data["airState.tempState.current"])
 
     @property
     def temp_cur_f(self):
@@ -421,7 +418,7 @@ class ACStatus(object):
 
     @property
     def temp_cfg_c(self):
-        return self._str_to_num(self.data["TempCfg"])
+        return self._str_to_num(self.data["airState.tempState.target"])
 
     @property
     def temp_cfg_f(self):
@@ -429,23 +426,47 @@ class ACStatus(object):
 
     @property
     def mode(self):
-        return ACMode(lookup_enum("OpMode", self.data, self.ac))
+        return ACMode(lookup_enum("airState.opMode", self.data, self.ac))
 
     @property
     def fan_speed(self):
-        return ACFanSpeed(lookup_enum("WindStrength", self.data, self.ac))
+        return ACFanSpeed(
+            lookup_enum("airState.windStrength", self.data, self.ac)
+        )
 
     @property
     def horz_swing(self):
-        return ACHSwingMode(lookup_enum("WDirHStep", self.data, self.ac))
+        return ACHSwingMode(
+            lookup_enum("airState.wDir.hStep", self.data, self.ac)
+        )
 
     @property
     def vert_swing(self):
-        return ACVSwingMode(lookup_enum("WDirVStep", self.data, self.ac))
+        return ACVSwingMode(
+            lookup_enum("airState.wDir.vStep", self.data, self.ac)
+        )
+
+    @property
+    def filter_state(self):
+        return self._str_to_num(self.data["airState.filterMngStates.useTime"])
+
+    @property
+    def filter_state_max_time(self):
+        return self._str_to_num(self.data["airState.filterMngStates.maxTime"])
+
+    @property
+    def energy_on_current(self):
+        return self._str_to_num(self.data["airState.energy.onCurrent"])
+
+    @property
+    def light(self):
+        return self._str_to_num(
+            self.data["airState.lightingState.displayControl"]
+        )
 
     @property
     def is_on(self):
-        op = ACOp(lookup_enum("Operation", self.data, self.ac))
+        op = ACOp(lookup_enum("airState.operation", self.data, self.ac))
         return op != ACOp.OFF
 
     def __str__(self):

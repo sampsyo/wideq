@@ -9,6 +9,7 @@ import re
 import os.path
 import logging
 from typing import List
+from pprint import pprint
 
 STATE_FILE = "wideq_state.json"
 LOGGER = logging.getLogger("wideq.example")
@@ -31,7 +32,14 @@ def ls(client):
     """List the user's devices."""
 
     for device in client.devices:
-        print("{0.id}: {0.name} ({0.type.name} {0.model_id})".format(device))
+        print("{0.id}: {0.name} ({0.type.name} {0.model_id} / {0.platform_type})".format(device))
+
+
+def info(client, device_id):
+    """Dump info on a device."""
+
+    device = client.get_device(device_id)
+    pprint(vars(device), indent=4, width=1)
 
 
 def gen_mon(client, device_id):
@@ -51,9 +59,11 @@ def gen_mon(client, device_id):
                 if data:
                     try:
                         res = model.decode_monitor(data)
+                        print(res)
                     except ValueError:
                         print("status data: {!r}".format(data))
-                    else:
+                """
+                else:
                         for key, value in res.items():
                             try:
                                 desc = model.value(key)
@@ -66,13 +76,9 @@ def gen_mon(client, device_id):
                                     )
                                 )
                             elif isinstance(desc, wideq.RangeValue):
-                                print(
-                                    "- {0}: {1} ({2.min}-{2.max})".format(
-                                        key,
-                                        value,
-                                        desc,
-                                    )
-                                )
+                                print('- {0}: {1} ({2.min}-{2.max})'.format(
+                                    key, value, desc,
+                                )) """
 
         except KeyboardInterrupt:
             pass
@@ -185,16 +191,16 @@ def turn(client, device_id, on_off):
 
 def ac_config(client, device_id):
     ac = wideq.ACDevice(client, _force_device(client, device_id))
-    print(ac.supported_operations)
-    print(ac.supported_on_operation)
-    print(ac.get_filter_state())
-    print(ac.get_mfilter_state())
-    print(ac.get_energy_target())
-    print(ac.get_power(), " watts")
-    print(ac.get_outdoor_power(), " watts")
-    print(ac.get_volume())
-    print(ac.get_light())
-    print(ac.get_zones())
+    print(f"supported_operations: {ac.supported_operations}")
+    print(f"supported_on_operation: {ac.supported_on_operation}")
+    print(f"get_filter_state: {ac.get_filter_state()}")
+    print(f"get_mfilter_state: {ac.get_mfilter_state()}")
+    print(f"get_energy_target: {ac.get_energy_target()}")
+    print(f"get_power: {ac.get_power(), 'watts'}")
+    print(f"get_outdoor_power: {ac.get_outdoor_power(), 'watts'}")
+    print(f"get_volume: {ac.get_volume()}")
+    print(f"get_light: {ac.get_light()}")
+    print(f"get_zones: {ac.get_zones()}")
 
 
 EXAMPLE_COMMANDS = {
@@ -204,6 +210,7 @@ EXAMPLE_COMMANDS = {
     "set-temp-freezer": set_temp_freezer,
     "turn": turn,
     "ac-config": ac_config,
+    "info": info,
 }
 
 
