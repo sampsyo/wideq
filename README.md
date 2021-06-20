@@ -4,6 +4,8 @@
 WideQ
 =====
 
+:warning: **New users of LG SmartThinq**: This library only works with v1 of the LG SmartThinq API. Work is currently underway to support the v2 API, and the discussion can be found [here](https://github.com/sampsyo/wideq/pull/100). If you recently created a LG SmartThinq account, this library will likely return 0 devices when you execute the `ls` command.
+
 A library for interacting with the "LG SmartThinq" system, which can control heat pumps and such. I reverse-engineered the API from their mobile app.
 
 To try out the API, there is a simple command-line tool included here, called `example.py`.
@@ -23,7 +25,8 @@ You can also specify one of several other commands:
 * `ls`: List devices (the default).
 * `mon <ID>`: Monitor a device continuously, printing out status information until you type control-C. Provide a device ID obtained from listing your devices.
 * `ac-mon <ID>`: Like `mon`, but only for AC devices---prints out specific climate-related information in a more readable form.
-* `set-temp <ID> <TEMP>`: Set the target temperature for an AC device.
+* `set-temp <ID> <TEMP>`: Set the target temperature for an AC or refrigerator device.
+* `set-temp-freezer <ID> <TEMP>`: Set the target freezer temperature for a refrigerator.
 * `turn <ID> <ONOFF>`: Turn an AC device on or off. Use "on" or "off" as the second argument.
 * `ac-config <ID>`: Print out some configuration information about an AC device.
 
@@ -42,6 +45,13 @@ You can also specify one of several other commands:
 This code makes use of the `WideQ` library, more information [here](https://github.com/sampsyo/wideq). 
 Some changes have been made to the included version of the WideQ library.
 
+Development
+-----------
+
+This project uses the [Black][] code formatting tool. Before submitting pull requests, please run Black to ensure consistent formatting.
+
+If you like, you can install a git hook to automatically run Black and flake8 every time you commit. Install the [pre-commit][] tool and type `pre-commit install` to use it.
+
 Credits
 -------
 
@@ -51,3 +61,5 @@ The license is [MIT][].
 [hass-smartthinq]: https://github.com/sampsyo/hass-smartthinq
 [adrian]: https://github.com/sampsyo
 [mit]: https://opensource.org/licenses/MIT
+[black]: https://github.com/psf/black
+[pre-commit]: https://pre-commit.com/

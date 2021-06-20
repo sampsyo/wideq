@@ -7,56 +7,58 @@ from .util import lookup_enum, lookup_reference
 
 class DishWasherState(enum.Enum):
     """The state of the dishwasher device."""
-    INITIAL = '@DW_STATE_INITIAL_W'
-    RUNNING = '@DW_STATE_RUNNING_W'
+
+    INITIAL = "@DW_STATE_INITIAL_W"
+    RUNNING = "@DW_STATE_RUNNING_W"
     PAUSED = "@DW_STATE_PAUSE_W"
-    OFF = '@DW_STATE_POWER_OFF_W'
-    COMPLETE = '@DW_STATE_COMPLETE_W'
+    OFF = "@DW_STATE_POWER_OFF_W"
+    COMPLETE = "@DW_STATE_COMPLETE_W"
     POWER_FAIL = "@DW_STATE_POWER_FAIL_W"
 
 
 DISHWASHER_STATE_READABLE = {
-    'INITIAL': 'Standby',
-    'RUNNING': 'Running',
-    'PAUSED': 'Paused',
-    'OFF': 'Off',
-    'COMPLETE': 'Complete',
-    'POWER_FAIL': 'Power Failed'
+    "INITIAL": "Standby",
+    "RUNNING": "Running",
+    "PAUSED": "Paused",
+    "OFF": "Off",
+    "COMPLETE": "Complete",
+    "POWER_FAIL": "Power Failed",
 }
 
 
 class DishWasherProcess(enum.Enum):
     """The process within the dishwasher state."""
-    RESERVE = '@DW_STATE_RESERVE_W'
-    RUNNING = '@DW_STATE_RUNNING_W'
-    RINSING = '@DW_STATE_RINSING_W'
-    DRYING = '@DW_STATE_DRYING_W'
-    COMPLETE = '@DW_STATE_COMPLETE_W'
-    NIGHT_DRYING = '@DW_STATE_NIGHTDRY_W'
-    CANCELLED = '@DW_STATE_CANCEL_W'
+
+    RESERVE = "@DW_STATE_RESERVE_W"
+    RUNNING = "@DW_STATE_RUNNING_W"
+    RINSING = "@DW_STATE_RINSING_W"
+    DRYING = "@DW_STATE_DRYING_W"
+    COMPLETE = "@DW_STATE_COMPLETE_W"
+    NIGHT_DRYING = "@DW_STATE_NIGHTDRY_W"
+    CANCELLED = "@DW_STATE_CANCEL_W"
 
 
 DISHWASHER_PROCESS_READABLE = {
-    'RESERVE': 'Delayed Start',
-    'RUNNING': DISHWASHER_STATE_READABLE['RUNNING'],
-    'RINSING': 'Rinsing',
-    'DRYING':  'Drying',
-    'COMPLETE': DISHWASHER_STATE_READABLE['COMPLETE'],
-    'NIGHT_DRYING':  'Night Drying',
-    'CANCELLED': 'Cancelled',
+    "RESERVE": "Delayed Start",
+    "RUNNING": DISHWASHER_STATE_READABLE["RUNNING"],
+    "RINSING": "Rinsing",
+    "DRYING": "Drying",
+    "COMPLETE": DISHWASHER_STATE_READABLE["COMPLETE"],
+    "NIGHT_DRYING": "Night Drying",
+    "CANCELLED": "Cancelled",
 }
 
 
 # Provide a map to correct typos in the official course names.
 DISHWASHER_COURSE_MAP = {
-    'Haeavy': 'Heavy',
+    "Haeavy": "Heavy",
 }
 
 
 class DishWasherDevice(Device):
     """A higher-level interface for a dishwasher."""
 
-    def poll(self) -> Optional['DishWasherStatus']:
+    def poll(self) -> Optional["DishWasherStatus"]:
         """Poll the device's current state.
 
         Monitoring must be started first with `monitor_start`.
@@ -65,7 +67,7 @@ class DishWasherDevice(Device):
             is not yet available.
         """
         # Abort if monitoring has not started yet.
-        if not hasattr(self, 'mon'):
+        if not hasattr(self, "mon"):
             return None
 
         data = self.mon.poll()
@@ -91,7 +93,8 @@ class DishWasherStatus(object):
     def state(self) -> DishWasherState:
         """Get the state of the dishwasher."""
         return DishWasherState(
-            lookup_enum('State', self.data, self.dishwasher))
+            lookup_enum("State", self.data, self.dishwasher)
+        )
 
     @property
     def readable_state(self) -> str:
@@ -101,8 +104,8 @@ class DishWasherStatus(object):
     @property
     def process(self) -> Optional[DishWasherProcess]:
         """Get the process of the dishwasher."""
-        process = lookup_enum('Process', self.data, self.dishwasher)
-        if process and process != '-':
+        process = lookup_enum("Process", self.data, self.dishwasher)
+        if process and process != "-":
             return DishWasherProcess(process)
         else:
             return None
@@ -123,27 +126,28 @@ class DishWasherStatus(object):
     @property
     def remaining_time(self) -> int:
         """Get the remaining time in minutes."""
-        return (int(self.data['Remain_Time_H']) * 60 +
-                int(self.data['Remain_Time_M']))
+        return int(self.data["Remain_Time_H"]) * 60 + int(
+            self.data["Remain_Time_M"]
+        )
 
     @property
     def initial_time(self) -> int:
         """Get the initial time in minutes."""
-        return (
-            int(self.data['Initial_Time_H']) * 60 +
-            int(self.data['Initial_Time_M']))
+        return int(self.data["Initial_Time_H"]) * 60 + int(
+            self.data["Initial_Time_M"]
+        )
 
     @property
     def reserve_time(self) -> int:
         """Get the reserve time in minutes."""
-        return (
-            int(self.data['Reserve_Time_H']) * 60 +
-            int(self.data['Reserve_Time_M']))
+        return int(self.data["Reserve_Time_H"]) * 60 + int(
+            self.data["Reserve_Time_M"]
+        )
 
     @property
     def course(self) -> str:
         """Get the current course."""
-        course = lookup_reference('Course', self.data, self.dishwasher)
+        course = lookup_reference("Course", self.data, self.dishwasher)
         if course in DISHWASHER_COURSE_MAP:
             return DISHWASHER_COURSE_MAP[course]
         else:
@@ -152,9 +156,9 @@ class DishWasherStatus(object):
     @property
     def smart_course(self) -> str:
         """Get the current smart course."""
-        return lookup_reference('SmartCourse', self.data, self.dishwasher)
+        return lookup_reference("SmartCourse", self.data, self.dishwasher)
 
     @property
     def error(self) -> str:
         """Get the current error."""
-        return lookup_reference('Error', self.data, self.dishwasher)
+        return lookup_reference("Error", self.data, self.dishwasher)

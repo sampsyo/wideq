@@ -6,13 +6,15 @@ import enum
 import logging
 import requests
 import base64
+import re
 from collections import namedtuple
 from typing import Any, Dict, Generator, List, Optional
 
 from . import core
 
+
 #: Represents an unknown enum value.
-_UNKNOWN = 'Unknown'
+_UNKNOWN = "Unknown"
 LOGGER = logging.getLogger("wideq.client")
 
 
@@ -51,7 +53,7 @@ class Monitor(object):
     def decode_json(data: bytes) -> Dict[str, Any]:
         """Decode a bytestring that encodes JSON status data."""
 
-        return json.loads(data.decode('utf8'))
+        return json.loads(data.decode("utf8"))
 
     def poll_json(self) -> Optional[Dict[str, Any]]:
         """For devices where status is reported via JSON data, get the
@@ -61,7 +63,7 @@ class Monitor(object):
         data = self.poll()
         return self.decode_json(data) if data else None
 
-    def __enter__(self) -> 'Monitor':
+    def __enter__(self) -> "Monitor":
         self.start()
         return self
 
@@ -74,12 +76,14 @@ class Client(object):
     and allows serialization of state.
     """
 
-    def __init__(self,
-                 gateway: Optional[core.Gateway] = None,
-                 auth: Optional[core.Auth] = None,
-                 session: Optional[core.Session] = None,
-                 country: str = core.DEFAULT_COUNTRY,
-                 language: str = core.DEFAULT_LANGUAGE) -> None:
+    def __init__(
+        self,
+        gateway: Optional[core.Gateway] = None,
+        auth: Optional[core.Auth] = None,
+        session: Optional[core.Session] = None,
+        country: str = core.DEFAULT_COUNTRY,
+        language: str = core.DEFAULT_LANGUAGE,
+    ) -> None:
         # The three steps required to get access to call the API.
         self._gateway: Optional[core.Gateway] = gateway
         self._auth: Optional[core.Auth] = auth
@@ -118,15 +122,14 @@ class Client(object):
         return self._session
 
     @property
-    def devices(self) -> Generator['DeviceInfo', None, None]:
-        """DeviceInfo objects describing the user's devices.
-        """
+    def devices(self) -> Generator["DeviceInfo", None, None]:
+        """DeviceInfo objects describing the user's devices."""
 
         if not self._devices:
             self._devices = self.session.get_devices()
         return (DeviceInfo(d) for d in self._devices)
 
-    def get_device(self, device_id) -> Optional['DeviceInfo']:
+    def get_device(self, device_id) -> Optional["DeviceInfo"]:
         """Look up a DeviceInfo object by device ID.
 
         Return None if the device does not exist.
@@ -137,33 +140,52 @@ class Client(object):
                 return device
         return None
 
-    @classmethod
-    def load(cls, state: Dict[str, Any]) -> 'Client':
-        """Load a client from serialized state.
+    def get_device_obj(self, device_id):
+        """Look up a subclass of Device object by device ID.
+
+        Return a Device instance if no subclass exists for the device type.
+        Return None if the device does not exist.
         """
+        from . import util
+
+        device_info = self.get_device(device_id)
+        if not device_info:
+            return None
+        classes = util.device_classes()
+        if device_info.type in classes:
+            return classes[device_info.type](self, device_info)
+        LOGGER.debug(
+            "No specific subclass for deviceType %s, using default",
+            device_info.type,
+        )
+        return Device(self, device_info)
+
+    @classmethod
+    def load(cls, state: Dict[str, Any]) -> "Client":
+        """Load a client from serialized state."""
 
         client = cls()
 
-        if 'gateway' in state:
-            client._gateway = core.Gateway.deserialize(state['gateway'])
+        if "gateway" in state:
+            client._gateway = core.Gateway.deserialize(state["gateway"])
 
-        if 'auth' in state:
-            data = state['auth']
+        if "auth" in state:
+            data = state["auth"]
             client._auth = core.Auth(
-                client.gateway, data['access_token'], data['refresh_token']
+                client.gateway, data["access_token"], data["refresh_token"]
             )
 
-        if 'session' in state:
-            client._session = core.Session(client.auth, state['session'])
+        if "session" in state:
+            client._session = core.Session(client.auth, state["session"])
 
-        if 'model_info' in state:
-            client._model_info = state['model_info']
+        if "model_info" in state:
+            client._model_info = state["model_info"]
 
-        if 'country' in state:
-            client._country = state['country']
+        if "country" in state:
+            client._country = state["country"]
 
-        if 'language' in state:
-            client._language = state['language']
+        if "language" in state:
+            client._language = state["language"]
 
         return client
 
@@ -171,20 +193,20 @@ class Client(object):
         """Serialize the client state."""
 
         out: Dict[str, Any] = {
-            'model_info': self._model_info,
+            "model_info": self._model_info,
         }
 
         if self._gateway:
-            out['gateway'] = self._gateway.serialize()
+            out["gateway"] = self._gateway.serialize()
 
         if self._auth:
-            out['auth'] = self._auth.serialize()
+            out["auth"] = self._auth.serialize()
 
         if self._session:
-            out['session'] = self._session.session_id
+            out["session"] = self._session.session_id
 
-        out['country'] = self._country
-        out['language'] = self._language
+        out["country"] = self._country
+        out["language"] = self._language
 
         return out
 
@@ -193,8 +215,9 @@ class Client(object):
         self._session, self._devices = self.auth.start_session()
 
     @classmethod
-    def from_token(cls, refresh_token,
-                   country=None, language=None) -> 'Client':
+    def from_token(
+        cls, refresh_token, country=None, language=None
+    ) -> "Client":
         """Construct a client using just a refresh token.
 
         This allows simpler state storage (e.g., for human-written
@@ -210,7 +233,7 @@ class Client(object):
         client.refresh()
         return client
 
-    def model_info(self, device: 'DeviceInfo') -> 'ModelInfo':
+    def model_info(self, device: "DeviceInfo") -> "ModelInfo":
         """For a DeviceInfo object, get a ModelInfo object describing
         the model's capabilities.
         """
@@ -261,44 +284,42 @@ class DeviceInfo(object):
 
     @property
     def model_id(self) -> str:
-        return self.data['modelNm']
+        return self.data["modelNm"]
 
     @property
     def id(self) -> str:
-        return self.data['deviceId']
+        return self.data["deviceId"]
 
     @property
     def model_info_url(self) -> str:
-        return self.data['modelJsonUrl']
+        return self.data["modelJsonUrl"]
 
     @property
     def name(self) -> str:
-        return self.data['alias']
+        return str(self.data["alias"])
 
     @property
     def type(self) -> DeviceType:
         """The kind of device, as a `DeviceType` value."""
 
-        return DeviceType(self.data['deviceType'])
+        return DeviceType(self.data["deviceType"])
 
     def load_model_info(self):
-        """Load JSON data describing the model's capabilities.
-        """
+        """Load JSON data describing the model's capabilities."""
         return requests.get(self.model_info_url).json()
 
 
-BitValue = namedtuple('BitValue', ['options'])
-EnumValue = namedtuple('EnumValue', ['options'])
-RangeValue = namedtuple('RangeValue', ['min', 'max', 'step'])
+BitValue = namedtuple("BitValue", ["options"])
+EnumValue = namedtuple("EnumValue", ["options"])
+RangeValue = namedtuple("RangeValue", ["min", "max", "step"])
 #: This is a value that is a reference to another key in the data that is at
 #: the same level as the `Value` key.
-ReferenceValue = namedtuple('ReferenceValue', ['reference'])
-StringValue = namedtuple('StringValue', ['comment'])
+ReferenceValue = namedtuple("ReferenceValue", ["reference"])
+StringValue = namedtuple("StringValue", ["comment"])
 
 
 class ModelInfo(object):
-    """A description of a device model's capabilities.
-    """
+    """A description of a device model's capabilities."""
 
     def __init__(self, data):
         self.data = data
@@ -311,47 +332,51 @@ class ModelInfo(object):
             `ReferenceValue`, `StringValue`).
         :raises ValueError: If an unsupported type is encountered.
         """
-        d = self.data['Value'][name]
-        if d['type'] in ('Enum', 'enum'):
-            return EnumValue(d['option'])
-        elif d['type'] == 'Range':
+        d = self.data["Value"][name]
+        if d["type"] in ("Enum", "enum"):
+            return EnumValue(d["option"])
+        elif d["type"] == "Range":
             return RangeValue(
-                d['option']['min'], d['option']['max'],
-                d['option'].get('step', 1)
+                d["option"]["min"],
+                d["option"]["max"],
+                d["option"].get("step", 1),
             )
-        elif d['type'].lower() == 'bit':
-            bit_values = {opt['startbit']: opt['value'] for opt in d['option']}
+        elif d["type"].lower() == "bit":
+            bit_values = {opt["startbit"]: opt["value"] for opt in d["option"]}
             return BitValue(bit_values)
-        elif d['type'].lower() == 'reference':
-            ref = d['option'][0]
+        elif d["type"].lower() == "reference":
+            ref = d["option"][0]
             return ReferenceValue(self.data[ref])
-        elif d['type'].lower() == 'string':
-            return StringValue(d.get('_comment', ''))
+        elif d["type"].lower() == "string":
+            return StringValue(d.get("_comment", ""))
         else:
             raise ValueError(
                 f"unsupported value name: '{name}'"
-                f" type: '{str(d['type'])}' data: '{str(d)}'")
+                f" type: '{str(d['type'])}' data: '{str(d)}'"
+            )
 
     def default(self, name):
-        """Get the default value, if it exists, for a given value.
-        """
-        return self.data['Value'][name]['default']
+        """Get the default value, if it exists, for a given value."""
+        return self.data["Value"][name]["default"]
 
     def enum_value(self, key, name):
-        """Look up the encoded value for a friendly enum name.
-        """
+        """Look up the encoded value for a friendly enum name."""
         options = self.value(key).options
         options_inv = {v: k for k, v in options.items()}  # Invert the map.
         return options_inv[name]
 
     def enum_name(self, key, value):
-        """Look up the friendly enum name for an encoded value.
-        """
+        """Look up the friendly enum name for an encoded value."""
         options = self.value(key).options
         if value not in options:
             LOGGER.warning(
-                'Value `%s` for key `%s` not in options: %s. Values from API: '
-                '%s', value, key, options, self.data['Value'][key]['option'])
+                "Value `%s` for key `%s` not in options: %s. Values from API: "
+                "%s",
+                value,
+                key,
+                options,
+                self.data["Value"][key]["option"],
+            )
             return _UNKNOWN
         return options[value]
 
@@ -366,31 +391,30 @@ class ModelInfo(object):
         value = str(value)
         reference = self.value(key).reference
         if value in reference:
-            return reference[value]['_comment']
+            return reference[value]["_comment"]
         return None
 
     @property
     def binary_monitor_data(self):
-        """Check that type of monitoring is BINARY(BYTE).
-        """
-        return self.data['Monitoring']['type'] == 'BINARY(BYTE)'
+        """Check that type of monitoring is BINARY(BYTE)."""
+        return self.data["Monitoring"]["type"] == "BINARY(BYTE)"
 
     def decode_monitor_binary(self, data):
-        """Decode binary encoded status data.
-        """
+        """Decode binary encoded status data."""
         decoded = {}
-        for item in self.data['Monitoring']['protocol']:
-            key = item['value']
+        for item in self.data["Monitoring"]["protocol"]:
+            key = item["value"]
             value = 0
-            for v in data[item['startByte']:item['startByte'] +
-                          item['length']]:
+            for v in data[
+                item["startByte"] : item["startByte"] + item["length"]
+            ]:
                 value = (value << 8) + v
             decoded[key] = str(value)
         return decoded
 
     def decode_monitor_json(self, data):
         """Decode a bytestring that encodes JSON status data."""
-        return json.loads(data.decode('utf8'))
+        return json.loads(data.decode("utf8"))
 
     def decode_monitor(self, data):
         """Decode  status data."""
@@ -432,18 +456,28 @@ class Device(object):
             self.device.id,
             key,
         )
-        return json.loads(base64.b64decode(data).decode('utf8'))
+        data = base64.b64decode(data).decode("utf8")
+        try:
+            return json.loads(data)
+        except json.decoder.JSONDecodeError:
+            # Sometimes, the service returns JSON wrapped in an extra
+            # pair of curly braces. Try removing them and re-parsing.
+            LOGGER.debug("attempting to fix JSON format")
+            try:
+                return json.loads(re.sub(r"^\{(.*?)\}$", r"\1", data))
+            except json.decoder.JSONDecodeError:
+                raise core.MalformedResponseError(data)
 
     def _get_control(self, key):
         """Look up a device's control value."""
         data = self.client.session.get_device_config(
             self.device.id,
             key,
-            'Control',
+            "Control",
         )
 
         # The response comes in a funky key/value format: "(key:value)".
-        _, value = data[1:-1].split(':')
+        _, value = data[1:-1].split(":")
         return value
 
     def monitor_start(self):

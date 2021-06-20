@@ -12,17 +12,17 @@ from typing import Any, Dict, List, Tuple
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
-GATEWAY_URL = 'https://kic.lgthinq.com:46030/api/common/gatewayUriList'
-APP_KEY = 'wideq'
-SECURITY_KEY = 'nuts_securitykey'
-DATA_ROOT = 'lgedmRoot'
-SVC_CODE = 'SVC202'
-CLIENT_ID = 'LGAO221A02'
-OAUTH_SECRET_KEY = 'c053c2a6ddeb7ad97cb0eed0dcb31cf8'
-OAUTH_CLIENT_KEY = 'LGAO221A02'
-DATE_FORMAT = '%a, %d %b %Y %H:%M:%S +0000'
-DEFAULT_COUNTRY = 'US'
-DEFAULT_LANGUAGE = 'en-US'
+GATEWAY_URL = "https://kic.lgthinq.com:46030/api/common/gatewayUriList"
+APP_KEY = "wideq"
+SECURITY_KEY = "nuts_securitykey"
+DATA_ROOT = "lgedmRoot"
+SVC_CODE = "SVC202"
+CLIENT_ID = "LGAO221A02"
+OAUTH_SECRET_KEY = "c053c2a6ddeb7ad97cb0eed0dcb31cf8"
+OAUTH_CLIENT_KEY = "LGAO221A02"
+DATE_FORMAT = "%a, %d %b %Y %H:%M:%S +0000"
+DEFAULT_COUNTRY = "US"
+DEFAULT_LANGUAGE = "en-US"
 
 RETRY_COUNT = 5  # Anecdotally this seems sufficient.
 RETRY_FACTOR = 0.5
@@ -38,6 +38,7 @@ def get_wideq_logger() -> logging.Logger:
 
     try:
         import colorlog  # type: ignore
+
         colorfmt = f"%(log_color)s{fmt}%(reset)s"
         handler = colorlog.StreamHandler()
         handler.setFormatter(
@@ -66,8 +67,7 @@ LOGGER = get_wideq_logger()
 
 
 def retry_session():
-    """Get a Requests session that retries HTTP and HTTPS requests.
-    """
+    """Get a Requests session that retries HTTP and HTTPS requests."""
     # Adapted from:
     # https://www.peterbe.com/plog/best-practice-with-retries-with-requests
     session = requests.Session()
@@ -79,8 +79,8 @@ def retry_session():
         status_forcelist=RETRY_STATUSES,
     )
     adapter = HTTPAdapter(max_retries=retry)
-    session.mount('http://', adapter)
-    session.mount('https://', adapter)
+    session.mount("http://", adapter)
+    session.mount("https://", adapter)
     return session
 
 
@@ -101,8 +101,8 @@ def oauth2_signature(message: str, secret: str) -> bytes:
     their UTF-8 equivalents.
     """
 
-    secret_bytes = secret.encode('utf8')
-    hashed = hmac.new(secret_bytes, message.encode('utf8'), hashlib.sha1)
+    secret_bytes = secret.encode("utf8")
+    hashed = hmac.new(secret_bytes, message.encode("utf8"), hashlib.sha1)
     digest = hashed.digest()
     return base64.b64encode(digest)
 
@@ -169,11 +169,19 @@ class MonitorError(APIError):
         self.code = code
 
 
+class MalformedResponseError(APIError):
+    """The server produced malformed data, such as invalid JSON."""
+
+    def __init__(self, data):
+        self.data = data
+
+
 API_ERRORS = {
     "0102": NotLoggedInError,
     "0106": NotConnectedError,
     "0100": FailedRequestError,
     9000: InvalidRequestError,  # Surprisingly, an integer (not a string).
+    9003: NotLoggedInError,  # Session Creation FailureError
 }
 
 
@@ -189,24 +197,24 @@ def lgedm_post(url, data=None, access_token=None, session_id=None):
     the gateway server data or to start a session.
     """
     headers = {
-        'x-thinq-application-key': APP_KEY,
-        'x-thinq-security-key': SECURITY_KEY,
-        'Accept': 'application/json',
+        "x-thinq-application-key": APP_KEY,
+        "x-thinq-security-key": SECURITY_KEY,
+        "Accept": "application/json",
     }
     if access_token:
-        headers['x-thinq-token'] = access_token
+        headers["x-thinq-token"] = access_token
     if session_id:
-        headers['x-thinq-jsessionId'] = session_id
+        headers["x-thinq-jsessionId"] = session_id
 
     with retry_session() as session:
         res = session.post(url, json={DATA_ROOT: data}, headers=headers)
     out = res.json()[DATA_ROOT]
 
     # Check for API errors.
-    if 'returnCd' in out:
-        code = out['returnCd']
-        if code != '0000':
-            message = out['returnMsg']
+    if "returnCd" in out:
+        code = out["returnCd"]
+        if code != "0000":
+            message = out["returnMsg"]
             if code in API_ERRORS:
                 raise API_ERRORS[code](code, message)
             else:
@@ -220,17 +228,19 @@ def oauth_url(auth_base, country, language):
     authenticated session.
     """
 
-    url = urljoin(auth_base, 'login/sign_in')
-    query = urlencode({
-        'country': country,
-        'language': language,
-        'svcCode': SVC_CODE,
-        'authSvr': 'oauth2',
-        'client_id': CLIENT_ID,
-        'division': 'ha',
-        'grant_type': 'password',
-    })
-    return '{}?{}'.format(url, query)
+    url = urljoin(auth_base, "login/sign_in")
+    query = urlencode(
+        {
+            "country": country,
+            "language": language,
+            "svcCode": SVC_CODE,
+            "authSvr": "oauth2",
+            "client_id": CLIENT_ID,
+            "division": "ha",
+            "grant_type": "password",
+        }
+    )
+    return "{}?{}".format(url, query)
 
 
 def parse_oauth_callback(url):
@@ -240,7 +250,7 @@ def parse_oauth_callback(url):
     """
 
     params = parse_qs(urlparse(url).query)
-    return params['access_token'][0], params['refresh_token'][0]
+    return params["access_token"][0], params["refresh_token"][0]
 
 
 def login(api_root, access_token, country, language):
@@ -248,12 +258,12 @@ def login(api_root, access_token, country, language):
     return information about the session.
     """
 
-    url = urljoin(api_root + '/', 'member/login')
+    url = urljoin(api_root + "/", "member/login")
     data = {
-        'countryCode': country,
-        'langCode': language,
-        'loginType': 'EMP',
-        'token': access_token,
+        "countryCode": country,
+        "langCode": language,
+        "loginType": "EMP",
+        "token": access_token,
     }
     return lgedm_post(url, data)
 
@@ -264,10 +274,10 @@ def refresh_auth(oauth_root, refresh_token):
     May raise a `TokenError`.
     """
 
-    token_url = urljoin(oauth_root, '/oauth2/token')
+    token_url = urljoin(oauth_root, "/oauth2/token")
     data = {
-        'grant_type': 'refresh_token',
-        'refresh_token': refresh_token,
+        "grant_type": "refresh_token",
+        "refresh_token": refresh_token,
     }
 
     # The timestamp for labeling OAuth requests can be obtained
@@ -279,25 +289,27 @@ def refresh_auth(oauth_root, refresh_token):
     # The signature for the requests is on a string consisting of two
     # parts: (1) a fake request URL containing the refresh token, and (2)
     # the timestamp.
-    req_url = ('/oauth2/token?grant_type=refresh_token&refresh_token=' +
-               refresh_token)
-    sig = oauth2_signature('{}\n{}'.format(req_url, timestamp),
-                           OAUTH_SECRET_KEY)
+    req_url = (
+        "/oauth2/token?grant_type=refresh_token&refresh_token=" + refresh_token
+    )
+    sig = oauth2_signature(
+        "{}\n{}".format(req_url, timestamp), OAUTH_SECRET_KEY
+    )
 
     headers = {
-        'lgemp-x-app-key': OAUTH_CLIENT_KEY,
-        'lgemp-x-signature': sig,
-        'lgemp-x-date': timestamp,
-        'Accept': 'application/json',
+        "lgemp-x-app-key": OAUTH_CLIENT_KEY,
+        "lgemp-x-signature": sig,
+        "lgemp-x-date": timestamp,
+        "Accept": "application/json",
     }
 
     with retry_session() as session:
         res = session.post(token_url, data=data, headers=headers)
     res_data = res.json()
 
-    if res_data['status'] != 1:
+    if res_data["status"] != 1:
         raise TokenError()
-    return res_data['access_token']
+    return res_data["access_token"]
 
 
 class Gateway(object):
@@ -309,34 +321,40 @@ class Gateway(object):
         self.language = language
 
     @classmethod
-    def discover(cls, country, language) -> 'Gateway':
+    def discover(cls, country, language) -> "Gateway":
         """Load information about the hosts to use for API interaction.
 
         `country` and `language` are codes, like "US" and "en-US,"
         respectively.
         """
-        gw = lgedm_post(GATEWAY_URL,
-                        {'countryCode': country, 'langCode': language})
-        return cls(gw['empUri'], gw['thinqUri'], gw['oauthUri'],
-                   country, language)
+        gw = lgedm_post(
+            GATEWAY_URL, {"countryCode": country, "langCode": language}
+        )
+        return cls(
+            gw["empUri"], gw["thinqUri"], gw["oauthUri"], country, language
+        )
 
     def oauth_url(self):
         return oauth_url(self.auth_base, self.country, self.language)
 
     def serialize(self) -> Dict[str, str]:
         return {
-            'auth_base': self.auth_base,
-            'api_root': self.api_root,
-            'oauth_root': self.oauth_root,
-            'country': self.country,
-            'language': self.language,
+            "auth_base": self.auth_base,
+            "api_root": self.api_root,
+            "oauth_root": self.oauth_root,
+            "country": self.country,
+            "language": self.language,
         }
 
     @classmethod
-    def deserialize(cls, data: Dict[str, Any]) -> 'Gateway':
-        return cls(data['auth_base'], data['api_root'], data['oauth_root'],
-                   data.get('country', DEFAULT_COUNTRY),
-                   data.get('language', DEFAULT_LANGUAGE))
+    def deserialize(cls, data: Dict[str, Any]) -> "Gateway":
+        return cls(
+            data["auth_base"],
+            data["api_root"],
+            data["oauth_root"],
+            data.get("country", DEFAULT_COUNTRY),
+            data.get("language", DEFAULT_LANGUAGE),
+        )
 
 
 class Auth(object):
@@ -347,34 +365,37 @@ class Auth(object):
 
     @classmethod
     def from_url(cls, gateway, url):
-        """Create an authentication using an OAuth callback URL.
-        """
+        """Create an authentication using an OAuth callback URL."""
 
         access_token, refresh_token = parse_oauth_callback(url)
         return cls(gateway, access_token, refresh_token)
 
-    def start_session(self) -> Tuple['Session', List[Dict[str, Any]]]:
+    def start_session(self) -> Tuple["Session", List[Dict[str, Any]]]:
         """Start an API session for the logged-in user. Return the
         Session object and a list of the user's devices.
         """
 
-        session_info = login(self.gateway.api_root, self.access_token,
-                             self.gateway.country, self.gateway.language)
-        session_id = session_info['jsessionId']
-        return Session(self, session_id), get_list(session_info, 'item')
+        session_info = login(
+            self.gateway.api_root,
+            self.access_token,
+            self.gateway.country,
+            self.gateway.language,
+        )
+        session_id = session_info["jsessionId"]
+        return Session(self, session_id), get_list(session_info, "item")
 
     def refresh(self):
-        """Refresh the authentication, returning a new Auth object.
-        """
+        """Refresh the authentication, returning a new Auth object."""
 
-        new_access_token = refresh_auth(self.gateway.oauth_root,
-                                        self.refresh_token)
+        new_access_token = refresh_auth(
+            self.gateway.oauth_root, self.refresh_token
+        )
         return Auth(self.gateway, new_access_token, self.refresh_token)
 
     def serialize(self) -> Dict[str, str]:
         return {
-            'access_token': self.access_token,
-            'refresh_token': self.refresh_token,
+            "access_token": self.access_token,
+            "refresh_token": self.refresh_token,
         }
 
 
@@ -390,7 +411,7 @@ class Session(object):
         request from an active Session.
         """
 
-        url = urljoin(self.auth.gateway.api_root + '/', path)
+        url = urljoin(self.auth.gateway.api_root + "/", path)
         return lgedm_post(url, data, self.auth.access_token, self.session_id)
 
     def get_devices(self) -> List[Dict[str, Any]]:
@@ -399,7 +420,7 @@ class Session(object):
         Return a list of dicts with information about the devices.
         """
 
-        return get_list(self.post('device/deviceList'), 'item')
+        return get_list(self.post("device/deviceList"), "item")
 
     def monitor_start(self, device_id):
         """Begin monitoring a device's status.
@@ -408,13 +429,16 @@ class Session(object):
         monitoring.
         """
 
-        res = self.post('rti/rtiMon', {
-            'cmd': 'Mon',
-            'cmdOpt': 'Start',
-            'deviceId': device_id,
-            'workId': gen_uuid(),
-        })
-        return res['workId']
+        res = self.post(
+            "rti/rtiMon",
+            {
+                "cmd": "Mon",
+                "cmdOpt": "Start",
+                "deviceId": device_id,
+                "workId": gen_uuid(),
+            },
+        )
+        return res["workId"]
 
     def monitor_poll(self, device_id, work_id):
         """Get the result of a monitoring task.
@@ -427,39 +451,42 @@ class Session(object):
         action is probably to restart the monitoring task.
         """
 
-        work_list = [{'deviceId': device_id, 'workId': work_id}]
-        res = self.post('rti/rtiResult', {'workList': work_list})['workList']
+        work_list = [{"deviceId": device_id, "workId": work_id}]
+        res = self.post("rti/rtiResult", {"workList": work_list})["workList"]
 
         # When monitoring first starts, it usually takes a few
         # iterations before data becomes available. In the initial
         # "warmup" phase, `returnCode` is missing from the response.
-        if 'returnCode' not in res:
+        if "returnCode" not in res:
             return None
 
         # Check for errors.
-        code = res.get('returnCode')  # returnCode can be missing.
-        if code != '0000':
+        code = res.get("returnCode")  # returnCode can be missing.
+        if code != "0000":
             raise MonitorError(device_id, code)
 
         # The return data may or may not be present, depending on the
         # monitoring task status.
-        if 'returnData' in res:
+        if "returnData" in res:
             # The main response payload is base64-encoded binary data in
             # the `returnData` field. This sometimes contains JSON data
             # and sometimes other binary data.
-            return base64.b64decode(res['returnData'])
+            return base64.b64decode(res["returnData"])
         else:
             return None
 
     def monitor_stop(self, device_id, work_id):
         """Stop monitoring a device."""
 
-        self.post('rti/rtiMon', {
-            'cmd': 'Mon',
-            'cmdOpt': 'Stop',
-            'deviceId': device_id,
-            'workId': work_id,
-        })
+        self.post(
+            "rti/rtiMon",
+            {
+                "cmd": "Mon",
+                "cmdOpt": "Stop",
+                "deviceId": device_id,
+                "workId": work_id,
+            },
+        )
 
     def set_device_controls(self, device_id, values):
         """Control a device's settings.
@@ -467,28 +494,34 @@ class Session(object):
         `values` is a key/value map containing the settings to update.
         """
 
-        return self.post('rti/rtiControl', {
-            'cmd': 'Control',
-            'cmdOpt': 'Set',
-            'value': values,
-            'deviceId': device_id,
-            'workId': gen_uuid(),
-            'data': '',
-        })
+        return self.post(
+            "rti/rtiControl",
+            {
+                "cmd": "Control",
+                "cmdOpt": "Set",
+                "value": values,
+                "deviceId": device_id,
+                "workId": gen_uuid(),
+                "data": "",
+            },
+        )
 
-    def get_device_config(self, device_id, key, category='Config'):
+    def get_device_config(self, device_id, key, category="Config"):
         """Get a device configuration option.
 
         The `category` string should probably either be "Config" or
         "Control"; the right choice appears to depend on the key.
         """
 
-        res = self.post('rti/rtiControl', {
-            'cmd': category,
-            'cmdOpt': 'Get',
-            'value': key,
-            'deviceId': device_id,
-            'workId': gen_uuid(),
-            'data': '',
-        })
-        return res['returnData']
+        res = self.post(
+            "rti/rtiControl",
+            {
+                "cmd": category,
+                "cmdOpt": "Get",
+                "value": key,
+                "deviceId": device_id,
+                "workId": gen_uuid(),
+                "data": "",
+            },
+        )
+        return res["returnData"]
