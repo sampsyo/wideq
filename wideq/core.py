@@ -159,6 +159,12 @@ class InvalidRequestError(APIError):
     """The server rejected a request as invalid."""
 
 
+class AgreementError(APIError):
+    """The user needs to manually log in again to agree to new terms and
+    conditions.
+    """
+
+
 class MonitorError(APIError):
     """Monitoring a device failed, possibly because the monitoring
     session failed and needs to be restarted.
@@ -180,6 +186,7 @@ API_ERRORS = {
     "0102": NotLoggedInError,
     "0106": NotConnectedError,
     "0100": FailedRequestError,
+    "0110": AgreementError,
     9000: InvalidRequestError,  # Surprisingly, an integer (not a string).
     9003: NotLoggedInError,  # Session Creation FailureError
 }
